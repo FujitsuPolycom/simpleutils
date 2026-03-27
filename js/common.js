@@ -25,33 +25,44 @@
         const noResults = document.getElementById('noResults');
         
         const sectionHeaders = document.querySelectorAll('[data-section-header]');
+        const filterBtns     = document.querySelectorAll('.filter-pill');
+        let activeFilter     = 'all';
 
-        searchInput.addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase().trim();
+        function applyFilters() {
+            const query = searchInput.value.toLowerCase().trim();
             let visibleCount = 0;
 
             toolCards.forEach(function(card) {
-                const toolName = card.getAttribute('data-name') || '';
-                const isMatch  = !query || toolName.includes(query);
-                card.classList.toggle('hidden', !isMatch);
-                if (isMatch) visibleCount++;
+                const toolName = (card.getAttribute('data-name') || '').toLowerCase();
+                const section  = card.getAttribute('data-section') || '';
+                const matchSearch   = !query || toolName.includes(query);
+                const matchCategory = activeFilter === 'all' || section === activeFilter;
+                const show = matchSearch && matchCategory;
+                card.classList.toggle('hidden', !show);
+                if (show) visibleCount++;
             });
 
             // Hide section headers when all tools in that section are filtered out
             sectionHeaders.forEach(function(header) {
                 const section = header.getAttribute('data-section-header');
-                if (!query) {
-                    header.classList.remove('hidden');
-                    return;
-                }
-                const anyVisible = document.querySelector(
-                    `.tool-card[data-section="${section}"]:not(.hidden)`
-                );
+                const catMatch = activeFilter === 'all' || activeFilter === section;
+                if (!catMatch) { header.classList.add('hidden'); return; }
+                const anyVisible = document.querySelector(`.tool-card[data-section="${section}"]:not(.hidden)`);
                 header.classList.toggle('hidden', !anyVisible);
             });
 
-            // Show/hide no results message
-            noResults.classList.toggle('hidden', !(visibleCount === 0 && query.length > 0));
+            noResults.classList.toggle('hidden', !(visibleCount === 0));
+        }
+
+        searchInput.addEventListener('input', applyFilters);
+
+        filterBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                filterBtns.forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                activeFilter = btn.getAttribute('data-filter');
+                applyFilters();
+            });
         });
         
         // Clear search on ESC key

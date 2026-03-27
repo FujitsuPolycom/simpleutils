@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleUtils — Free Browser Tools</title>
+    <meta name="description" content="34 free tools that run entirely in your browser. No signup, no tracking.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', system-ui, sans-serif; }
+
+        body { background: #f1f5f9; }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1d4ed8 100%);
+        }
+        .hero-grid {
+            background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+        .tool-card {
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.10);
+        }
+        .filter-pill {
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .filter-pill.active {
+            background: #1d4ed8;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        .search-glow:focus {
+            box-shadow: 0 0 0 3px rgba(29,78,216,0.15);
+        }
+        .cat-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .section-label {
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<div class="hero-gradient hero-grid">
+    <div class="max-w-5xl mx-auto px-4 py-16 text-center">
+        <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
+            ⚡ 34 tools · runs in your browser · no signup
+        </div>
+        <h1 class="text-5xl sm:text-6xl font-extrabold text-white mb-4 tracking-tight">
+            Simple<span class="text-blue-300">Utils</span>
+        </h1>
+        <p class="text-xl text-indigo-100 mb-10 max-w-xl mx-auto">
+            Fast, free browser tools. No data ever leaves your device.
+        </p>
+
+        <!-- Search -->
+        <div class="max-w-xl mx-auto relative">
+            <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+            </div>
+            <input id="searchInput" type="text" placeholder="Search tools…"
+                class="search-glow w-full pl-12 pr-4 py-4 bg-white rounded-2xl text-slate-800 placeholder-slate-500 text-base outline-none border border-transparent focus:border-blue-200">
+        </div>
+
+        <!-- Category pills -->
+        <div class="flex flex-wrap justify-center gap-2 mt-6" id="filterBar">
+            <button class="filter-pill active border border-white/30 text-white/90 text-xs font-semibold px-4 py-1.5 rounded-full" data-filter="all">All</button>
+            <button class="filter-pill border border-white/30 text-white/80 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-white/10" data-filter="image">🖼️ Image</button>
+            <button class="filter-pill border border-white/30 text-white/80 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-white/10" data-filter="pdf">📄 PDF</button>
+            <button class="filter-pill border border-white/30 text-white/80 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-white/10" data-filter="text">✍️ Text</button>
+            <button class="filter-pill border border-white/30 text-white/80 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-white/10" data-filter="dev">💻 Dev</button>
+            <button class="filter-pill border border-white/30 text-white/80 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-white/10" data-filter="qr">📱 QR</button>
+            <button class="filter-pill border border-white/30 text-white/80 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-white/10" data-filter="generators">📋 Generators</button>
+            <button class="filter-pill border border-white/30 text-white/80 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-white/10" data-filter="utilities">🧮 Utilities</button>
+            <button class="filter-pill border border-white/30 text-white/80 text-xs font-semibold px-4 py-1.5 rounded-full hover:bg-white/10" data-filter="games">🎮 Games</button>
+        </div>
+    </div>
+</div>
+
+<!-- Tools grid -->
+<main class="max-w-6xl mx-auto px-4 py-10">
+    <div id="toolGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+
+        <!-- IMAGE -->
+        <a href="/tools/image-resizer/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="image resizer" data-section="image">
+            <div class="text-3xl">🖼️</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Image Resizer</p><p class="text-slate-800 text-xs mt-0.5">Resize to any dimension</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/image-cropper/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="image cropper" data-section="image">
+            <div class="text-3xl">✂️</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Image Cropper</p><p class="text-slate-800 text-xs mt-0.5">Crop images visually</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/image-compressor/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="image compressor" data-section="image">
+            <div class="text-3xl">🗜️</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Image Compressor</p><p class="text-slate-800 text-xs mt-0.5">Shrink without quality loss</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/image-enhancer/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="ai image enhancer upscale realism" data-section="image">
+            <div class="text-3xl">✨</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Image Enhancer</p><p class="text-slate-800 text-xs mt-0.5">Upscale & multi-pass sharpen</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/background-remover/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="background remover" data-section="image">
+            <div class="text-3xl">🎭</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Background Remover</p><p class="text-slate-800 text-xs mt-0.5">Remove backgrounds instantly</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/subject-keeper/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="subject keeper isolate object" data-section="image">
+            <div class="text-3xl">🎯</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Subject Keeper</p><p class="text-slate-800 text-xs mt-0.5">Keep subject, erase rest</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/polygon-crop/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="polygon crop freeform lasso transparent" data-section="image">
+            <div class="text-3xl">🔷</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Polygon Crop</p><p class="text-slate-800 text-xs mt-0.5">Freeform shape, PNG output</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/exif-viewer/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="exif viewer metadata photo" data-section="image">
+            <div class="text-3xl">📸</div>
+            <div><p class="font-semibold text-slate-900 text-sm">EXIF Viewer</p><p class="text-slate-800 text-xs mt-0.5">View & strip photo metadata</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/icon-creator/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="icon creator shortcut app icon" data-section="image">
+            <div class="text-3xl">🎨</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Icon Creator</p><p class="text-slate-800 text-xs mt-0.5">Icons for apps & shortcuts</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/streamdeck-icon/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="stream deck icon elgato crop" data-section="image">
+            <div class="text-3xl">🎛️</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Stream Deck Icons</p><p class="text-slate-800 text-xs mt-0.5">Perfect Elgato icon crops</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+        <a href="/tools/favicon-generator/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="favicon generator" data-section="image">
+            <div class="text-3xl">🌐</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Favicon Generator</p><p class="text-slate-800 text-xs mt-0.5">Any image → favicon</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-blue-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Image</span></div>
+        </a>
+
+        <!-- PDF -->
+        <a href="/tools/pdf-combiner/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="pdf combiner merge pdfs" data-section="pdf">
+            <div class="text-3xl">🔗</div>
+            <div><p class="font-semibold text-slate-900 text-sm">PDF Combiner</p><p class="text-slate-800 text-xs mt-0.5">Merge multiple PDFs</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-rose-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">PDF</span></div>
+        </a>
+        <a href="/tools/pdf-organizer/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="pdf organizer reorder pages rearrange" data-section="pdf">
+            <div class="text-3xl">📑</div>
+            <div><p class="font-semibold text-slate-900 text-sm">PDF Page Organizer</p><p class="text-slate-800 text-xs mt-0.5">Drag to reorder pages</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-rose-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">PDF</span></div>
+        </a>
+        <a href="/tools/pdf-page-extractor/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="pdf page extractor" data-section="pdf">
+            <div class="text-3xl">📤</div>
+            <div><p class="font-semibold text-slate-900 text-sm">PDF Page Extractor</p><p class="text-slate-800 text-xs mt-0.5">Pull specific pages out</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-rose-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">PDF</span></div>
+        </a>
+        <a href="/tools/pdf-form-maker/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="pdf form maker fillable fields" data-section="pdf">
+            <div class="text-3xl">📝</div>
+            <div><p class="font-semibold text-slate-900 text-sm">PDF Form Maker</p><p class="text-slate-800 text-xs mt-0.5">Convert PDF to fillable form</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-rose-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">PDF</span></div>
+        </a>
+
+        <!-- TEXT -->
+        <a href="/tools/word-counter/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="word counter characters sentences reading time" data-section="text">
+            <div class="text-3xl">📝</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Word Counter</p><p class="text-slate-800 text-xs mt-0.5">Words, chars, reading time</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-emerald-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Text</span></div>
+        </a>
+        <a href="/tools/text-diff/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="text diff compare differences" data-section="text">
+            <div class="text-3xl">🔍</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Text Diff</p><p class="text-slate-800 text-xs mt-0.5">Highlight text differences</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-emerald-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Text</span></div>
+        </a>
+        <a href="/tools/readability-scorer/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="readability scorer flesch kincaid" data-section="text">
+            <div class="text-3xl">📖</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Readability Scorer</p><p class="text-slate-800 text-xs mt-0.5">Flesch-Kincaid analysis</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-emerald-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Text</span></div>
+        </a>
+
+        <!-- DEV -->
+        <a href="/tools/json-formatter/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="json formatter validate minify" data-section="dev">
+            <div class="text-3xl">{ }</div>
+            <div><p class="font-semibold text-slate-900 text-sm">JSON Formatter</p><p class="text-slate-800 text-xs mt-0.5">Format, validate, minify</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-violet-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Dev</span></div>
+        </a>
+        <a href="/tools/base64-tool/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="base64 encode decode" data-section="dev">
+            <div class="text-3xl">🔐</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Base64 Tool</p><p class="text-slate-800 text-xs mt-0.5">Encode/decode Base64</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-violet-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Dev</span></div>
+        </a>
+        <a href="/tools/cron-builder/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="cron builder expression scheduler" data-section="dev">
+            <div class="text-3xl">⏰</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Cron Builder</p><p class="text-slate-800 text-xs mt-0.5">Visual cron expressions</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-violet-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Dev</span></div>
+        </a>
+        <a href="/tools/meta-tag-previewer/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="meta tag previewer seo og social" data-section="dev">
+            <div class="text-3xl">🏷️</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Meta Tag Previewer</p><p class="text-slate-800 text-xs mt-0.5">Google & social preview</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-violet-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Dev</span></div>
+        </a>
+        <a href="/tools/robots-txt-generator/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="robots txt generator seo crawl" data-section="dev">
+            <div class="text-3xl">🤖</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Robots.txt Generator</p><p class="text-slate-800 text-xs mt-0.5">Visual robots.txt builder</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-violet-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Dev</span></div>
+        </a>
+        <a href="/tools/fake-data-generator/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="fake data generator test names emails" data-section="dev">
+            <div class="text-3xl">🎲</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Fake Data Generator</p><p class="text-slate-800 text-xs mt-0.5">Realistic test data</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-violet-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Dev</span></div>
+        </a>
+
+        <!-- QR -->
+        <a href="/tools/qr-generator/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="qr generator code url" data-section="qr">
+            <div class="text-3xl">📱</div>
+            <div><p class="font-semibold text-slate-900 text-sm">QR Generator</p><p class="text-slate-800 text-xs mt-0.5">QR codes for any URL</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-orange-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">QR</span></div>
+        </a>
+        <a href="/tools/wifi-qr/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="wifi qr network share" data-section="qr">
+            <div class="text-3xl">📶</div>
+            <div><p class="font-semibold text-slate-900 text-sm">WiFi QR</p><p class="text-slate-800 text-xs mt-0.5">Share your WiFi instantly</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-orange-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">QR</span></div>
+        </a>
+
+        <!-- GENERATORS -->
+        <a href="/tools/password-generator/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="password generator strong random" data-section="generators">
+            <div class="text-3xl">🔑</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Password Generator</p><p class="text-slate-800 text-xs mt-0.5">Strong random passwords</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-amber-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Generator</span></div>
+        </a>
+        <a href="/tools/email-signature-builder/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="email signature builder html" data-section="generators">
+            <div class="text-3xl">✉️</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Email Signature</p><p class="text-slate-800 text-xs mt-0.5">HTML signature builder</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-amber-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Generator</span></div>
+        </a>
+        <a href="/tools/invoice-generator/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="invoice generator pdf billing" data-section="generators">
+            <div class="text-3xl">🧾</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Invoice Generator</p><p class="text-slate-800 text-xs mt-0.5">Download a PDF invoice</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-amber-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Generator</span></div>
+        </a>
+        <a href="/tools/privacy-policy-generator/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="privacy policy generator legal" data-section="generators">
+            <div class="text-3xl">🔒</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Privacy Policy</p><p class="text-slate-800 text-xs mt-0.5">Generate a privacy policy</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-amber-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Generator</span></div>
+        </a>
+
+        <!-- UTILITIES -->
+        <a href="/tools/unit-converter/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="unit converter length weight temperature speed" data-section="utilities">
+            <div class="text-3xl">📏</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Unit Converter</p><p class="text-slate-800 text-xs mt-0.5">Length, weight, temp & more</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-teal-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Utility</span></div>
+        </a>
+        <a href="/tools/color-converter/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="color converter hex rgb hsl" data-section="utilities">
+            <div class="text-3xl">🎨</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Color Converter</p><p class="text-slate-800 text-xs mt-0.5">HEX, RGB, HSL formats</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-teal-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Utility</span></div>
+        </a>
+        <a href="/tools/meeting-cost-calculator/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="meeting cost calculator salary time" data-section="utilities">
+            <div class="text-3xl">💰</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Meeting Cost Calc</p><p class="text-slate-800 text-xs mt-0.5">What does this meeting cost?</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-teal-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Utility</span></div>
+        </a>
+
+        <!-- GAMES -->
+        <a href="/tools/virus-blaster/" class="tool-card bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-sm border border-slate-100" data-name="vaccine blaster virus game" data-section="games">
+            <div class="text-3xl">💉</div>
+            <div><p class="font-semibold text-slate-900 text-sm">Vaccine Blaster</p><p class="text-slate-800 text-xs mt-0.5">Shoot viruses, save the clinic</p></div>
+            <div class="mt-auto flex items-center gap-1.5"><span class="cat-dot bg-pink-500"></span><span class="text-[10px] text-slate-700 font-medium uppercase tracking-wide uppercase tracking-wide">Game</span></div>
+        </a>
+
+    </div>
+
+    <div id="noResults" class="hidden text-center py-16 text-slate-400">
+        <div class="text-4xl mb-3">🔍</div>
+        <p class="text-lg font-medium">No tools found</p>
+        <p class="text-sm mt-1">Try a different search term or category</p>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="max-w-6xl mx-auto px-4 py-8 text-center text-slate-400 text-sm border-t border-slate-200 mt-4">
+    All tools run in your browser. No data is sent anywhere. · <a href="/" class="text-blue-500 hover:underline">Classic theme</a>
+</footer>
+
+<script>
+const searchInput = document.getElementById('searchInput');
+const toolCards   = document.querySelectorAll('.tool-card');
+const noResults   = document.getElementById('noResults');
+const filterBtns  = document.querySelectorAll('.filter-pill');
+let activeFilter  = 'all';
+
+function applyFilters() {
+    const query = searchInput.value.toLowerCase().trim();
+    let visible = 0;
+    toolCards.forEach(card => {
+        const name    = (card.getAttribute('data-name') || '').toLowerCase();
+        const section = card.getAttribute('data-section') || '';
+        const matchSearch   = !query || name.includes(query);
+        const matchCategory = activeFilter === 'all' || section === activeFilter;
+        const show = matchSearch && matchCategory;
+        card.classList.toggle('hidden', !show);
+        if (show) visible++;
+    });
+    noResults.classList.toggle('hidden', visible > 0);
+}
+
+searchInput.addEventListener('input', applyFilters);
+searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') { searchInput.value = ''; applyFilters(); } });
+
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        applyFilters();
+    });
+});
+</script>
+</body>
+</html>
