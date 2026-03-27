@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Generator - SimpleUtils</title>
+    <meta name="description" content="Generate strong, secure passwords with our free password generator. Create single or bulk passwords with customizable length and character types. Includes password strength indicator and entropy calculation.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>Password Generator</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Secure Password Generator</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Create strong, random passwords to protect your accounts and data. Customize password length and character types, generate single or bulk passwords, and see real-time strength indicators. All passwords are generated locally in your browser using cryptographically secure random number generation.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Password Length: <span id="lengthValue" class="font-bold text-blue-600">16</span></label>
+                <input type="range" id="length" min="8" max="128" value="16" oninput="updateLength()" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="uppercase" checked class="w-5 h-5 text-blue-600 rounded">
+                    <span class="text-gray-700">Uppercase (A-Z)</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="lowercase" checked class="w-5 h-5 text-blue-600 rounded">
+                    <span class="text-gray-700">Lowercase (a-z)</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="numbers" checked class="w-5 h-5 text-blue-600 rounded">
+                    <span class="text-gray-700">Numbers (0-9)</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="symbols" checked class="w-5 h-5 text-blue-600 rounded">
+                    <span class="text-gray-700">Symbols (!@#$%...)</span>
+                </label>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Passwords:</label>
+                <input type="number" id="quantity" min="1" max="20" value="1" class="w-full p-2 border border-gray-300 rounded-lg">
+            </div>
+
+            <button onclick="generatePasswords()" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold text-lg mb-4">
+                Generate Password(s)
+            </button>
+
+            <div id="passwordOutput" class="hidden">
+                <div id="singlePassword" class="hidden mb-4">
+                    <div class="flex items-center gap-3 mb-3">
+                        <input type="text" id="generatedPassword" readonly class="flex-1 p-3 border border-gray-300 rounded-lg font-mono text-lg bg-gray-50">
+                        <button onclick="copyPassword()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700">Copy</button>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-medium">Password Strength:</span>
+                            <span id="strengthText" class="font-bold"></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="strengthBar" class="h-3 rounded-full transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <div class="text-sm text-gray-600 mt-2">
+                        <strong>Entropy:</strong> <span id="entropyValue"></span> bits
+                        <span class="ml-2 text-xs">(Higher is better)</span>
+                    </div>
+                </div>
+
+                <div id="bulkPasswords" class="hidden">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold text-gray-900">Generated Passwords:</h3>
+                        <button onclick="copyAllPasswords()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm">Copy All</button>
+                    </div>
+                    <div id="passwordList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <div id="message" class="hidden mt-4 p-3 rounded bg-green-100 text-green-700"></div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Adjust the password length using the slider (8-128 characters)</li>
+                <li>Select which character types to include: uppercase, lowercase, numbers, and symbols</li>
+                <li>Choose how many passwords to generate (1-20)</li>
+                <li>Click "Generate Password(s)" to create secure random passwords</li>
+                <li>Use the "Copy" button to copy passwords to your clipboard, or view the strength indicator for single passwords</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What makes a password strong?</h3>
+                    <p class="text-gray-700">A strong password is long (at least 12 characters), uses a mix of uppercase, lowercase, numbers, and symbols, and is completely random. Avoid dictionary words, personal information, and common patterns like "123456" or "password".</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What is password entropy?</h3>
+                    <p class="text-gray-700">Entropy measures password randomness in bits. Higher entropy means more possible combinations, making the password harder to crack. A password with 60+ bits of entropy is considered strong, while 80+ bits is very strong.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Are the generated passwords truly random?</h3>
+                    <p class="text-gray-700">Yes! We use the browser's crypto.getRandomValues() API, which provides cryptographically secure random numbers. These passwords are truly random and unpredictable, not generated from simple mathematical formulas.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Is it safe to use this password generator?</h3>
+                    <p class="text-gray-700">Absolutely. All password generation happens entirely in your browser. Passwords are never sent to any server or stored anywhere. Once you close this page, the passwords are gone unless you've saved them yourself.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        const numbers = '0123456789';
+        const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        function updateLength() {
+            const length = document.getElementById('length').value;
+            document.getElementById('lengthValue').textContent = length;
+        }
+
+        function generatePassword(length, charTypes) {
+            let charset = '';
+            if (charTypes.uppercase) charset += uppercase;
+            if (charTypes.lowercase) charset += lowercase;
+            if (charTypes.numbers) charset += numbers;
+            if (charTypes.symbols) charset += symbols;
+
+            if (charset === '') return '';
+
+            const array = new Uint32Array(length);
+            crypto.getRandomValues(array);
+            
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += charset[array[i] % charset.length];
+            }
+
+            return password;
+        }
+
+        function calculateEntropy(length, charTypes) {
+            let poolSize = 0;
+            if (charTypes.uppercase) poolSize += 26;
+            if (charTypes.lowercase) poolSize += 26;
+            if (charTypes.numbers) poolSize += 10;
+            if (charTypes.symbols) poolSize += symbols.length;
+
+            return Math.floor(length * Math.log2(poolSize));
+        }
+
+        function getStrength(entropy) {
+            if (entropy < 40) return { text: 'Weak', color: 'bg-red-500', width: '25%' };
+            if (entropy < 60) return { text: 'Fair', color: 'bg-orange-500', width: '50%' };
+            if (entropy < 80) return { text: 'Good', color: 'bg-yellow-500', width: '75%' };
+            return { text: 'Strong', color: 'bg-green-500', width: '100%' };
+        }
+
+        function generatePasswords() {
+            const length = parseInt(document.getElementById('length').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            
+            const charTypes = {
+                uppercase: document.getElementById('uppercase').checked,
+                lowercase: document.getElementById('lowercase').checked,
+                numbers: document.getElementById('numbers').checked,
+                symbols: document.getElementById('symbols').checked
+            };
+
+            if (!charTypes.uppercase && !charTypes.lowercase && !charTypes.numbers && !charTypes.symbols) {
+                alert('Please select at least one character type');
+                return;
+            }
+
+            if (quantity < 1 || quantity > 20) {
+                alert('Please select 1-20 passwords');
+                return;
+            }
+
+            document.getElementById('passwordOutput').classList.remove('hidden');
+
+            if (quantity === 1) {
+                const password = generatePassword(length, charTypes);
+                document.getElementById('generatedPassword').value = password;
+                
+                const entropy = calculateEntropy(length, charTypes);
+                const strength = getStrength(entropy);
+                
+                document.getElementById('strengthText').textContent = strength.text;
+                const strengthBar = document.getElementById('strengthBar');
+                strengthBar.className = `h-3 rounded-full transition-all duration-300 ${strength.color}`;
+                strengthBar.style.width = strength.width;
+                
+                document.getElementById('entropyValue').textContent = entropy;
+                
+                document.getElementById('singlePassword').classList.remove('hidden');
+                document.getElementById('bulkPasswords').classList.add('hidden');
+            } else {
+                const passwords = [];
+                for (let i = 0; i < quantity; i++) {
+                    passwords.push(generatePassword(length, charTypes));
+                }
+
+                const listHtml = passwords.map((pwd, idx) => `
+                    <div class="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                        <span class="text-sm text-gray-500 w-6">${idx + 1}.</span>
+                        <input type="text" value="${pwd}" readonly class="flex-1 p-2 border border-gray-300 rounded font-mono text-sm bg-white">
+                        <button onclick="copyText('${pwd}')" class="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700">Copy</button>
+                    </div>
+                `).join('');
+
+                document.getElementById('passwordList').innerHTML = listHtml;
+                document.getElementById('singlePassword').classList.add('hidden');
+                document.getElementById('bulkPasswords').classList.remove('hidden');
+            }
+        }
+
+        function copyPassword() {
+            const password = document.getElementById('generatedPassword').value;
+            copyText(password);
+        }
+
+        function copyAllPasswords() {
+            const passwordInputs = document.querySelectorAll('#passwordList input');
+            const passwords = Array.from(passwordInputs).map(input => input.value).join('\n');
+            navigator.clipboard.writeText(passwords).then(() => {
+                showMessage('All passwords copied to clipboard!');
+            });
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showMessage('Password copied to clipboard!');
+            });
+        }
+
+        function showMessage(text) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 2000);
+        }
+    </script>
+</body>
+</html>

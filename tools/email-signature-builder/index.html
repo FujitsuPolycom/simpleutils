@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Signature Builder - Professional HTML Signatures | SimpleUtils</title>
+    <meta name="description" content="Create professional HTML email signatures for Gmail, Outlook, and other email clients. Choose from multiple templates, add your photo, and copy the HTML code.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-gray-100 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700">
+        <div class="container mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-indigo-400 hover:text-indigo-300">⚡ SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="container mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-indigo-400 hover:text-indigo-300">Home</a>
+        <span class="text-gray-500 mx-2">&gt;</span>
+        <span class="text-gray-300">Email Signature Builder</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <h1 class="text-4xl font-bold mb-4">Email Signature Builder</h1>
+        <p class="text-gray-300 mb-8">
+            Design professional HTML email signatures for Gmail, Outlook, Apple Mail, and other email clients. Choose from three polished templates, add your contact details and optional photo, then copy the HTML code to paste directly into your email settings.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Configuration Panel -->
+            <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">Your Information</h2>
+
+                <!-- Personal Info -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Full Name:</label>
+                    <input type="text" id="fullName" placeholder="John Doe" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Job Title:</label>
+                    <input type="text" id="jobTitle" placeholder="Senior Developer" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Company:</label>
+                    <input type="text" id="company" placeholder="Tech Corp" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Phone:</label>
+                    <input type="tel" id="phone" placeholder="+1 (555) 123-4567" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Email:</label>
+                    <input type="email" id="email" placeholder="john@example.com" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Website (optional):</label>
+                    <input type="url" id="website" placeholder="https://example.com" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">LinkedIn URL (optional):</label>
+                    <input type="url" id="linkedin" placeholder="https://linkedin.com/in/johndoe" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Twitter/X URL (optional):</label>
+                    <input type="url" id="twitter" placeholder="https://twitter.com/johndoe" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Photo (optional):</label>
+                    <input type="file" id="photoUpload" accept="image/*" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                    <p class="text-xs text-gray-500 mt-1">Square photos work best. Image will be embedded as base64.</p>
+                </div>
+
+                <!-- Template Selection -->
+                <h3 class="text-lg font-semibold mb-3">Template Style:</h3>
+                <div class="space-y-2 mb-6">
+                    <label class="flex items-center">
+                        <input type="radio" name="template" value="classic" checked class="mr-2">
+                        <span>Classic (table-based, traditional)</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="template" value="modern" class="mr-2">
+                        <span>Modern (minimal, clean lines)</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="template" value="bold" class="mr-2">
+                        <span>Bold (colored accent, eye-catching)</span>
+                    </label>
+                </div>
+
+                <button onclick="generateSignature()" class="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold">Generate Signature</button>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">Preview</h2>
+                <div class="mb-4 p-4 border-2 border-gray-200 rounded-lg bg-gray-50 min-h-48">
+                    <div id="signaturePreview"></div>
+                </div>
+                <button onclick="copyHTML()" class="w-full mb-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">Copy HTML</button>
+                
+                <!-- Instructions -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
+                    <h3 class="font-semibold mb-2">📧 Installation Instructions:</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <strong>Gmail:</strong>
+                            <ol class="list-decimal list-inside ml-2 text-xs">
+                                <li>Click "Copy HTML" above</li>
+                                <li>Open Gmail Settings → See all settings → General</li>
+                                <li>Scroll to "Signature" section</li>
+                                <li>Click "+ Create new" or select existing</li>
+                                <li>Click the "Insert image" icon, then paste (Ctrl+V / Cmd+V)</li>
+                            </ol>
+                        </div>
+                        <div>
+                            <strong>Outlook (Desktop):</strong>
+                            <ol class="list-decimal list-inside ml-2 text-xs">
+                                <li>Click "Copy HTML" above</li>
+                                <li>File → Options → Mail → Signatures</li>
+                                <li>Click "New" to create a signature</li>
+                                <li>Paste into the editor (Ctrl+V / Cmd+V)</li>
+                            </ol>
+                        </div>
+                        <div>
+                            <strong>Outlook.com (Web):</strong>
+                            <ol class="list-decimal list-inside ml-2 text-xs">
+                                <li>Click "Copy HTML" above</li>
+                                <li>Settings (gear icon) → View all Outlook settings</li>
+                                <li>Mail → Compose and reply → Email signature</li>
+                                <li>Paste into the editor (Ctrl+V / Cmd+V)</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6 mt-8 mb-8">
+            <h2 class="text-2xl font-bold mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Fill in your contact information (name, title, company, phone, email)</li>
+                <li>Add optional details like website, LinkedIn, and Twitter/X links</li>
+                <li>Upload a photo if you want to include your headshot (square photos work best)</li>
+                <li>Select your preferred template style: Classic, Modern, or Bold</li>
+                <li>Click "Generate Signature" to see a live preview</li>
+                <li>Click "Copy HTML" to copy the signature code</li>
+                <li>Follow the installation instructions for your email client to paste the signature</li>
+            </ol>
+        </div>
+
+        <!-- FAQ -->
+        <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+            <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-1">Will my signature look the same in all email clients?</h3>
+                    <p class="text-gray-700">Most email clients support HTML signatures, but rendering can vary slightly. The templates are designed to work well in Gmail, Outlook, Apple Mail, and other popular clients.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Why embed the photo as base64 instead of linking to it?</h3>
+                    <p class="text-gray-700">Embedding the image ensures it displays even when recipients block external images. Base64 encoding includes the image data directly in the HTML, so no external server is needed.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Can I edit the HTML after copying it?</h3>
+                    <p class="text-gray-700">Yes! If you know HTML, you can modify colors, fonts, spacing, or any other aspect of the signature after copying the code.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Is my information stored anywhere?</h3>
+                    <p class="text-gray-700">No. All signature generation happens in your browser. Your contact details and photo are never sent to any server.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container mx-auto px-4 py-8 text-center text-gray-400 text-sm">
+        All processing happens in your browser. No data is sent to any server.
+    </footer>
+
+    <script>
+        let photoBase64 = '';
+
+        document.getElementById('photoUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    photoBase64 = event.target.result;
+                    generateSignature();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function generateSignature() {
+            const fullName = document.getElementById('fullName').value || 'Your Name';
+            const jobTitle = document.getElementById('jobTitle').value || 'Your Title';
+            const company = document.getElementById('company').value || 'Your Company';
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const website = document.getElementById('website').value;
+            const linkedin = document.getElementById('linkedin').value;
+            const twitter = document.getElementById('twitter').value;
+            
+            const template = document.querySelector('input[name="template"]:checked').value;
+            
+            let signatureHTML = '';
+            
+            if (template === 'classic') {
+                signatureHTML = generateClassic(fullName, jobTitle, company, phone, email, website, linkedin, twitter);
+            } else if (template === 'modern') {
+                signatureHTML = generateModern(fullName, jobTitle, company, phone, email, website, linkedin, twitter);
+            } else {
+                signatureHTML = generateBold(fullName, jobTitle, company, phone, email, website, linkedin, twitter);
+            }
+            
+            document.getElementById('signaturePreview').innerHTML = signatureHTML;
+        }
+
+        function generateClassic(name, title, company, phone, email, website, linkedin, twitter) {
+            let html = '<table cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">';
+            html += '<tr>';
+            
+            if (photoBase64) {
+                html += `<td style="padding-right: 15px; vertical-align: top;"><img src="${photoBase64}" width="80" height="80" style="border-radius: 50%; display: block;"></td>`;
+            }
+            
+            html += '<td style="border-left: 3px solid #333; padding-left: 15px; vertical-align: top;">';
+            html += `<div style="font-size: 18px; font-weight: bold; color: #333;">${name}</div>`;
+            html += `<div style="color: #666; margin-bottom: 8px;">${title} at ${company}</div>`;
+            
+            if (phone) html += `<div style="margin: 3px 0;"><span style="color: #666;">📞</span> ${phone}</div>`;
+            if (email) html += `<div style="margin: 3px 0;"><span style="color: #666;">✉️</span> <a href="mailto:${email}" style="color: #0066cc; text-decoration: none;">${email}</a></div>`;
+            if (website) html += `<div style="margin: 3px 0;"><span style="color: #666;">🌐</span> <a href="${website}" style="color: #0066cc; text-decoration: none;">${website.replace(/^https?:\/\//, '')}</a></div>`;
+            
+            if (linkedin || twitter) {
+                html += '<div style="margin-top: 8px;">';
+                if (linkedin) html += `<a href="${linkedin}" style="margin-right: 8px; display: inline-block;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAsQAAALEBxi1JjQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAE5SURBVEiJtZYxTsNAEEXfxBYSBRJC4gAUHIEj0CBRcQsuAEfgCFyBktJCIgoKJMQFKOgQBQhBYRPbWWen2F17vROStZ/0FfbM/PnrXa8NMMYYY/4VKkAd6AK9lHpAA6ikjVwArgEvwCChN2AFVIByCNAC3oF5RvMI1IHLpAWXwBFYAIsIOgUqfpA7YHcjYB8I8p1ZB7gFpoEvwr6AO2DNFboFRn6AW+AeOJJi5ClEdn5kk1kHOAN7wBb4BN4i6AXYIPR+5GK11oBr//wAPAcuM0bQEbBKWaYNTICy/97xg9WBrR/sCngALlJGcGFf/gO/AV9p2h8Bz0DHD1j1wacRNAG6afDvHMhZBNUk9zDPPfQL8sJNkzJyDnY0kLMIqvmCnEVQqSevLPA4j6CKs3eikaRuWk8+xhhjjDGG3vgB/vBxE0ecWCYAAAAASUVORK5CYII=" width="20" height="20" alt="LinkedIn"></a>`;
+                if (twitter) html += `<a href="${twitter}" style="display: inline-block;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAsQAAALEBxi1JjQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGGSURBVEiJtZZLSsNQFIa/m9SxUlFw4AZ0A0IXIZ24BO/IpXQXrsKlqFPdiCNHIk6kA0EQpA+w9Tkoyc29JzGJ/UMgefznv/eec3MNwALMgAegBawBG+AFeAfugZnlcwHcAR/AFogBm0APuAIWlq8AjIE34BPoBYECMAZegV1KdYCxdRgBhcBhwIX83RRqA1evXQ0QAt+kVw94cQ29LuB3Cc2Bk6P3FOBHN3/OPtezl6XTgJfaB/AC/7T3XwG1lKWqdYAr4FV4qBroZoDVrQO0LAd7QC9jp4SHqgbe/fspN94N0LQOTIA/4D9jt4SHqgbKwC/wCfw6gJ3nUN0AvxNbtA0cgQpQ9AYVrV00UAIOPuCgdYAGsE8JtIEG0Pf2VbV0NRABn57AtR+5k7MvAbWUpaoBdkDNAqrWgR0gB2yBFdAAVsBWLnYGcA8MgTxQAoYWwN0ZwKP+1BdQtrqllLJfgLtpq1q1lFJ+FVBRnqXUKEsh5amAqmOlpOiUSv4CbPt7LvW+YXv3X+UvmE18zNAbj/UAAAAASUVORK5CYII=" width="20" height="20" alt="Twitter"></a>`;
+                html += '</div>';
+            }
+            
+            html += '</td></tr></table>';
+            return html;
+        }
+
+        function generateModern(name, title, company, phone, email, website, linkedin, twitter) {
+            let html = '<div style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif; font-size: 14px; line-height: 1.6; color: #333;">';
+            
+            if (photoBase64) {
+                html += `<div style="margin-bottom: 15px;"><img src="${photoBase64}" width="70" height="70" style="border-radius: 8px; display: block;"></div>`;
+            }
+            
+            html += `<div style="font-size: 17px; font-weight: 600; margin-bottom: 2px;">${name}</div>`;
+            html += `<div style="font-size: 13px; color: #666; margin-bottom: 12px;">${title} • ${company}</div>`;
+            
+            if (phone || email || website) {
+                html += '<div style="font-size: 13px;">';
+                const items = [];
+                if (phone) items.push(phone);
+                if (email) items.push(`<a href="mailto:${email}" style="color: #333; text-decoration: none;">${email}</a>`);
+                if (website) items.push(`<a href="${website}" style="color: #333; text-decoration: none;">${website.replace(/^https?:\/\//, '')}</a>`);
+                html += items.join(' • ');
+                html += '</div>';
+            }
+            
+            if (linkedin || twitter) {
+                html += '<div style="margin-top: 10px;">';
+                if (linkedin) html += `<a href="${linkedin}" style="color: #0077b5; text-decoration: none; margin-right: 10px; font-size: 12px;">LinkedIn</a>`;
+                if (twitter) html += `<a href="${twitter}" style="color: #1da1f2; text-decoration: none; font-size: 12px;">Twitter</a>`;
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function generateBold(name, title, company, phone, email, website, linkedin, twitter) {
+            let html = '<table cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; font-size: 14px;">';
+            html += '<tr>';
+            
+            if (photoBase64) {
+                html += `<td style="padding-right: 15px; vertical-align: top;"><img src="${photoBase64}" width="85" height="85" style="border-radius: 10px; border: 3px solid #4f46e5; display: block;"></td>`;
+            }
+            
+            html += '<td style="vertical-align: top;">';
+            html += `<div style="font-size: 20px; font-weight: bold; color: #4f46e5; margin-bottom: 3px;">${name}</div>`;
+            html += `<div style="font-size: 14px; color: #666; margin-bottom: 10px;">${title}</div>`;
+            html += `<div style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 8px;">${company}</div>`;
+            
+            if (phone) html += `<div style="margin: 4px 0; font-size: 13px;"><span style="display: inline-block; width: 60px; color: #666;">Phone:</span><span style="color: #333;">${phone}</span></div>`;
+            if (email) html += `<div style="margin: 4px 0; font-size: 13px;"><span style="display: inline-block; width: 60px; color: #666;">Email:</span><a href="mailto:${email}" style="color: #4f46e5; text-decoration: none; font-weight: 500;">${email}</a></div>`;
+            if (website) html += `<div style="margin: 4px 0; font-size: 13px;"><span style="display: inline-block; width: 60px; color: #666;">Web:</span><a href="${website}" style="color: #4f46e5; text-decoration: none; font-weight: 500;">${website.replace(/^https?:\/\//, '')}</a></div>`;
+            
+            if (linkedin || twitter) {
+                html += '<div style="margin-top: 10px;">';
+                if (linkedin) html += `<a href="${linkedin}" style="background-color: #0077b5; color: white; padding: 4px 10px; text-decoration: none; border-radius: 4px; font-size: 11px; margin-right: 6px; display: inline-block;">LinkedIn</a>`;
+                if (twitter) html += `<a href="${twitter}" style="background-color: #1da1f2; color: white; padding: 4px 10px; text-decoration: none; border-radius: 4px; font-size: 11px; display: inline-block;">Twitter</a>`;
+                html += '</div>';
+            }
+            
+            html += '</td></tr></table>';
+            return html;
+        }
+
+        function copyHTML() {
+            const html = document.getElementById('signaturePreview').innerHTML;
+            if (!html) {
+                alert('Please generate a signature first!');
+                return;
+            }
+            
+            const tempInput = document.createElement('textarea');
+            tempInput.value = html;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            alert('HTML copied! Now paste it into your email client settings.');
+        }
+
+        // Auto-generate on input change
+        const inputs = ['fullName', 'jobTitle', 'company', 'phone', 'email', 'website', 'linkedin', 'twitter'];
+        inputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', generateSignature);
+        });
+        
+        document.querySelectorAll('input[name="template"]').forEach(radio => {
+            radio.addEventListener('change', generateSignature);
+        });
+
+        // Initialize with placeholder
+        generateSignature();
+    </script>
+</body>
+</html>

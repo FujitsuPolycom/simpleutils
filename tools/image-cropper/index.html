@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Cropper - Crop Images Online Free | SimpleUtils</title>
+    <meta name="description" content="Crop images online for free with our easy-to-use image cropping tool. Drag to select the area you want to keep, then download your cropped image instantly. No upload required - all processing happens in your browser.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">Image Cropper</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Image Cropper</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Crop your images precisely with our free online image cropper. Select exactly the area you want to keep by dragging the crop box on your image. Perfect for creating profile pictures, removing unwanted backgrounds, or focusing on specific details. Fast, intuitive, and completely private - your images never leave your browser.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <!-- Tool Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                <input type="file" id="imageInput" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+
+            <div id="cropperContainer" class="hidden mb-6">
+                <div class="mb-4">
+                    <img id="cropperImage" class="max-w-full">
+                </div>
+                <div class="flex gap-3">
+                    <button id="cropBtn" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        Crop Image
+                    </button>
+                    <button id="resetBtn" class="px-6 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <div id="resultContainer" class="hidden">
+                <h3 class="text-lg font-semibold mb-3">Cropped Image</h3>
+                <canvas id="resultCanvas" class="max-w-full border border-gray-300 rounded mb-4"></canvas>
+
+                <!-- Enhancement options -->
+                <div class="bg-gray-50 rounded-lg p-3 mb-4 space-y-3">
+                    <p class="text-sm font-medium text-gray-700">✨ Enhancements (optional)</p>
+
+                    <!-- Upscaler -->
+                    <div>
+                        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer mb-2">
+                            <input type="checkbox" id="enhanceUpscale" class="accent-blue-600">
+                            <span class="font-medium">Upscale</span>
+                        </label>
+                        <div id="upscaleOptions" class="hidden pl-4 space-y-2">
+                            <div class="flex gap-2">
+                                <button id="scale2x" class="scale-btn flex-1 text-sm py-1.5 rounded border bg-blue-600 text-white border-blue-600 font-medium">2×</button>
+                                <button id="scale4x" class="scale-btn flex-1 text-sm py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100">4×</button>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                    <span>Post-upscale sharpen</span><span id="upscaleSharpenLabel">0</span>
+                                </div>
+                                <input type="range" id="upscaleSharpenSlider" min="0" max="100" value="0" class="w-full accent-blue-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Realism filter -->
+                    <div>
+                        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer mb-2">
+                            <input type="checkbox" id="enhanceRealism" class="accent-purple-600">
+                            <span class="font-medium">Realism filter</span>
+                        </label>
+                        <div id="realismOptions" class="hidden pl-4 space-y-2">
+                            <div class="flex gap-1">
+                                <button class="preset-btn flex-1 text-sm py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100" data-preset="natural">Natural</button>
+                                <button class="preset-btn flex-1 text-sm py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100" data-preset="punchy">Punchy</button>
+                                <button class="preset-btn flex-1 text-sm py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100" data-preset="filmic">Filmic</button>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-gray-500 mb-1"><span>Sharpen</span><span id="rSharpenLabel">0.75</span></div>
+                                <input type="range" id="rSharpenSlider" min="0" max="3" step="0.05" value="0.75" class="w-full accent-purple-500">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-gray-500 mb-1"><span>Micro-contrast</span><span id="rContrastLabel">0.15</span></div>
+                                <input type="range" id="rContrastSlider" min="0" max="1" step="0.01" value="0.15" class="w-full accent-purple-500">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-gray-500 mb-1"><span>Grain</span><span id="rGrainLabel">5.0</span></div>
+                                <input type="range" id="rGrainSlider" min="0" max="20" step="0.5" value="5" class="w-full accent-purple-500">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-gray-500 mb-1"><span>Warmth</span><span id="rWarmthLabel">5.0</span></div>
+                                <input type="range" id="rWarmthSlider" min="0" max="20" step="0.5" value="5" class="w-full accent-purple-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 items-center">
+                    <button id="downloadBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                        Download Cropped Image
+                    </button>
+                    <span id="enhanceProgress" class="hidden text-sm text-blue-600"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use the Image Cropper</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Click "Choose File" and select the image you want to crop</li>
+                <li>Drag the corners or edges of the crop box to select the area you want to keep</li>
+                <li>Move the crop box by dragging from inside the selection area</li>
+                <li>Click "Crop Image" to apply the crop</li>
+                <li>Download your cropped image or click "Reset" to start over with a different selection</li>
+            </ol>
+        </section>
+
+        <!-- FAQ -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Can I crop images to specific aspect ratios?</h3>
+                    <p class="text-gray-700">This tool allows free-form cropping, giving you complete control over the crop area. You can manually adjust the selection to match common aspect ratios like 16:9, 4:3, or 1:1 (square).</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Does cropping reduce image quality?</h3>
+                    <p class="text-gray-700">No! Cropping removes portions of the image but doesn't compress or degrade the quality of the remaining area. The pixels you keep stay at their original quality.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What file formats can I crop?</h3>
+                    <p class="text-gray-700">Our image cropper supports all standard formats including JPG, PNG, GIF, and WebP. The cropped image is saved in PNG format to preserve quality.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Is there a file size limit?</h3>
+                    <p class="text-gray-700">Since processing happens in your browser, the limit depends on your device's memory. Most modern devices can handle images up to 20-30MB without issues.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://unpkg.com/pica/dist/pica.min.js"></script>
+    <script>
+        let cropper = null;
+        const imageInput = document.getElementById('imageInput');
+        const cropperImage = document.getElementById('cropperImage');
+        const cropperContainer = document.getElementById('cropperContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultCanvas = document.getElementById('resultCanvas');
+        const cropBtn = document.getElementById('cropBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                cropperImage.src = event.target.result;
+                cropperContainer.classList.remove('hidden');
+                resultContainer.classList.add('hidden');
+
+                cropper = new Cropper(cropperImage, {
+                    viewMode: 1,
+                    responsive: true,
+                    autoCropArea: 0.8,
+                    guides: true,
+                    center: true,
+                    highlight: true,
+                    background: true,
+                    rotatable: false,
+                    scalable: true,
+                    zoomable: true
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+
+        cropBtn.addEventListener('click', () => {
+            if (!cropper) return;
+
+            const croppedCanvas = cropper.getCroppedCanvas();
+            resultCanvas.width = croppedCanvas.width;
+            resultCanvas.height = croppedCanvas.height;
+            
+            const ctx = resultCanvas.getContext('2d');
+            ctx.drawImage(croppedCanvas, 0, 0);
+            
+            resultContainer.classList.remove('hidden');
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (cropper) {
+                cropper.reset();
+            }
+            resultContainer.classList.add('hidden');
+        });
+
+        // ── Enhancement support ────────────────────────────────────────────────
+        const enhanceUpscaleChk = document.getElementById('enhanceUpscale');
+        const enhanceRealismChk = document.getElementById('enhanceRealism');
+        const enhanceProgress   = document.getElementById('enhanceProgress');
+
+        function showProgress(msg) { enhanceProgress.textContent = msg; enhanceProgress.classList.remove('hidden'); }
+        function hideProgress() { enhanceProgress.classList.add('hidden'); }
+
+        // Enhancement state
+        let upscaleScale   = 2;
+        let upscaleSharpen = 0;
+        let realismParams  = { sharpen: 0.75, contrast: 0.15, grain: 5, warmth: 5 };
+
+        // Upscale controls
+        const upscaleOptionsEl     = document.getElementById('upscaleOptions');
+        const upscaleSharpenSlider = document.getElementById('upscaleSharpenSlider');
+        const upscaleSharpenLabel  = document.getElementById('upscaleSharpenLabel');
+
+        enhanceUpscaleChk.addEventListener('change', () => {
+            upscaleOptionsEl.classList.toggle('hidden', !enhanceUpscaleChk.checked);
+        });
+        upscaleSharpenSlider.addEventListener('input', () => {
+            upscaleSharpen = parseInt(upscaleSharpenSlider.value);
+            upscaleSharpenLabel.textContent = upscaleSharpen;
+        });
+
+        function setUpscaleScale(n) {
+            upscaleScale = n;
+            document.getElementById('scale2x').className = n === 2
+                ? 'scale-btn flex-1 text-sm py-1.5 rounded border bg-blue-600 text-white border-blue-600 font-medium'
+                : 'scale-btn flex-1 text-sm py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100';
+            document.getElementById('scale4x').className = n === 4
+                ? 'scale-btn flex-1 text-sm py-1.5 rounded border bg-blue-600 text-white border-blue-600 font-medium'
+                : 'scale-btn flex-1 text-sm py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100';
+        }
+        document.getElementById('scale2x').addEventListener('click', () => setUpscaleScale(2));
+        document.getElementById('scale4x').addEventListener('click', () => setUpscaleScale(4));
+
+        // Realism controls
+        const realismOptionsEl = document.getElementById('realismOptions');
+        const rSharpenSlider   = document.getElementById('rSharpenSlider');
+        const rContrastSlider  = document.getElementById('rContrastSlider');
+        const rGrainSlider     = document.getElementById('rGrainSlider');
+        const rWarmthSlider    = document.getElementById('rWarmthSlider');
+
+        const REALISM_PRESETS = {
+            natural: { sharpen: 0.50, contrast: 0.10, grain: 3,  warmth: 3 },
+            punchy:  { sharpen: 1.20, contrast: 0.30, grain: 4,  warmth: 8 },
+            filmic:  { sharpen: 0.60, contrast: 0.15, grain: 12, warmth: 1 },
+        };
+
+        enhanceRealismChk.addEventListener('change', () => {
+            realismOptionsEl.classList.toggle('hidden', !enhanceRealismChk.checked);
+        });
+
+        function syncRealismSliders(highlightPreset) {
+            rSharpenSlider.value  = realismParams.sharpen;
+            rContrastSlider.value = realismParams.contrast;
+            rGrainSlider.value    = realismParams.grain;
+            rWarmthSlider.value   = realismParams.warmth;
+            document.getElementById('rSharpenLabel').textContent  = realismParams.sharpen.toFixed(2);
+            document.getElementById('rContrastLabel').textContent = realismParams.contrast.toFixed(2);
+            document.getElementById('rGrainLabel').textContent    = realismParams.grain.toFixed(1);
+            document.getElementById('rWarmthLabel').textContent   = realismParams.warmth.toFixed(1);
+            document.querySelectorAll('.preset-btn').forEach(b => {
+                b.className = b.dataset.preset === highlightPreset
+                    ? 'preset-btn flex-1 text-sm py-1.5 rounded border bg-purple-600 text-white border-purple-600 font-medium'
+                    : 'preset-btn flex-1 text-sm py-1.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100';
+            });
+        }
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                realismParams = { ...REALISM_PRESETS[btn.dataset.preset] };
+                syncRealismSliders(btn.dataset.preset);
+            });
+        });
+
+        function onRealismSliderChange() {
+            realismParams.sharpen  = parseFloat(rSharpenSlider.value);
+            realismParams.contrast = parseFloat(rContrastSlider.value);
+            realismParams.grain    = parseFloat(rGrainSlider.value);
+            realismParams.warmth   = parseFloat(rWarmthSlider.value);
+            syncRealismSliders(null);
+        }
+        [rSharpenSlider, rContrastSlider, rGrainSlider, rWarmthSlider].forEach(el =>
+            el.addEventListener('input', onRealismSliderChange)
+        );
+
+        // Image processing functions
+        function applySharpen(imageData, amount) {
+            const d = imageData.data, w = imageData.width, h = imageData.height;
+            const copy = new Uint8ClampedArray(d);
+            for (let y = 1; y < h - 1; y++) {
+                for (let x = 1; x < w - 1; x++) {
+                    const i = (y * w + x) * 4;
+                    for (let c = 0; c < 3; c++) {
+                        const center = copy[i + c];
+                        const neighbors = (copy[((y-1)*w+x)*4+c] + copy[((y+1)*w+x)*4+c] + copy[(y*w+x-1)*4+c] + copy[(y*w+x+1)*4+c]) / 4;
+                        d[i + c] = Math.max(0, Math.min(255, center + (center - neighbors) * amount));
+                    }
+                }
+            }
+            return imageData;
+        }
+        function applyMicroContrast(imageData, amount) {
+            const d = imageData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                d[i]   = Math.max(0, Math.min(255, 128 + (d[i] - 128) * (1 + amount * 0.5)));
+                d[i+1] = Math.max(0, Math.min(255, 128 + (d[i+1] - 128) * (1 + amount * 0.5)));
+                d[i+2] = Math.max(0, Math.min(255, 128 + (d[i+2] - 128) * (1 + amount * 0.5)));
+            }
+            return imageData;
+        }
+        function applyGrain(imageData, amount) {
+            const d = imageData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                const noise = (Math.random() - 0.5) * amount;
+                d[i]   = Math.max(0, Math.min(255, d[i] + noise));
+                d[i+1] = Math.max(0, Math.min(255, d[i+1] + noise));
+                d[i+2] = Math.max(0, Math.min(255, d[i+2] + noise));
+            }
+            return imageData;
+        }
+        function applyWarmth(imageData, amount) {
+            const d = imageData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                d[i]   = Math.min(255, d[i] + amount * 0.6);
+                d[i+1] = Math.min(255, d[i+1] + amount * 0.3);
+                d[i+2] = Math.max(0, d[i+2] - amount * 0.2);
+            }
+            return imageData;
+        }
+        function applyRealismFilter(canvas, params) {
+            params = params || { sharpen: 0.75, contrast: 0.15, grain: 5, warmth: 5 };
+            const ctx = canvas.getContext('2d');
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            if (params.sharpen  > 0) imageData = applySharpen(imageData, params.sharpen);
+            if (params.contrast > 0) imageData = applyMicroContrast(imageData, params.contrast);
+            if (params.grain    > 0) imageData = applyGrain(imageData, params.grain);
+            if (params.warmth   > 0) imageData = applyWarmth(imageData, params.warmth);
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        }
+
+        downloadBtn.addEventListener('click', async () => {
+            const doUpscale = enhanceUpscaleChk.checked;
+            const doRealism = enhanceRealismChk.checked;
+
+            downloadBtn.disabled = true;
+            let outCanvas = document.createElement('canvas');
+            outCanvas.width = resultCanvas.width;
+            outCanvas.height = resultCanvas.height;
+            outCanvas.getContext('2d').drawImage(resultCanvas, 0, 0);
+
+            try {
+                if (doUpscale) {
+                    showProgress(`Upscaling ${upscaleScale}×...`);
+                    await new Promise(r => setTimeout(r, 10));
+                    const upscaled = document.createElement('canvas');
+                    upscaled.width  = outCanvas.width  * upscaleScale;
+                    upscaled.height = outCanvas.height * upscaleScale;
+                    await pica().resize(outCanvas, upscaled, {
+                        quality: 3,
+                        unsharpAmount: upscaleSharpen * 1.5,
+                        unsharpRadius: 0.6,
+                        unsharpThreshold: 2,
+                    });
+                    outCanvas = upscaled;
+                }
+
+                if (doRealism) {
+                    showProgress('Applying realism filter...');
+                    await new Promise(r => setTimeout(r, 10));
+                    outCanvas = applyRealismFilter(outCanvas, realismParams);
+                }
+
+                hideProgress();
+            } catch (err) {
+                showProgress('⚠️ Enhancement failed: ' + err.message);
+                setTimeout(hideProgress, 3000);
+            }
+
+            let filename = 'cropped-image';
+            if (doUpscale) filename += `-${upscaleScale}x`;
+            if (doRealism) filename += '-enhanced';
+
+            const link = document.createElement('a');
+            link.download = filename + '.png';
+            link.href = outCanvas.toDataURL();
+            link.click();
+            downloadBtn.disabled = false;
+        });
+    </script>
+</body>
+</html>

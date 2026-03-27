@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi QR Code Generator - Share WiFi Password Instantly | SimpleUtils</title>
+    <meta name="description" content="Generate WiFi QR codes to share your network password instantly. Guests can scan the QR code to connect automatically - no typing required. Perfect for homes, offices, cafes, and guest networks. Free WiFi QR generator.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">WiFi QR Code Generator</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">WiFi QR Code Generator</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Create WiFi QR codes for instant network access. Enter your network name and password, generate a QR code, and let guests scan to connect automatically - no manual typing required. Perfect for homes, offices, cafes, Airbnb rentals, and guest networks. Print it out and place it next to your router for hassle-free WiFi sharing.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <!-- Tool Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Network Name (SSID)</label>
+                        <input type="text" id="ssid" placeholder="My WiFi Network" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" placeholder="Enter WiFi password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Security Type</label>
+                        <select id="security" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="WPA">WPA/WPA2 (Recommended)</option>
+                            <option value="WEP">WEP (Legacy)</option>
+                            <option value="nopass">None (Open Network)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" id="hidden" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                        <label for="hidden" class="ml-2 text-sm text-gray-700">Hidden network</label>
+                    </div>
+
+                    <button id="generateBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        Generate WiFi QR Code
+                    </button>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">WiFi QR Code</label>
+                    <div id="qrPreview" class="border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 p-8" style="min-height: 400px;">
+                        <div class="text-center text-gray-400">
+                            <svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
+                            </svg>
+                            <p class="text-sm">Enter network details and click Generate</p>
+                        </div>
+                    </div>
+
+                    <div id="actions" class="hidden mt-4 space-y-3">
+                        <button id="downloadBtn" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                            Download QR Code
+                        </button>
+                        <div class="bg-blue-50 border border-blue-200 rounded p-3">
+                            <p class="text-sm text-blue-800">
+                                💡 <strong>Tip:</strong> Print and put next to your router for guests
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use the WiFi QR Code Generator</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Enter your WiFi network name (SSID) - exactly as it appears</li>
+                <li>Enter your WiFi password</li>
+                <li>Select the security type (WPA/WPA2 for most modern networks)</li>
+                <li>Check "Hidden network" if your SSID is not broadcast</li>
+                <li>Click "Generate WiFi QR Code" to create the code</li>
+                <li>Download and print the QR code, then place it near your router for easy guest access</li>
+            </ol>
+        </section>
+
+        <!-- FAQ -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">How do guests use the WiFi QR code?</h3>
+                    <p class="text-gray-700">On most modern smartphones (iOS 11+ and Android 10+), guests simply open their camera app, point it at the QR code, and tap the notification to connect. No app installation needed!</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Is it safe to share WiFi passwords this way?</h3>
+                    <p class="text-gray-700">The QR code contains your password, so treat it like you would a written password. It's perfect for guests, but don't post it publicly online. For businesses, consider using a guest network separate from your main network.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What if my network name or password has special characters?</h3>
+                    <p class="text-gray-700">The WiFi QR code format supports special characters, quotes, and spaces. Just enter your credentials exactly as they are. The tool handles proper encoding automatically.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Can I customize the QR code design?</h3>
+                    <p class="text-gray-700">This tool generates standard black and white QR codes for maximum compatibility. You can print it on colored paper or add a label above it saying "Scan to Connect to WiFi" for a more polished look.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        const ssidInput = document.getElementById('ssid');
+        const passwordInput = document.getElementById('password');
+        const securitySelect = document.getElementById('security');
+        const hiddenCheckbox = document.getElementById('hidden');
+        const generateBtn = document.getElementById('generateBtn');
+        const qrPreview = document.getElementById('qrPreview');
+        const actions = document.getElementById('actions');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const togglePassword = document.getElementById('togglePassword');
+
+        let qrCode = null;
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+        });
+
+        // Handle security type change
+        securitySelect.addEventListener('change', () => {
+            if (securitySelect.value === 'nopass') {
+                passwordInput.disabled = true;
+                passwordInput.value = '';
+                passwordInput.placeholder = 'No password required';
+            } else {
+                passwordInput.disabled = false;
+                passwordInput.placeholder = 'Enter WiFi password';
+            }
+        });
+
+        generateBtn.addEventListener('click', generateWiFiQR);
+
+        function generateWiFiQR() {
+            const ssid = ssidInput.value.trim();
+            const password = passwordInput.value;
+            const security = securitySelect.value;
+            const hidden = hiddenCheckbox.checked;
+
+            if (!ssid) {
+                alert('Please enter a network name (SSID)');
+                return;
+            }
+
+            if (security !== 'nopass' && !password) {
+                alert('Please enter a password');
+                return;
+            }
+
+            // Escape special characters
+            const escapedSSID = escapeWiFiString(ssid);
+            const escapedPassword = escapeWiFiString(password);
+
+            // WiFi QR code format: WIFI:T:WPA;S:mynetwork;P:mypassword;H:true;;
+            let wifiString = `WIFI:T:${security};S:${escapedSSID};`;
+            
+            if (security !== 'nopass') {
+                wifiString += `P:${escapedPassword};`;
+            }
+            
+            if (hidden) {
+                wifiString += 'H:true;';
+            }
+            
+            wifiString += ';';
+
+            // Clear previous QR code
+            qrPreview.innerHTML = '';
+
+            qrCode = new QRCode(qrPreview, {
+                text: wifiString,
+                width: 400,
+                height: 400,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            actions.classList.remove('hidden');
+        }
+
+        function escapeWiFiString(str) {
+            // Escape special characters for WiFi QR code format
+            return str.replace(/\\/g, '\\\\')
+                      .replace(/;/g, '\\;')
+                      .replace(/:/g, '\\:')
+                      .replace(/,/g, '\\,')
+                      .replace(/"/g, '\\"');
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            const canvas = qrPreview.querySelector('canvas');
+            if (!canvas) {
+                alert('Please generate a QR code first');
+                return;
+            }
+
+            canvas.toBlob((blob) => {
+                const link = document.createElement('a');
+                const ssid = ssidInput.value.trim().replace(/[^a-zA-Z0-9]/g, '_');
+                link.download = `wifi-${ssid}.png`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            });
+        });
+
+        // Allow Enter key to generate
+        [ssidInput, passwordInput].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    generateWiFiQR();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

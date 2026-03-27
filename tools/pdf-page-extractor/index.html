@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Page Extractor - Extract Pages from PDF Online Free | SimpleUtils</title>
+    <meta name="description" content="Extract specific pages from PDF files online for free. Select individual pages or page ranges to create a new PDF with only the pages you need. No file size limits, completely secure - all processing happens in your browser.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">PDF Page Extractor</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">PDF Page Extractor</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Extract specific pages from your PDF documents quickly and easily. Upload any PDF, select individual pages or ranges, and download a new PDF containing only the pages you need. Perfect for splitting large documents, creating excerpts, or sharing specific sections. Your PDFs are processed entirely in your browser - nothing is uploaded to any server.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <!-- Tool Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload PDF</label>
+                <input type="file" id="pdfInput" accept=".pdf,application/pdf" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+
+            <div id="controls" class="hidden space-y-4">
+                <div class="bg-blue-50 p-4 rounded">
+                    <div class="text-sm font-medium text-gray-700 mb-1">
+                        Total Pages: <span id="totalPages" class="font-bold text-blue-600">0</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Pages to Extract</label>
+                    <input type="text" id="pageRange" placeholder="e.g., 1,3,5-7,10" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">
+                        Enter page numbers separated by commas. Use hyphens for ranges (e.g., "1,3,5-7" extracts pages 1, 3, 5, 6, and 7)
+                    </p>
+                </div>
+
+                <button id="extractBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    Extract Pages
+                </button>
+
+                <div id="processing" class="hidden text-center py-4">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                    <div class="text-gray-600">Processing PDF...</div>
+                </div>
+
+                <div id="success" class="hidden bg-green-50 border border-green-200 rounded p-4">
+                    <div class="text-green-800 font-semibold mb-2">✓ Pages extracted successfully!</div>
+                    <button id="downloadBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                        Download Extracted PDF
+                    </button>
+                </div>
+
+                <div id="error" class="hidden bg-red-50 border border-red-200 rounded p-4">
+                    <div class="text-red-800" id="errorMessage"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use the PDF Page Extractor</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Click "Choose File" and select the PDF you want to extract pages from</li>
+                <li>The tool will display the total number of pages in your PDF</li>
+                <li>Enter the page numbers you want to extract (e.g., "1,3,5-7" for pages 1, 3, and 5 through 7)</li>
+                <li>Click "Extract Pages" to create a new PDF with only your selected pages</li>
+                <li>Download your new PDF file containing only the extracted pages</li>
+            </ol>
+        </section>
+
+        <!-- FAQ -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What page range formats are supported?</h3>
+                    <p class="text-gray-700">You can use individual page numbers (e.g., "1,5,10"), ranges (e.g., "3-7"), or combine both (e.g., "1,3-5,8,10-12"). Pages can be in any order, and duplicates are automatically removed.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Is there a file size limit?</h3>
+                    <p class="text-gray-700">Since processing happens in your browser, the limit depends on your device's memory. Most modern devices can handle PDFs up to 50-100MB without issues. Very large files may take longer to process.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Will the extracted PDF maintain quality?</h3>
+                    <p class="text-gray-700">Yes! The extracted pages are copied from the original PDF without any compression or quality loss. Text remains searchable, images stay at original resolution, and all formatting is preserved.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Can I extract pages from password-protected PDFs?</h3>
+                    <p class="text-gray-700">This tool works only with unprotected PDFs. If your PDF requires a password to open or has copy restrictions, you'll need to remove those protections first using the PDF owner password.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script>
+        const { PDFDocument } = PDFLib;
+
+        const pdfInput = document.getElementById('pdfInput');
+        const controls = document.getElementById('controls');
+        const totalPages = document.getElementById('totalPages');
+        const pageRange = document.getElementById('pageRange');
+        const extractBtn = document.getElementById('extractBtn');
+        const processing = document.getElementById('processing');
+        const success = document.getElementById('success');
+        const error = document.getElementById('error');
+        const errorMessage = document.getElementById('errorMessage');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let pdfDoc = null;
+        let extractedPdfBytes = null;
+
+        pdfInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                pdfDoc = await PDFDocument.load(arrayBuffer);
+                
+                totalPages.textContent = pdfDoc.getPageCount();
+                controls.classList.remove('hidden');
+                success.classList.add('hidden');
+                error.classList.add('hidden');
+            } catch (err) {
+                showError('Failed to load PDF: ' + err.message);
+            }
+        });
+
+        extractBtn.addEventListener('click', async () => {
+            if (!pdfDoc) return;
+
+            const rangeText = pageRange.value.trim();
+            if (!rangeText) {
+                showError('Please enter page numbers to extract');
+                return;
+            }
+
+            try {
+                processing.classList.remove('hidden');
+                success.classList.add('hidden');
+                error.classList.add('hidden');
+
+                const pageNumbers = parsePageRange(rangeText, pdfDoc.getPageCount());
+                
+                if (pageNumbers.length === 0) {
+                    throw new Error('No valid pages specified');
+                }
+
+                const newPdf = await PDFDocument.create();
+
+                for (const pageNum of pageNumbers) {
+                    const [copiedPage] = await newPdf.copyPages(pdfDoc, [pageNum - 1]);
+                    newPdf.addPage(copiedPage);
+                }
+
+                extractedPdfBytes = await newPdf.save();
+                
+                processing.classList.add('hidden');
+                success.classList.remove('hidden');
+            } catch (err) {
+                processing.classList.add('hidden');
+                showError(err.message);
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!extractedPdfBytes) return;
+
+            const blob = new Blob([extractedPdfBytes], { type: 'application/pdf' });
+            const link = document.createElement('a');
+            link.download = 'extracted-pages.pdf';
+            link.href = URL.createObjectURL(blob);
+            link.click();
+        });
+
+        function parsePageRange(rangeText, maxPages) {
+            const pages = new Set();
+            const parts = rangeText.split(',');
+
+            for (const part of parts) {
+                const trimmed = part.trim();
+                
+                if (trimmed.includes('-')) {
+                    const [start, end] = trimmed.split('-').map(s => parseInt(s.trim()));
+                    
+                    if (isNaN(start) || isNaN(end)) {
+                        throw new Error(`Invalid range: ${trimmed}`);
+                    }
+                    
+                    if (start < 1 || end > maxPages || start > end) {
+                        throw new Error(`Range ${trimmed} is out of bounds (1-${maxPages})`);
+                    }
+                    
+                    for (let i = start; i <= end; i++) {
+                        pages.add(i);
+                    }
+                } else {
+                    const pageNum = parseInt(trimmed);
+                    
+                    if (isNaN(pageNum)) {
+                        throw new Error(`Invalid page number: ${trimmed}`);
+                    }
+                    
+                    if (pageNum < 1 || pageNum > maxPages) {
+                        throw new Error(`Page ${pageNum} is out of bounds (1-${maxPages})`);
+                    }
+                    
+                    pages.add(pageNum);
+                }
+            }
+
+            return Array.from(pages).sort((a, b) => a - b);
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            error.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

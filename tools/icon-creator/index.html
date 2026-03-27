@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Creator - Make Icons for Shortcuts & Apps | SimpleUtils</title>
+    <meta name="description" content="Create custom icons for shortcuts, apps, and bookmarks. Choose emoji, text, or upload an image. Pick colors, shapes, and download in any size. Free, no signup.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <header class="bg-white shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-5xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">Icon Creator</span>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Icon Creator</h1>
+        <p class="text-lg text-gray-700 mb-8">Make custom icons for shortcuts, home screen bookmarks, and apps. Use emoji, text, or your own image. Download as PNG in any size.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- Left: Controls -->
+            <div class="space-y-6">
+
+                <!-- Content Type Tabs -->
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">Icon Content</label>
+                    <div class="flex rounded-lg border border-gray-200 overflow-hidden mb-4">
+                        <button class="tab-btn flex-1 py-2 text-sm font-medium bg-blue-600 text-white" data-tab="emoji">Emoji</button>
+                        <button class="tab-btn flex-1 py-2 text-sm font-medium bg-white text-gray-600 hover:bg-gray-50" data-tab="text">Text</button>
+                        <button class="tab-btn flex-1 py-2 text-sm font-medium bg-white text-gray-600 hover:bg-gray-50" data-tab="image">Image</button>
+                    </div>
+
+                    <!-- Emoji Tab -->
+                    <div id="tab-emoji" class="tab-panel">
+                        <input type="text" id="emojiInput" value="⚡" maxlength="4"
+                            class="w-full text-4xl text-center border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-400 mt-1 text-center">Paste or type any emoji</p>
+                        <!-- Quick picks -->
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform" title="Click to use">🏠</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">⚡</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">🔗</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">📁</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">🌐</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">📧</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">📷</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">🎵</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">🎮</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">🔧</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">📊</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">🚀</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">🔒</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">💡</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">🗂️</span>
+                            <span class="emoji-pick cursor-pointer text-2xl hover:scale-125 transition-transform">⭐</span>
+                        </div>
+                    </div>
+
+                    <!-- Text Tab -->
+                    <div id="tab-text" class="tab-panel hidden">
+                        <input type="text" id="textInput" value="AB" maxlength="3" placeholder="1-3 chars"
+                            class="w-full text-3xl font-bold text-center border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                        <p class="text-xs text-gray-400 mt-1 text-center">Initials or short label (1–3 characters)</p>
+                    </div>
+
+                    <!-- Image Tab -->
+                    <div id="tab-image" class="tab-panel hidden">
+                        <input type="file" id="imageUpload" accept="image/*"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p class="text-xs text-gray-400 mt-2">Image will be cropped to fit the icon shape</p>
+                        <label class="flex items-center gap-2 mt-3 text-sm text-gray-600">
+                            <input type="checkbox" id="imagePadding" checked class="accent-blue-600">
+                            Add padding around image
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Background -->
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">Background</label>
+                    <div class="flex gap-3 items-center mb-3">
+                        <input type="color" id="bgColor" value="#3b82f6"
+                            class="w-12 h-10 rounded cursor-pointer border border-gray-200">
+                        <input type="text" id="bgColorHex" value="#3b82f6"
+                            class="w-28 border border-gray-300 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <span class="text-gray-400 text-sm">or pick a preset:</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#3b82f6" data-color="#3b82f6"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#10b981" data-color="#10b981"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#f59e0b" data-color="#f59e0b"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#ef4444" data-color="#ef4444"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#8b5cf6" data-color="#8b5cf6"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#ec4899" data-color="#ec4899"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#06b6d4" data-color="#06b6d4"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#1f2937" data-color="#1f2937"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#6b7280" data-color="#6b7280"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background:#ffffff; border-color:#e5e7eb" data-color="#ffffff"></div>
+                        <div class="color-swatch w-8 h-8 rounded-lg cursor-pointer border-2 border-gray-300 hover:border-gray-400 transition overflow-hidden" style="background-image: repeating-conic-gradient(#ccc 0% 25%, white 0% 50%); background-size: 8px 8px;" data-color="transparent" title="Transparent"></div>
+                    </div>
+                </div>
+
+                <!-- Shape -->
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">Shape</label>
+                    <div class="flex gap-3">
+                        <button class="shape-btn flex-1 py-3 flex flex-col items-center gap-1 border-2 border-blue-500 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium" data-shape="rounded">
+                            <div class="w-8 h-8 bg-current rounded-xl opacity-80"></div>
+                            Rounded
+                        </button>
+                        <button class="shape-btn flex-1 py-3 flex flex-col items-center gap-1 border-2 border-gray-200 rounded-lg bg-white text-gray-600 text-sm font-medium hover:border-gray-400" data-shape="circle">
+                            <div class="w-8 h-8 bg-current rounded-full opacity-80"></div>
+                            Circle
+                        </button>
+                        <button class="shape-btn flex-1 py-3 flex flex-col items-center gap-1 border-2 border-gray-200 rounded-lg bg-white text-gray-600 text-sm font-medium hover:border-gray-400" data-shape="square">
+                            <div class="w-8 h-8 bg-current opacity-80"></div>
+                            Square
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Text color (shown only in text mode) -->
+                <div id="textColorRow" class="bg-white rounded-lg shadow-md p-5 hidden">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">Text Color</label>
+                    <div class="flex gap-3 items-center">
+                        <input type="color" id="textColor" value="#ffffff"
+                            class="w-12 h-10 rounded cursor-pointer border border-gray-200">
+                        <button id="autoTextColor" class="text-sm text-blue-600 hover:underline">Auto (contrast)</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right: Preview + Download -->
+            <div class="space-y-6">
+
+                <!-- Preview -->
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">Preview</label>
+                    <div class="flex items-center justify-center gap-6 py-4" style="background: repeating-conic-gradient(#e5e7eb 0% 25%, white 0% 50%) 0 0 / 20px 20px;">
+                        <div class="text-center">
+                            <canvas id="preview512" width="128" height="128" class="rounded shadow-md"></canvas>
+                            <div class="text-xs text-gray-400 mt-1">Large</div>
+                        </div>
+                        <div class="text-center">
+                            <canvas id="preview64" width="64" height="64" class="rounded shadow-sm"></canvas>
+                            <div class="text-xs text-gray-400 mt-1">Medium</div>
+                        </div>
+                        <div class="text-center">
+                            <canvas id="preview32" width="32" height="32" class="rounded"></canvas>
+                            <div class="text-xs text-gray-400 mt-1">Small</div>
+                        </div>
+                        <div class="text-center">
+                            <canvas id="preview16" width="16" height="16" class="rounded"></canvas>
+                            <div class="text-xs text-gray-400 mt-1">Tiny</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download -->
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">Download</label>
+
+                    <!-- Format selector -->
+                    <div class="flex rounded-lg border border-gray-200 overflow-hidden mb-4">
+                        <button class="fmt-btn flex-1 py-2 text-sm font-medium bg-blue-600 text-white" data-fmt="png">PNG</button>
+                        <button class="fmt-btn flex-1 py-2 text-sm font-medium bg-white text-gray-600 hover:bg-gray-50" data-fmt="ico">ICO <span class="text-xs opacity-70">(multi-size)</span></button>
+                    </div>
+
+                    <div id="png-options">
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button class="dl-btn border border-gray-200 rounded-lg py-2 px-3 text-sm text-gray-700 hover:bg-gray-50 text-left" data-size="16">
+                            <div class="font-semibold">16 × 16</div>
+                            <div class="text-xs text-gray-400">Browser favicon</div>
+                        </button>
+                        <button class="dl-btn border border-gray-200 rounded-lg py-2 px-3 text-sm text-gray-700 hover:bg-gray-50 text-left" data-size="32">
+                            <div class="font-semibold">32 × 32</div>
+                            <div class="text-xs text-gray-400">Favicon / desktop</div>
+                        </button>
+                        <button class="dl-btn border border-gray-200 rounded-lg py-2 px-3 text-sm text-gray-700 hover:bg-gray-50 text-left" data-size="64">
+                            <div class="font-semibold">64 × 64</div>
+                            <div class="text-xs text-gray-400">Shortcut icon</div>
+                        </button>
+                        <button class="dl-btn border border-gray-200 rounded-lg py-2 px-3 text-sm text-gray-700 hover:bg-gray-50 text-left" data-size="128">
+                            <div class="font-semibold">128 × 128</div>
+                            <div class="text-xs text-gray-400">macOS icon</div>
+                        </button>
+                        <button class="dl-btn border border-gray-200 rounded-lg py-2 px-3 text-sm text-gray-700 hover:bg-gray-50 text-left" data-size="192">
+                            <div class="font-semibold">192 × 192</div>
+                            <div class="text-xs text-gray-400">Android home screen</div>
+                        </button>
+                        <button class="dl-btn border border-gray-200 rounded-lg py-2 px-3 text-sm text-gray-700 hover:bg-gray-50 text-left" data-size="512">
+                            <div class="font-semibold">512 × 512</div>
+                            <div class="text-xs text-gray-400">iOS / PWA</div>
+                        </button>
+                    </div>
+                    <button id="dlCustom" class="w-full border border-gray-200 rounded-lg py-2 px-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 mb-4">
+                        <span>Custom size:</span>
+                        <input type="number" id="customSize" value="256" min="8" max="2048"
+                            class="w-20 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" onclick="event.stopPropagation()">
+                        <span>px</span>
+                        <span class="ml-auto text-blue-600 font-medium">Download</span>
+                    </button>
+                    <button id="dlAll" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        Download All Sizes (ZIP)
+                    </button>
+                    </div><!-- end png-options -->
+
+                    <!-- ICO options -->
+                    <div id="ico-options" class="hidden">
+                        <p class="text-xs text-gray-500 mb-3">ICO files bundle multiple sizes into one file — perfect for favicons and Windows shortcuts.</p>
+                        <div class="space-y-2 mb-4">
+                            <label class="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" class="ico-size-check accent-blue-600" value="16" checked> 16 × 16 (favicon)</label>
+                            <label class="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" class="ico-size-check accent-blue-600" value="32" checked> 32 × 32 (taskbar)</label>
+                            <label class="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" class="ico-size-check accent-blue-600" value="48" checked> 48 × 48 (desktop)</label>
+                            <label class="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" class="ico-size-check accent-blue-600" value="64"> 64 × 64</label>
+                            <label class="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" class="ico-size-check accent-blue-600" value="128"> 128 × 128</label>
+                            <label class="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" class="ico-size-check accent-blue-600" value="256" checked> 256 × 256 (high-res)</label>
+                        </div>
+                        <button id="dlIco" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            Download .ico
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-5xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <!-- JSZip for "Download All" -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+    <script>
+        // ── State ──────────────────────────────────────────────────────────
+        let state = {
+            tab: 'emoji',
+            emoji: '⚡',
+            text: 'AB',
+            image: null,      // HTMLImageElement
+            imagePadding: true,
+            bgColor: '#3b82f6',
+            textColor: '#ffffff',
+            shape: 'rounded',
+        };
+
+        // ── Render ─────────────────────────────────────────────────────────
+        function renderIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+            ctx.clearRect(0, 0, size, size);
+
+            // Clip shape
+            ctx.save();
+            applyShape(ctx, size);
+            ctx.clip();
+
+            // Background
+            if (state.bgColor !== 'transparent') {
+                ctx.fillStyle = state.bgColor;
+                ctx.fillRect(0, 0, size, size);
+            }
+
+            // Content
+            if (state.tab === 'emoji') {
+                const fontSize = Math.round(size * 0.58);
+                ctx.font = `${fontSize}px serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(state.emoji, size / 2, size / 2 + size * 0.03);
+            } else if (state.tab === 'text') {
+                const text = state.text.substring(0, 3).toUpperCase();
+                const fontSize = text.length === 1 ? Math.round(size * 0.56)
+                               : text.length === 2 ? Math.round(size * 0.42)
+                               : Math.round(size * 0.32);
+                ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = state.textColor;
+                ctx.fillText(text, size / 2, size / 2 + size * 0.02);
+            } else if (state.tab === 'image' && state.image) {
+                const pad = state.imagePadding ? size * 0.1 : 0;
+                const s = size - pad * 2;
+                // Cover crop
+                const img = state.image;
+                const aspect = img.naturalWidth / img.naturalHeight;
+                let sw, sh, sx, sy;
+                if (aspect > 1) { sh = img.naturalHeight; sw = sh; sx = (img.naturalWidth - sw) / 2; sy = 0; }
+                else            { sw = img.naturalWidth;  sh = sw; sy = (img.naturalHeight - sh) / 2; sx = 0; }
+                ctx.drawImage(img, sx, sy, sw, sh, pad, pad, s, s);
+            }
+
+            ctx.restore();
+        }
+
+        function applyShape(ctx, size) {
+            const r = state.shape === 'circle'  ? size / 2
+                    : state.shape === 'rounded' ? size * 0.22
+                    : 0;
+            ctx.beginPath();
+            if (r === size / 2) {
+                ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+            } else if (r === 0) {
+                ctx.rect(0, 0, size, size);
+            } else {
+                ctx.roundRect(0, 0, size, size, r);
+            }
+            ctx.closePath();
+        }
+
+        function renderAll() {
+            ['preview512','preview64','preview32','preview16'].forEach(id => {
+                const c = document.getElementById(id);
+                c.getContext('2d').clearRect(0, 0, c.width, c.height);
+            });
+            renderIcon(document.getElementById('preview512'), 128);
+            renderIcon(document.getElementById('preview64'),  64);
+            renderIcon(document.getElementById('preview32'),  32);
+            renderIcon(document.getElementById('preview16'),  16);
+        }
+
+        function makeDownloadCanvas(size) {
+            const c = document.createElement('canvas');
+            renderIcon(c, size);
+            return c;
+        }
+
+        function downloadPNG(size) {
+            const c = makeDownloadCanvas(size);
+            c.toBlob(blob => {
+                const a = document.createElement('a');
+                a.download = `icon-${size}x${size}.png`;
+                a.href = URL.createObjectURL(blob);
+                a.click();
+            });
+        }
+
+        // ── Tab switching ──────────────────────────────────────────────────
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.tab = btn.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.toggle('bg-blue-600', b === btn);
+                    b.classList.toggle('text-white', b === btn);
+                    b.classList.toggle('bg-white', b !== btn);
+                    b.classList.toggle('text-gray-600', b !== btn);
+                });
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+                document.getElementById('tab-' + state.tab).classList.remove('hidden');
+                document.getElementById('textColorRow').classList.toggle('hidden', state.tab !== 'text');
+                renderAll();
+            });
+        });
+
+        // ── Emoji input ────────────────────────────────────────────────────
+        document.getElementById('emojiInput').addEventListener('input', e => {
+            state.emoji = e.target.value || '⚡';
+            renderAll();
+        });
+        document.querySelectorAll('.emoji-pick').forEach(el => {
+            el.addEventListener('click', () => {
+                state.emoji = el.textContent;
+                document.getElementById('emojiInput').value = el.textContent;
+                renderAll();
+            });
+        });
+
+        // ── Text input ─────────────────────────────────────────────────────
+        document.getElementById('textInput').addEventListener('input', e => {
+            state.text = e.target.value || 'A';
+            renderAll();
+        });
+
+        // ── Image upload ───────────────────────────────────────────────────
+        document.getElementById('imageUpload').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const img = new Image();
+            img.onload = () => { state.image = img; renderAll(); };
+            img.src = URL.createObjectURL(file);
+        });
+        document.getElementById('imagePadding').addEventListener('change', e => {
+            state.imagePadding = e.target.checked;
+            renderAll();
+        });
+
+        // ── Background color ───────────────────────────────────────────────
+        document.getElementById('bgColor').addEventListener('input', e => {
+            state.bgColor = e.target.value;
+            document.getElementById('bgColorHex').value = e.target.value;
+            renderAll();
+        });
+        document.getElementById('bgColorHex').addEventListener('input', e => {
+            const val = e.target.value;
+            if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                state.bgColor = val;
+                document.getElementById('bgColor').value = val;
+                renderAll();
+            }
+        });
+        document.querySelectorAll('.color-swatch').forEach(el => {
+            el.addEventListener('click', () => {
+                state.bgColor = el.dataset.color;
+                if (state.bgColor === 'transparent') {
+                    document.getElementById('bgColor').style.opacity = '0.3';
+                    document.getElementById('bgColor').disabled = true;
+                    document.getElementById('bgColorHex').value = 'transparent';
+                    document.getElementById('bgColorHex').disabled = true;
+                } else {
+                    document.getElementById('bgColor').style.opacity = '1';
+                    document.getElementById('bgColor').disabled = false;
+                    document.getElementById('bgColor').value = el.dataset.color;
+                    document.getElementById('bgColorHex').disabled = false;
+                    document.getElementById('bgColorHex').value = el.dataset.color;
+                }
+                renderAll();
+            });
+        });
+
+        // ── Text color ─────────────────────────────────────────────────────
+        document.getElementById('textColor').addEventListener('input', e => {
+            state.textColor = e.target.value;
+            renderAll();
+        });
+        document.getElementById('autoTextColor').addEventListener('click', () => {
+            // Pick white or black based on bg luminance
+            const hex = state.bgColor.replace('#', '');
+            const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+            const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+            state.textColor = lum > 0.5 ? '#1f2937' : '#ffffff';
+            document.getElementById('textColor').value = state.textColor;
+            renderAll();
+        });
+
+        // ── Shape ──────────────────────────────────────────────────────────
+        document.querySelectorAll('.shape-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.shape = btn.dataset.shape;
+                document.querySelectorAll('.shape-btn').forEach(b => {
+                    b.classList.toggle('border-blue-500', b === btn);
+                    b.classList.toggle('bg-blue-50', b === btn);
+                    b.classList.toggle('text-blue-700', b === btn);
+                    b.classList.toggle('border-gray-200', b !== btn);
+                    b.classList.toggle('bg-white', b !== btn);
+                    b.classList.toggle('text-gray-600', b !== btn);
+                });
+                renderAll();
+            });
+        });
+
+        // ── Format toggle ──────────────────────────────────────────────────
+        document.querySelectorAll('.fmt-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.fmt-btn').forEach(b => {
+                    b.classList.toggle('bg-blue-600', b === btn);
+                    b.classList.toggle('text-white', b === btn);
+                    b.classList.toggle('bg-white', b !== btn);
+                    b.classList.toggle('text-gray-600', b !== btn);
+                });
+                const isPng = btn.dataset.fmt === 'png';
+                document.getElementById('png-options').classList.toggle('hidden', !isPng);
+                document.getElementById('ico-options').classList.toggle('hidden', isPng);
+            });
+        });
+
+        // ── ICO encoder ────────────────────────────────────────────────────
+        // Embeds PNG data inside an ICO container (PNG-in-ICO, supported by all modern OS)
+        async function buildIco(sizes) {
+            const pngBlobs = await Promise.all(sizes.map(size => new Promise(resolve => {
+                makeDownloadCanvas(size).toBlob(resolve, 'image/png');
+            })));
+            const pngBuffers = await Promise.all(pngBlobs.map(b => b.arrayBuffer()));
+
+            const numImages = sizes.length;
+            const headerSize = 6;
+            const dirEntrySize = 16;
+            const dirSize = numImages * dirEntrySize;
+            const totalHeaderSize = headerSize + dirSize;
+
+            let totalSize = totalHeaderSize;
+            pngBuffers.forEach(buf => totalSize += buf.byteLength);
+
+            const icoBuffer = new ArrayBuffer(totalSize);
+            const view = new DataView(icoBuffer);
+
+            // ICO header
+            view.setUint16(0, 0, true);       // reserved
+            view.setUint16(2, 1, true);       // type: 1 = ICO
+            view.setUint16(4, numImages, true); // image count
+
+            // Directory entries + image data
+            let dataOffset = totalHeaderSize;
+            pngBuffers.forEach((buf, i) => {
+                const size = sizes[i];
+                const entryOffset = headerSize + i * dirEntrySize;
+                view.setUint8(entryOffset + 0, size === 256 ? 0 : size); // width (0=256)
+                view.setUint8(entryOffset + 1, size === 256 ? 0 : size); // height
+                view.setUint8(entryOffset + 2, 0);   // color count
+                view.setUint8(entryOffset + 3, 0);   // reserved
+                view.setUint16(entryOffset + 4, 1, true);  // planes
+                view.setUint16(entryOffset + 6, 32, true); // bit count
+                view.setUint32(entryOffset + 8, buf.byteLength, true);  // data size
+                view.setUint32(entryOffset + 12, dataOffset, true);     // data offset
+
+                new Uint8Array(icoBuffer, dataOffset, buf.byteLength).set(new Uint8Array(buf));
+                dataOffset += buf.byteLength;
+            });
+
+            return new Blob([icoBuffer], { type: 'image/x-icon' });
+        }
+
+        document.getElementById('dlIco').addEventListener('click', async () => {
+            const checked = [...document.querySelectorAll('.ico-size-check:checked')].map(el => parseInt(el.value));
+            if (!checked.length) { alert('Select at least one size.'); return; }
+            const blob = await buildIco(checked);
+            const a = document.createElement('a');
+            a.download = 'icon.ico';
+            a.href = URL.createObjectURL(blob);
+            a.click();
+        });
+
+        // ── Downloads ─────────────────────────────────────────────────────
+        document.querySelectorAll('.dl-btn').forEach(btn => {
+            btn.addEventListener('click', () => downloadPNG(parseInt(btn.dataset.size)));
+        });
+
+        document.getElementById('dlCustom').addEventListener('click', () => {
+            const size = parseInt(document.getElementById('customSize').value);
+            if (size >= 8 && size <= 2048) downloadPNG(size);
+        });
+
+        document.getElementById('dlAll').addEventListener('click', async () => {
+            const sizes = [16, 32, 64, 128, 192, 512];
+            const zip = new JSZip();
+            const folder = zip.folder('icons');
+            const blobs = await Promise.all(sizes.map(size => new Promise(resolve => {
+                makeDownloadCanvas(size).toBlob(resolve);
+            })));
+            blobs.forEach((blob, i) => folder.file(`icon-${sizes[i]}x${sizes[i]}.png`, blob));
+            const content = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a');
+            a.download = 'icons.zip';
+            a.href = URL.createObjectURL(content);
+            a.click();
+        });
+
+        // ── Initial render ─────────────────────────────────────────────────
+        renderAll();
+    </script>
+</body>
+</html>

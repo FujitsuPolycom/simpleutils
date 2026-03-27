@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Diff Checker - SimpleUtils</title>
+    <meta name="description" content="Compare two text documents and find differences instantly. Our text diff tool highlights additions and deletions with color coding, making it easy to spot changes between versions.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff-match-patch/20121119/diff_match_patch.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>Text Diff</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Text Diff Checker</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Compare two text documents side-by-side and instantly see what's changed. Our diff checker highlights additions in green and deletions in red, making it perfect for reviewing document edits, code changes, or comparing different versions of content. See a summary of total changes at a glance.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Original Text:</label>
+                    <textarea id="text1" class="w-full h-64 p-4 border border-gray-300 rounded-lg text-sm font-mono" placeholder="Paste original text here..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Modified Text:</label>
+                    <textarea id="text2" class="w-full h-64 p-4 border border-gray-300 rounded-lg text-sm font-mono" placeholder="Paste modified text here..."></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mb-6">
+                <button onclick="compareDiff()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Compare</button>
+                <button onclick="clearAll()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">Clear</button>
+            </div>
+
+            <div id="resultSection" class="hidden">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div class="flex gap-6 text-sm">
+                        <div>
+                            <span class="font-semibold">Additions:</span>
+                            <span class="text-green-700 font-bold ml-2" id="addedCount">0</span>
+                        </div>
+                        <div>
+                            <span class="font-semibold">Deletions:</span>
+                            <span class="text-red-700 font-bold ml-2" id="deletedCount">0</span>
+                        </div>
+                        <div>
+                            <span class="font-semibold">Unchanged:</span>
+                            <span class="text-gray-700 font-bold ml-2" id="unchangedCount">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3 flex items-center gap-4 text-sm">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-green-200 rounded"></div>
+                        <span class="text-gray-700">Added</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-red-200 rounded"></div>
+                        <span class="text-gray-700">Deleted</span>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-300 overflow-auto max-h-96">
+                    <div id="diffOutput" class="font-mono text-sm whitespace-pre-wrap"></div>
+                </div>
+            </div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Paste your original text into the left text area</li>
+                <li>Paste the modified version into the right text area</li>
+                <li>Click "Compare" to see the differences highlighted</li>
+                <li>Green highlighting shows added text, red shows deleted text</li>
+                <li>The summary at the top shows total additions, deletions, and unchanged portions</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What is a diff tool?</h3>
+                    <p class="text-gray-700">A diff (difference) tool compares two pieces of text and shows what has changed between them. It highlights additions, deletions, and modifications, making it easy to review edits without manually scanning both documents.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">When should I use a text diff checker?</h3>
+                    <p class="text-gray-700">Use a diff checker when reviewing document revisions, comparing code versions, checking edited articles, verifying contract changes, or any time you need to see exactly what changed between two versions of text.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">How does the diff algorithm work?</h3>
+                    <p class="text-gray-700">We use the industry-standard diff-match-patch algorithm, which intelligently compares texts character by character and word by word to find the minimal set of changes. It's the same technology used in version control systems like Git.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Can I compare code or formatted text?</h3>
+                    <p class="text-gray-700">Yes! This tool works with any plain text, including code, markdown, CSV data, logs, or formatted documents. While it shows changes in the text itself, it treats all content as plain text regardless of programming language or format.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        const dmp = new diff_match_patch();
+
+        function compareDiff() {
+            const text1 = document.getElementById('text1').value;
+            const text2 = document.getElementById('text2').value;
+
+            if (!text1 && !text2) {
+                alert('Please enter text in both areas');
+                return;
+            }
+
+            const diffs = dmp.diff_main(text1, text2);
+            dmp.diff_cleanupSemantic(diffs);
+
+            let added = 0;
+            let deleted = 0;
+            let unchanged = 0;
+
+            let html = '';
+            diffs.forEach(([op, text]) => {
+                const encoded = text.replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+
+                if (op === 1) { // Addition
+                    html += `<span class="bg-green-200">${encoded}</span>`;
+                    added += text.length;
+                } else if (op === -1) { // Deletion
+                    html += `<span class="bg-red-200">${encoded}</span>`;
+                    deleted += text.length;
+                } else { // Unchanged
+                    html += encoded;
+                    unchanged += text.length;
+                }
+            });
+
+            document.getElementById('diffOutput').innerHTML = html;
+            document.getElementById('addedCount').textContent = added;
+            document.getElementById('deletedCount').textContent = deleted;
+            document.getElementById('unchangedCount').textContent = unchanged;
+            document.getElementById('resultSection').classList.remove('hidden');
+        }
+
+        function clearAll() {
+            document.getElementById('text1').value = '';
+            document.getElementById('text2').value = '';
+            document.getElementById('resultSection').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

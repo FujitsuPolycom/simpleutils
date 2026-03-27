@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cron Expression Builder - SimpleUtils</title>
+    <meta name="description" content="Build and understand cron expressions with our visual cron builder. Generate cron schedules with an easy interface, see plain-English descriptions, and preview upcoming run times for your scheduled tasks.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>Cron Builder</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Cron Expression Builder</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Create cron expressions visually without memorizing complex syntax. Our cron builder provides an intuitive interface to schedule tasks, shows you plain-English descriptions of your schedule, and previews the next 5 run times. Perfect for developers, system administrators, and anyone working with scheduled jobs.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-3">Quick Presets:</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="setPreset('* * * * *')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm">Every Minute</button>
+                    <button onclick="setPreset('0 * * * *')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm">Hourly</button>
+                    <button onclick="setPreset('0 0 * * *')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm">Daily (Midnight)</button>
+                    <button onclick="setPreset('0 12 * * *')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm">Daily (Noon)</button>
+                    <button onclick="setPreset('0 0 * * 0')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm">Weekly (Sunday)</button>
+                    <button onclick="setPreset('0 0 1 * *')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm">Monthly</button>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-5 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Minute (0-59)</label>
+                    <input type="text" id="minute" value="*" oninput="updateCron()" class="w-full p-2 border border-gray-300 rounded-lg font-mono">
+                    <p class="text-xs text-gray-500 mt-1">* = every</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Hour (0-23)</label>
+                    <input type="text" id="hour" value="*" oninput="updateCron()" class="w-full p-2 border border-gray-300 rounded-lg font-mono">
+                    <p class="text-xs text-gray-500 mt-1">* = every</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Day (1-31)</label>
+                    <input type="text" id="day" value="*" oninput="updateCron()" class="w-full p-2 border border-gray-300 rounded-lg font-mono">
+                    <p class="text-xs text-gray-500 mt-1">* = every</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Month (1-12)</label>
+                    <input type="text" id="month" value="*" oninput="updateCron()" class="w-full p-2 border border-gray-300 rounded-lg font-mono">
+                    <p class="text-xs text-gray-500 mt-1">* = every</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Weekday (0-6)</label>
+                    <input type="text" id="weekday" value="*" oninput="updateCron()" class="w-full p-2 border border-gray-300 rounded-lg font-mono">
+                    <p class="text-xs text-gray-500 mt-1">0 = Sunday</p>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <div class="text-sm text-gray-600 mb-2">Cron Expression:</div>
+                <div class="flex items-center gap-3">
+                    <input type="text" id="cronExpression" readonly class="flex-1 p-3 border border-gray-300 rounded-lg font-mono text-lg bg-white">
+                    <button onclick="copyCron()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Copy</button>
+                </div>
+            </div>
+
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div class="text-sm text-gray-600 mb-1">Plain English:</div>
+                <div id="cronDescription" class="text-lg font-semibold text-gray-900"></div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-3">Next 5 Run Times:</h3>
+                <div id="nextRuns" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Start with a preset or build from scratch using the five time fields</li>
+                <li>Use * for "every" or specific numbers (e.g., 0,15,30,45 for every 15 minutes)</li>
+                <li>Ranges work too: 1-5 for Monday through Friday, 9-17 for business hours</li>
+                <li>See your cron expression and plain-English description update in real-time</li>
+                <li>Preview the next 5 run times to verify your schedule is correct</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What is a cron expression?</h3>
+                    <p class="text-gray-700">A cron expression is a string of five fields that define when a scheduled task should run. The fields represent minute, hour, day of month, month, and day of week. It's used in Unix/Linux systems and many applications for job scheduling.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What special characters can I use?</h3>
+                    <p class="text-gray-700">* means "every" (e.g., every hour), comma separates multiple values (0,30 = 0 and 30), hyphen creates ranges (1-5), and slash specifies intervals (*/15 = every 15). For example, */10 in the minute field means every 10 minutes.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">How do I run a task every weekday at 9 AM?</h3>
+                    <p class="text-gray-700">Use the expression: 0 9 * * 1-5. This means minute 0, hour 9, every day of month, every month, Monday through Friday (1-5). You can also use the weekday selector to input 1-5.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Why are there only 5 fields instead of 6?</h3>
+                    <p class="text-gray-700">Standard cron uses 5 fields. Some systems add a 6th field for seconds or year. Our builder uses the most common 5-field format compatible with Unix cron, most cloud schedulers, and CI/CD tools.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        function updateCron() {
+            const minute = document.getElementById('minute').value || '*';
+            const hour = document.getElementById('hour').value || '*';
+            const day = document.getElementById('day').value || '*';
+            const month = document.getElementById('month').value || '*';
+            const weekday = document.getElementById('weekday').value || '*';
+
+            const cron = `${minute} ${hour} ${day} ${month} ${weekday}`;
+            document.getElementById('cronExpression').value = cron;
+
+            updateDescription(minute, hour, day, month, weekday);
+            updateNextRuns(minute, hour, day, month, weekday);
+        }
+
+        function setPreset(cron) {
+            const parts = cron.split(' ');
+            document.getElementById('minute').value = parts[0];
+            document.getElementById('hour').value = parts[1];
+            document.getElementById('day').value = parts[2];
+            document.getElementById('month').value = parts[3];
+            document.getElementById('weekday').value = parts[4];
+            updateCron();
+        }
+
+        function updateDescription(minute, hour, day, month, weekday) {
+            let desc = 'Runs ';
+
+            // Special cases
+            if (minute === '0' && hour === '0' && day === '*' && month === '*' && weekday === '*') {
+                desc = 'Every day at midnight';
+            } else if (minute === '0' && hour !== '*' && day === '*' && month === '*' && weekday === '*') {
+                desc = `Every day at ${formatHour(hour)}`;
+            } else if (minute === '*' && hour === '*' && day === '*' && month === '*' && weekday === '*') {
+                desc = 'Every minute';
+            } else if (minute !== '*' && hour === '*' && day === '*' && month === '*' && weekday === '*') {
+                desc = `Every hour at minute ${minute}`;
+            } else {
+                // General case
+                if (minute === '*') desc += 'every minute';
+                else desc += `at minute ${minute}`;
+
+                if (hour !== '*') desc += ` of hour ${hour}`;
+                if (day !== '*') desc += `, on day ${day}`;
+                if (month !== '*') desc += ` of month ${month}`;
+                if (weekday !== '*') desc += `, on weekday ${weekday}`;
+            }
+
+            document.getElementById('cronDescription').textContent = desc;
+        }
+
+        function formatHour(hour) {
+            if (hour === '*') return 'every hour';
+            const h = parseInt(hour);
+            if (h === 0) return '12:00 AM (midnight)';
+            if (h === 12) return '12:00 PM (noon)';
+            if (h < 12) return `${h}:00 AM`;
+            return `${h - 12}:00 PM`;
+        }
+
+        function updateNextRuns(minute, hour, day, month, weekday) {
+            const now = new Date();
+            const runs = [];
+
+            // Simple next-run calculation (limited accuracy but works for common cases)
+            for (let i = 0; i < 100 && runs.length < 5; i++) {
+                const testDate = new Date(now.getTime() + i * 60000); // Check every minute
+                if (matchesCron(testDate, minute, hour, day, month, weekday)) {
+                    runs.push(testDate);
+                }
+            }
+
+            const html = runs.map((date, idx) => {
+                const formatted = date.toLocaleString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                return `<div class="p-3 bg-gray-50 rounded-lg">${idx + 1}. ${formatted}</div>`;
+            }).join('');
+
+            document.getElementById('nextRuns').innerHTML = html || '<div class="text-gray-500">No upcoming runs found</div>';
+        }
+
+        function matchesCron(date, minute, hour, day, month, weekday) {
+            if (minute !== '*' && !matchField(date.getMinutes(), minute)) return false;
+            if (hour !== '*' && !matchField(date.getHours(), hour)) return false;
+            if (day !== '*' && !matchField(date.getDate(), day)) return false;
+            if (month !== '*' && !matchField(date.getMonth() + 1, month)) return false;
+            if (weekday !== '*' && !matchField(date.getDay(), weekday)) return false;
+            return true;
+        }
+
+        function matchField(value, pattern) {
+            if (pattern === '*') return true;
+            if (pattern.includes(',')) {
+                return pattern.split(',').some(p => matchField(value, p.trim()));
+            }
+            if (pattern.includes('-')) {
+                const [start, end] = pattern.split('-').map(Number);
+                return value >= start && value <= end;
+            }
+            if (pattern.includes('/')) {
+                const [, step] = pattern.split('/').map(s => s === '*' ? 0 : Number(s));
+                return value % step === 0;
+            }
+            return value === Number(pattern);
+        }
+
+        function copyCron() {
+            const cron = document.getElementById('cronExpression').value;
+            navigator.clipboard.writeText(cron).then(() => {
+                alert('Cron expression copied to clipboard!');
+            });
+        }
+
+        // Initialize
+        updateCron();
+    </script>
+</body>
+</html>

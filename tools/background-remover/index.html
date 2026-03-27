@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Remover - Remove Image Background Online Free | SimpleUtils</title>
+    <meta name="description" content="Remove image backgrounds online for free using AI. Automatically detect and remove backgrounds from any image in seconds. Perfect for product photos, portraits, and creating transparent PNGs. No signup required.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">Background Remover</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Background Remover</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Remove backgrounds from images automatically using AI-powered technology. Our free background removal tool detects subjects in your photos and creates clean, transparent PNG images in seconds. Perfect for e-commerce product photos, profile pictures, and graphic design projects. First use downloads a small AI model (~40MB) - subsequent removals are instant.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <!-- Tool Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                <input type="file" id="imageInput" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+
+            <div id="processing" class="hidden text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                <div class="text-lg font-semibold text-gray-700" id="statusText">Processing...</div>
+                <div class="text-sm text-gray-500 mt-2" id="progressText">Please wait</div>
+            </div>
+
+            <div id="result" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Original</h3>
+                        <img id="originalImage" class="w-full border border-gray-300 rounded bg-white">
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Background Removed</h3>
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-transparent" style="background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px;"></div>
+                            <img id="resultImage" class="relative w-full border border-gray-300 rounded">
+                        </div>
+                    </div>
+                </div>
+                <!-- Enhancement options -->
+                <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                    <p class="text-sm font-medium text-gray-700 mb-2">✨ Enhancements (optional)</p>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                            <input type="checkbox" id="enhanceUpscale" class="accent-blue-600">
+                            <span>AI Upscale 2× <span class="text-gray-400">(~5MB extra)</span></span>
+                        </label>
+                        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                            <input type="checkbox" id="enhanceRealism" class="accent-purple-600">
+                            <span>Realism filter</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 items-center">
+                    <button id="downloadBtn" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                        Download PNG with Transparent Background
+                    </button>
+                    <span id="enhanceProgress" class="hidden text-sm text-blue-600"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use the Background Remover</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Click "Choose File" and select the image you want to remove the background from</li>
+                <li>Wait while the AI model processes your image (first use downloads the model, ~40MB)</li>
+                <li>View the before and after comparison to see the background removal result</li>
+                <li>Click "Download PNG" to save your image with a transparent background</li>
+                <li>The downloaded PNG can be used in design software, presentations, or websites</li>
+            </ol>
+        </section>
+
+        <!-- FAQ -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">How accurate is the AI background removal?</h3>
+                    <p class="text-gray-700">Our AI model works best with clear subjects like people, products, or animals against distinct backgrounds. Complex scenes with similar colors between subject and background may require manual editing afterward.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Why does the first use take longer?</h3>
+                    <p class="text-gray-700">The first time you use the tool, it downloads a machine learning model (about 40MB) to your browser. This model is cached locally, so all subsequent background removals will be much faster.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What image types work best?</h3>
+                    <p class="text-gray-700">Photos with clear subjects work best: portraits, product shots, pet photos, and objects with defined edges. Images with good contrast between subject and background produce the cleanest results.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Can I use the removed background images commercially?</h3>
+                    <p class="text-gray-700">Yes! The tool itself doesn't impose restrictions. However, ensure you have rights to the original image. The background removal process doesn't change image ownership or licensing.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/upscaler@1.0.0-beta.19/dist/upscaler.min.js"></script>
+    <script src="https://unpkg.com/@upscalerjs/esrgan-slim@1.0.0-beta.14/dist/umd/index.min.js"></script>
+
+    <script type="module">
+        import removeBackground from 'https://esm.sh/@imgly/background-removal@1.4.5';
+
+        const imageInput = document.getElementById('imageInput');
+        const processing = document.getElementById('processing');
+        const statusText = document.getElementById('statusText');
+        const progressText = document.getElementById('progressText');
+        const result = document.getElementById('result');
+        const originalImage = document.getElementById('originalImage');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let resultBlob = null;
+
+        imageInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            processing.classList.remove('hidden');
+            result.classList.add('hidden');
+            statusText.textContent = 'Loading AI model...';
+            progressText.textContent = 'First use may take 30-60 seconds';
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                originalImage.src = event.target.result;
+
+                try {
+                    statusText.textContent = 'Removing background...';
+                    progressText.textContent = 'This may take a few moments';
+
+                    const blob = await removeBackground(file);
+                    resultBlob = blob;
+
+                    const url = URL.createObjectURL(blob);
+                    resultImage.src = url;
+
+                    processing.classList.add('hidden');
+                    result.classList.remove('hidden');
+                } catch (error) {
+                    processing.classList.add('hidden');
+                    alert('Error removing background: ' + error.message);
+                    console.error(error);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // ── Enhancement support ────────────────────────────────────────────────
+        let bgRemoverUpscaler = null;
+        const enhanceUpscaleChk = document.getElementById('enhanceUpscale');
+        const enhanceRealismChk = document.getElementById('enhanceRealism');
+        const enhanceProgress   = document.getElementById('enhanceProgress');
+
+        function showProgress(msg) { enhanceProgress.textContent = msg; enhanceProgress.classList.remove('hidden'); }
+        function hideProgress() { enhanceProgress.classList.add('hidden'); }
+
+        // Realism filter functions
+        function applySharpen(imageData, amount) {
+            const d = imageData.data, w = imageData.width, h = imageData.height;
+            const copy = new Uint8ClampedArray(d);
+            for (let y = 1; y < h - 1; y++) {
+                for (let x = 1; x < w - 1; x++) {
+                    const i = (y * w + x) * 4;
+                    for (let c = 0; c < 3; c++) {
+                        const center = copy[i + c];
+                        const neighbors = (copy[((y-1)*w+x)*4+c] + copy[((y+1)*w+x)*4+c] + copy[(y*w+x-1)*4+c] + copy[(y*w+x+1)*4+c]) / 4;
+                        d[i + c] = Math.max(0, Math.min(255, center + (center - neighbors) * amount));
+                    }
+                }
+            }
+            return imageData;
+        }
+        function applyMicroContrast(imageData, amount) {
+            const d = imageData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                d[i]   = Math.max(0, Math.min(255, 128 + (d[i] - 128) * (1 + amount * 0.5)));
+                d[i+1] = Math.max(0, Math.min(255, 128 + (d[i+1] - 128) * (1 + amount * 0.5)));
+                d[i+2] = Math.max(0, Math.min(255, 128 + (d[i+2] - 128) * (1 + amount * 0.5)));
+            }
+            return imageData;
+        }
+        function applyGrain(imageData, amount) {
+            const d = imageData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                if (d[i+3] === 0) continue; // skip transparent
+                const noise = (Math.random() - 0.5) * amount;
+                d[i]   = Math.max(0, Math.min(255, d[i] + noise));
+                d[i+1] = Math.max(0, Math.min(255, d[i+1] + noise));
+                d[i+2] = Math.max(0, Math.min(255, d[i+2] + noise));
+            }
+            return imageData;
+        }
+        function applyWarmth(imageData, amount) {
+            const d = imageData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                if (d[i+3] === 0) continue; // skip transparent
+                d[i]   = Math.min(255, d[i] + amount * 0.6);
+                d[i+1] = Math.min(255, d[i+1] + amount * 0.3);
+                d[i+2] = Math.max(0, d[i+2] - amount * 0.2);
+            }
+            return imageData;
+        }
+        function applyRealismFilter(canvas) {
+            const ctx = canvas.getContext('2d');
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            imageData = applySharpen(imageData, 0.75);
+            imageData = applyMicroContrast(imageData, 0.15);
+            imageData = applyGrain(imageData, 5);
+            imageData = applyWarmth(imageData, 5);
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        }
+
+        async function blobToCanvas(blob) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    resolve(canvas);
+                };
+                img.src = URL.createObjectURL(blob);
+            });
+        }
+
+        downloadBtn.addEventListener('click', async () => {
+            if (!resultBlob) return;
+
+            const doUpscale = enhanceUpscaleChk.checked;
+            const doRealism = enhanceRealismChk.checked;
+
+            downloadBtn.disabled = true;
+            let outCanvas = await blobToCanvas(resultBlob);
+
+            try {
+                if (doUpscale) {
+                    showProgress('Loading AI model...');
+                    if (!bgRemoverUpscaler) {
+                        bgRemoverUpscaler = new Upscaler({ model: ESRGANSlim });
+                    }
+                    showProgress('AI upscaling 2×...');
+                    const upscaled = await bgRemoverUpscaler.upscale(outCanvas, { patchSize: 64, padding: 4 });
+                    const newOut = document.createElement('canvas');
+                    newOut.width  = upscaled.width  || upscaled.naturalWidth;
+                    newOut.height = upscaled.height || upscaled.naturalHeight;
+                    newOut.getContext('2d').drawImage(upscaled, 0, 0);
+                    outCanvas = newOut;
+                }
+
+                if (doRealism) {
+                    showProgress('Applying realism filter...');
+                    await new Promise(r => setTimeout(r, 10));
+                    outCanvas = applyRealismFilter(outCanvas);
+                }
+
+                hideProgress();
+            } catch (err) {
+                showProgress('⚠️ Enhancement failed: ' + err.message);
+                setTimeout(hideProgress, 3000);
+            }
+
+            let filename = 'background-removed';
+            if (doUpscale) filename += '-2x';
+            if (doRealism) filename += '-enhanced';
+
+            outCanvas.toBlob(blob => {
+                const link = document.createElement('a');
+                link.download = filename + '.png';
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                downloadBtn.disabled = false;
+            }, 'image/png');
+        });
+    </script>
+</body>
+</html>

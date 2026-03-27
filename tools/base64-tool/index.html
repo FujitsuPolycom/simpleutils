@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 Encoder & Decoder - SimpleUtils</title>
+    <meta name="description" content="Free Base64 encoder and decoder tool. Convert text and files to Base64 format or decode Base64 strings back to original data. Supports both text and file encoding with instant results.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>Base64 Tool</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Base64 Encoder & Decoder</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Encode text or files to Base64 format or decode Base64 strings back to their original form. Base64 encoding is commonly used for embedding images in HTML/CSS, transmitting binary data over text-based protocols, and encoding credentials in APIs. All conversion happens instantly in your browser.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex gap-4 mb-6 border-b">
+                <button onclick="switchMode('text')" id="textModeBtn" class="px-6 py-3 font-semibold text-blue-600 border-b-2 border-blue-600">Text Mode</button>
+                <button onclick="switchMode('file')" id="fileModeBtn" class="px-6 py-3 font-semibold text-gray-600 hover:text-blue-600">File Mode</button>
+            </div>
+
+            <!-- Text Mode -->
+            <div id="textMode">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Input Text:</label>
+                    <textarea id="textInput" class="w-full h-32 p-4 border border-gray-300 rounded-lg font-mono text-sm" placeholder="Enter text to encode or Base64 to decode..."></textarea>
+                </div>
+
+                <div class="flex flex-wrap gap-3 mb-4">
+                    <button onclick="encodeText()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Encode to Base64</button>
+                    <button onclick="decodeText()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">Decode from Base64</button>
+                    <button onclick="copyTextOutput()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Copy Result</button>
+                    <button onclick="clearText()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">Clear</button>
+                </div>
+
+                <div id="textOutput" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Output:</label>
+                    <textarea id="textOutputArea" class="w-full h-32 p-4 border border-gray-300 rounded-lg font-mono text-sm bg-gray-50" readonly></textarea>
+                </div>
+            </div>
+
+            <!-- File Mode -->
+            <div id="fileMode" class="hidden">
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">Encode File to Base64</h3>
+                    <input type="file" id="fileInput" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                    <button onclick="encodeFile()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Encode File</button>
+                </div>
+
+                <div id="fileEncodeOutput" class="hidden mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Base64 Output:</label>
+                    <textarea id="fileEncodeArea" class="w-full h-32 p-4 border border-gray-300 rounded-lg font-mono text-sm bg-gray-50" readonly></textarea>
+                    <button onclick="copyFileOutput()" class="mt-2 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Copy Base64</button>
+                </div>
+
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-semibold mb-3">Decode Base64 to File</h3>
+                    <textarea id="fileDecodeInput" class="w-full h-32 p-4 border border-gray-300 rounded-lg font-mono text-sm mb-3" placeholder="Paste Base64 string here..."></textarea>
+                    <div class="flex gap-3 items-center">
+                        <input type="text" id="fileName" class="flex-1 p-2 border border-gray-300 rounded-lg" placeholder="Output filename (e.g., image.png)">
+                        <button onclick="decodeFile()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">Download File</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="message" class="hidden mt-4 p-3 rounded"></div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li><strong>Text Mode:</strong> Enter text and click "Encode" to convert to Base64, or paste Base64 and click "Decode" to convert back</li>
+                <li><strong>File Mode - Encode:</strong> Select a file and click "Encode File" to get its Base64 representation</li>
+                <li><strong>File Mode - Decode:</strong> Paste a Base64 string, enter a filename, and click "Download File" to save the decoded file</li>
+                <li>Use the "Copy" buttons to quickly copy results to your clipboard</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What is Base64 encoding?</h3>
+                    <p class="text-gray-700">Base64 is an encoding scheme that converts binary data into ASCII text format using 64 printable characters (A-Z, a-z, 0-9, +, /). It's commonly used to embed images in HTML/CSS, encode email attachments, and transmit binary data over text-based protocols.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Why would I need to encode files to Base64?</h3>
+                    <p class="text-gray-700">Base64 encoding is useful for embedding images directly in HTML or CSS (data URIs), transmitting files through JSON APIs, storing binary data in text-based databases, or including attachments in email. It ensures binary data can be safely transmitted through systems that only support text.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Does Base64 encoding compress data?</h3>
+                    <p class="text-gray-700">No, Base64 encoding actually increases file size by approximately 33%. It's not a compression method but an encoding method. The purpose is compatibility and safe transmission, not size reduction.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Is it safe to encode sensitive data?</h3>
+                    <p class="text-gray-700">Base64 is encoding, not encryption. It provides no security and can be easily decoded by anyone. Never use Base64 alone for protecting sensitive data. All processing happens in your browser, so your data never leaves your computer.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        function switchMode(mode) {
+            const textMode = document.getElementById('textMode');
+            const fileMode = document.getElementById('fileMode');
+            const textBtn = document.getElementById('textModeBtn');
+            const fileBtn = document.getElementById('fileModeBtn');
+
+            if (mode === 'text') {
+                textMode.classList.remove('hidden');
+                fileMode.classList.add('hidden');
+                textBtn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                textBtn.classList.remove('text-gray-600');
+                fileBtn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                fileBtn.classList.add('text-gray-600');
+            } else {
+                textMode.classList.add('hidden');
+                fileMode.classList.remove('hidden');
+                fileBtn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                fileBtn.classList.remove('text-gray-600');
+                textBtn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                textBtn.classList.add('text-gray-600');
+            }
+        }
+
+        function showMessage(text, isError = false) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `mt-4 p-3 rounded ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 3000);
+        }
+
+        function encodeText() {
+            const input = document.getElementById('textInput').value;
+            if (!input) {
+                showMessage('Please enter text to encode', true);
+                return;
+            }
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(input)));
+                document.getElementById('textOutputArea').value = encoded;
+                document.getElementById('textOutput').classList.remove('hidden');
+                showMessage('Text encoded successfully!');
+            } catch (e) {
+                showMessage('Error encoding text', true);
+            }
+        }
+
+        function decodeText() {
+            const input = document.getElementById('textInput').value;
+            if (!input) {
+                showMessage('Please enter Base64 to decode', true);
+                return;
+            }
+            try {
+                const decoded = decodeURIComponent(escape(atob(input)));
+                document.getElementById('textOutputArea').value = decoded;
+                document.getElementById('textOutput').classList.remove('hidden');
+                showMessage('Base64 decoded successfully!');
+            } catch (e) {
+                showMessage('Invalid Base64 string', true);
+            }
+        }
+
+        function copyTextOutput() {
+            const output = document.getElementById('textOutputArea').value;
+            if (!output) {
+                showMessage('Nothing to copy', true);
+                return;
+            }
+            navigator.clipboard.writeText(output).then(() => {
+                showMessage('Copied to clipboard!');
+            });
+        }
+
+        function clearText() {
+            document.getElementById('textInput').value = '';
+            document.getElementById('textOutputArea').value = '';
+            document.getElementById('textOutput').classList.add('hidden');
+        }
+
+        function encodeFile() {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files[0]) {
+                showMessage('Please select a file', true);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                document.getElementById('fileEncodeArea').value = base64;
+                document.getElementById('fileEncodeOutput').classList.remove('hidden');
+                showMessage('File encoded to Base64!');
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        function copyFileOutput() {
+            const output = document.getElementById('fileEncodeArea').value;
+            navigator.clipboard.writeText(output).then(() => {
+                showMessage('Base64 copied to clipboard!');
+            });
+        }
+
+        function decodeFile() {
+            const base64Input = document.getElementById('fileDecodeInput').value.trim();
+            const fileName = document.getElementById('fileName').value.trim();
+
+            if (!base64Input) {
+                showMessage('Please paste Base64 string', true);
+                return;
+            }
+            if (!fileName) {
+                showMessage('Please enter a filename', true);
+                return;
+            }
+
+            try {
+                // Handle data URIs
+                const base64Data = base64Input.includes(',') ? base64Input.split(',')[1] : base64Input;
+                const binaryString = atob(base64Data);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const blob = new Blob([bytes]);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(url);
+                showMessage('File downloaded!');
+            } catch (e) {
+                showMessage('Invalid Base64 string', true);
+            }
+        }
+    </script>
+</body>
+</html>

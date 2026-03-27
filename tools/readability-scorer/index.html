@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Readability Scorer - SimpleUtils</title>
+    <meta name="description" content="Analyze text readability with Flesch Reading Ease, Flesch-Kincaid Grade Level, and Gunning Fog Index scores. Get instant feedback on sentence complexity and writing clarity for better content.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>Readability Scorer</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Readability Scorer</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Analyze your text with industry-standard readability metrics. Get Flesch Reading Ease scores, grade level estimates, and complexity analysis to ensure your content reaches your target audience. Perfect for writers, marketers, and content creators optimizing for clarity and engagement.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Paste your text here:</label>
+                <textarea id="textInput" oninput="analyzeText()" class="w-full h-64 p-4 border border-gray-300 rounded-lg text-sm" placeholder="Paste or type your text here to analyze readability..."></textarea>
+            </div>
+
+            <div id="results" class="hidden">
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6">
+                        <div class="text-sm text-gray-600 mb-2">Flesch Reading Ease</div>
+                        <div class="text-4xl font-bold mb-2" id="fleschScore">0</div>
+                        <div class="text-sm font-semibold" id="fleschLabel">-</div>
+                        <div class="text-xs text-gray-600 mt-2">Higher is easier (0-100)</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-6">
+                        <div class="text-sm text-gray-600 mb-2">Flesch-Kincaid Grade Level</div>
+                        <div class="text-4xl font-bold mb-2" id="gradeLevel">0</div>
+                        <div class="text-sm font-semibold" id="gradeLabel">-</div>
+                        <div class="text-xs text-gray-600 mt-2">U.S. school grade level</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-6">
+                        <div class="text-sm text-gray-600 mb-2">Gunning Fog Index</div>
+                        <div class="text-4xl font-bold mb-2" id="fogIndex">0</div>
+                        <div class="text-sm font-semibold" id="fogLabel">-</div>
+                        <div class="text-xs text-gray-600 mt-2">Years of education needed</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-6">
+                        <div class="text-sm text-gray-600 mb-2">Text Statistics</div>
+                        <div class="space-y-1 text-sm">
+                            <div><strong>Avg sentence length:</strong> <span id="avgSentence">0</span> words</div>
+                            <div><strong>Avg syllables/word:</strong> <span id="avgSyllables">0</span></div>
+                            <div><strong>Complex words:</strong> <span id="complexWords">0</span>%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="complexSentences" class="hidden mb-6">
+                    <h3 class="text-lg font-semibold mb-3">⚠️ Complex Sentences (>30 words):</h3>
+                    <div id="complexList" class="space-y-2"></div>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">💡 Interpretation Guide:</h3>
+                    <div class="text-sm text-gray-700 space-y-1">
+                        <div><strong>90-100:</strong> Very easy (5th grade)</div>
+                        <div><strong>80-89:</strong> Easy (6th grade)</div>
+                        <div><strong>70-79:</strong> Fairly easy (7th grade)</div>
+                        <div><strong>60-69:</strong> Standard (8th-9th grade)</div>
+                        <div><strong>50-59:</strong> Fairly difficult (10th-12th grade)</div>
+                        <div><strong>30-49:</strong> Difficult (College)</div>
+                        <div><strong>0-29:</strong> Very difficult (College graduate)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Paste or type your text into the text area above</li>
+                <li>Readability scores update automatically as you type</li>
+                <li>Review the Flesch Reading Ease score (higher = easier to read)</li>
+                <li>Check the grade level to ensure it matches your target audience</li>
+                <li>Look for highlighted complex sentences (over 30 words) and consider breaking them up</li>
+                <li>Use the interpretation guide to understand your scores and make improvements</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What is the Flesch Reading Ease score?</h3>
+                    <p class="text-gray-700">The Flesch Reading Ease score rates text on a 0-100 scale based on sentence length and syllables per word. Higher scores (90-100) indicate very easy text, while lower scores (0-30) indicate very difficult text. Most commercial content aims for 60-70.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What's the difference between Flesch-Kincaid and Gunning Fog?</h3>
+                    <p class="text-gray-700">Both estimate reading difficulty, but use different formulas. Flesch-Kincaid outputs a U.S. grade level based on sentence and word length. Gunning Fog also considers "complex words" (3+ syllables) and tends to give slightly higher estimates.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What's a good readability score?</h3>
+                    <p class="text-gray-700">It depends on your audience. General web content should target 8th-10th grade (Flesch 60-70). Technical documentation may be higher (12th grade+). Marketing copy often aims for 6th-8th grade for maximum accessibility.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">How can I improve my readability score?</h3>
+                    <p class="text-gray-700">Use shorter sentences (aim for 15-20 words), choose simpler words when possible, break up complex sentences, use active voice, and avoid jargon. Our tool highlights sentences over 30 words to help you identify areas for improvement.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        function countSyllables(word) {
+            word = word.toLowerCase().replace(/[^a-z]/g, '');
+            if (word.length <= 3) return 1;
+            
+            word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+            word = word.replace(/^y/, '');
+            const matches = word.match(/[aeiouy]{1,2}/g);
+            return matches ? matches.length : 1;
+        }
+
+        function analyzeText() {
+            const text = document.getElementById('textInput').value.trim();
+            
+            if (!text) {
+                document.getElementById('results').classList.add('hidden');
+                return;
+            }
+
+            // Split into sentences
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            const sentenceCount = sentences.length;
+
+            // Get words
+            const words = text.split(/\s+/).filter(w => /\w/.test(w));
+            const wordCount = words.length;
+
+            // Count syllables
+            let totalSyllables = 0;
+            let complexWordCount = 0;
+            
+            words.forEach(word => {
+                const syllables = countSyllables(word);
+                totalSyllables += syllables;
+                if (syllables >= 3) complexWordCount++;
+            });
+
+            if (sentenceCount === 0 || wordCount === 0) {
+                document.getElementById('results').classList.add('hidden');
+                return;
+            }
+
+            // Calculate metrics
+            const avgSentenceLength = wordCount / sentenceCount;
+            const avgSyllablesPerWord = totalSyllables / wordCount;
+            const complexWordPercent = (complexWordCount / wordCount) * 100;
+
+            // Flesch Reading Ease: 206.835 - 1.015(words/sentences) - 84.6(syllables/words)
+            const fleschScore = 206.835 - (1.015 * avgSentenceLength) - (84.6 * avgSyllablesPerWord);
+            const fleschClamped = Math.max(0, Math.min(100, fleschScore));
+
+            // Flesch-Kincaid Grade Level: 0.39(words/sentences) + 11.8(syllables/words) - 15.59
+            const gradeLevel = (0.39 * avgSentenceLength) + (11.8 * avgSyllablesPerWord) - 15.59;
+            const gradeClamped = Math.max(0, gradeLevel);
+
+            // Gunning Fog: 0.4[(words/sentences) + 100(complex words/words)]
+            const fogIndex = 0.4 * (avgSentenceLength + 100 * (complexWordCount / wordCount));
+
+            // Update UI
+            document.getElementById('fleschScore').textContent = fleschClamped.toFixed(1);
+            document.getElementById('fleschLabel').textContent = getFleschLabel(fleschClamped);
+            document.getElementById('fleschScore').className = 'text-4xl font-bold mb-2 ' + getFleschColor(fleschClamped);
+
+            document.getElementById('gradeLevel').textContent = gradeClamped.toFixed(1);
+            document.getElementById('gradeLabel').textContent = getGradeLabel(gradeClamped);
+            document.getElementById('gradeLevel').className = 'text-4xl font-bold mb-2 ' + getGradeColor(gradeClamped);
+
+            document.getElementById('fogIndex').textContent = fogIndex.toFixed(1);
+            document.getElementById('fogLabel').textContent = getFogLabel(fogIndex);
+            document.getElementById('fogIndex').className = 'text-4xl font-bold mb-2 ' + getFogColor(fogIndex);
+
+            document.getElementById('avgSentence').textContent = avgSentenceLength.toFixed(1);
+            document.getElementById('avgSyllables').textContent = avgSyllablesPerWord.toFixed(2);
+            document.getElementById('complexWords').textContent = complexWordPercent.toFixed(1);
+
+            // Find complex sentences (>30 words)
+            const complexSentences = sentences.filter(s => {
+                const sentWords = s.trim().split(/\s+/).filter(w => /\w/.test(w));
+                return sentWords.length > 30;
+            });
+
+            if (complexSentences.length > 0) {
+                const listHtml = complexSentences.map(s => {
+                    const wordCount = s.trim().split(/\s+/).filter(w => /\w/.test(w)).length;
+                    return `<div class="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                        <div class="text-xs text-gray-600 mb-1">${wordCount} words</div>
+                        <div class="text-sm">${s.trim()}...</div>
+                    </div>`;
+                }).join('');
+                document.getElementById('complexList').innerHTML = listHtml;
+                document.getElementById('complexSentences').classList.remove('hidden');
+            } else {
+                document.getElementById('complexSentences').classList.add('hidden');
+            }
+
+            document.getElementById('results').classList.remove('hidden');
+        }
+
+        function getFleschLabel(score) {
+            if (score >= 90) return 'Very Easy';
+            if (score >= 80) return 'Easy';
+            if (score >= 70) return 'Fairly Easy';
+            if (score >= 60) return 'Standard';
+            if (score >= 50) return 'Fairly Difficult';
+            if (score >= 30) return 'Difficult';
+            return 'Very Difficult';
+        }
+
+        function getFleschColor(score) {
+            if (score >= 70) return 'text-green-600';
+            if (score >= 50) return 'text-yellow-600';
+            return 'text-red-600';
+        }
+
+        function getGradeLabel(grade) {
+            if (grade <= 6) return 'Elementary';
+            if (grade <= 8) return 'Middle School';
+            if (grade <= 12) return 'High School';
+            if (grade <= 16) return 'College';
+            return 'Graduate';
+        }
+
+        function getGradeColor(grade) {
+            if (grade <= 10) return 'text-green-600';
+            if (grade <= 14) return 'text-yellow-600';
+            return 'text-red-600';
+        }
+
+        function getFogLabel(fog) {
+            if (fog <= 8) return 'Easy';
+            if (fog <= 12) return 'Moderate';
+            if (fog <= 16) return 'Difficult';
+            return 'Very Difficult';
+        }
+
+        function getFogColor(fog) {
+            if (fog <= 10) return 'text-green-600';
+            if (fog <= 14) return 'text-yellow-600';
+            return 'text-red-600';
+        }
+    </script>
+</body>
+</html>

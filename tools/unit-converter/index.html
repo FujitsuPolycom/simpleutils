@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter - SimpleUtils</title>
+    <meta name="description" content="Convert units instantly across multiple categories: length, weight, temperature, speed, area, volume, and digital storage. See all conversions at once with our comprehensive unit converter tool.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>Unit Converter</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Unit Converter</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Convert between units instantly with our comprehensive unit converter. Switch between length, weight, temperature, speed, area, volume, and digital storage units. Enter a value and see all conversions at once in an easy-to-read grid format.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Category:</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <button onclick="selectCategory('length')" id="catLength" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Length</button>
+                    <button onclick="selectCategory('weight')" id="catWeight" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Weight</button>
+                    <button onclick="selectCategory('temperature')" id="catTemperature" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Temperature</button>
+                    <button onclick="selectCategory('speed')" id="catSpeed" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Speed</button>
+                    <button onclick="selectCategory('area')" id="catArea" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Area</button>
+                    <button onclick="selectCategory('volume')" id="catVolume" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Volume</button>
+                    <button onclick="selectCategory('digital')" id="catDigital" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Digital Storage</button>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Input Value:</label>
+                <div class="flex gap-3">
+                    <input type="number" id="inputValue" value="1" oninput="convert()" class="flex-1 p-3 border border-gray-300 rounded-lg text-lg" step="any">
+                    <select id="fromUnit" onchange="convert()" class="p-3 border border-gray-300 rounded-lg bg-white">
+                    </select>
+                </div>
+            </div>
+
+            <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Select a category (Length, Weight, Temperature, etc.)</li>
+                <li>Enter the value you want to convert</li>
+                <li>Choose the unit you're converting from using the dropdown</li>
+                <li>See all conversions for that category displayed instantly in the grid below</li>
+                <li>Switch categories anytime to convert different types of measurements</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What units are supported?</h3>
+                    <p class="text-gray-700">We support common units in seven categories: Length (meter, kilometer, mile, yard, foot, inch, centimeter), Weight (kilogram, gram, pound, ounce, ton), Temperature (Celsius, Fahrenheit, Kelvin), Speed (km/h, mph, m/s, knots), Area, Volume, and Digital Storage (byte to terabyte).</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">How accurate are the conversions?</h3>
+                    <p class="text-gray-700">All conversions use standard, internationally recognized conversion factors. Results are accurate to multiple decimal places. For most practical purposes, the precision is more than sufficient.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Why does the tool show all conversions at once?</h3>
+                    <p class="text-gray-700">Showing all conversions simultaneously lets you quickly compare different units without multiple clicks. It's especially useful when you're not sure which unit you need or want to see multiple equivalents at a glance.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Can I convert between different categories?</h3>
+                    <p class="text-gray-700">No, you can only convert within the same category (e.g., length to length, weight to weight). Converting between different types of measurements (like length to weight) isn't physically meaningful without additional context.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        const conversions = {
+            length: {
+                meter: { factor: 1, label: 'Meters' },
+                kilometer: { factor: 0.001, label: 'Kilometers' },
+                centimeter: { factor: 100, label: 'Centimeters' },
+                millimeter: { factor: 1000, label: 'Millimeters' },
+                mile: { factor: 0.000621371, label: 'Miles' },
+                yard: { factor: 1.09361, label: 'Yards' },
+                foot: { factor: 3.28084, label: 'Feet' },
+                inch: { factor: 39.3701, label: 'Inches' }
+            },
+            weight: {
+                kilogram: { factor: 1, label: 'Kilograms' },
+                gram: { factor: 1000, label: 'Grams' },
+                milligram: { factor: 1000000, label: 'Milligrams' },
+                pound: { factor: 2.20462, label: 'Pounds' },
+                ounce: { factor: 35.274, label: 'Ounces' },
+                ton: { factor: 0.001, label: 'Metric Tons' }
+            },
+            temperature: {
+                celsius: { label: 'Celsius' },
+                fahrenheit: { label: 'Fahrenheit' },
+                kelvin: { label: 'Kelvin' }
+            },
+            speed: {
+                mps: { factor: 1, label: 'Meters/Second' },
+                kph: { factor: 3.6, label: 'Kilometers/Hour' },
+                mph: { factor: 2.23694, label: 'Miles/Hour' },
+                knots: { factor: 1.94384, label: 'Knots' }
+            },
+            area: {
+                sqmeter: { factor: 1, label: 'Square Meters' },
+                sqkilometer: { factor: 0.000001, label: 'Square Kilometers' },
+                sqfoot: { factor: 10.7639, label: 'Square Feet' },
+                sqmile: { factor: 3.861e-7, label: 'Square Miles' },
+                acre: { factor: 0.000247105, label: 'Acres' },
+                hectare: { factor: 0.0001, label: 'Hectares' }
+            },
+            volume: {
+                liter: { factor: 1, label: 'Liters' },
+                milliliter: { factor: 1000, label: 'Milliliters' },
+                gallon: { factor: 0.264172, label: 'Gallons (US)' },
+                quart: { factor: 1.05669, label: 'Quarts' },
+                pint: { factor: 2.11338, label: 'Pints' },
+                cup: { factor: 4.22675, label: 'Cups' },
+                cubicmeter: { factor: 0.001, label: 'Cubic Meters' }
+            },
+            digital: {
+                byte: { factor: 1, label: 'Bytes' },
+                kilobyte: { factor: 0.001, label: 'Kilobytes (KB)' },
+                megabyte: { factor: 0.000001, label: 'Megabytes (MB)' },
+                gigabyte: { factor: 1e-9, label: 'Gigabytes (GB)' },
+                terabyte: { factor: 1e-12, label: 'Terabytes (TB)' }
+            }
+        };
+
+        let currentCategory = 'length';
+
+        function selectCategory(category) {
+            currentCategory = category;
+            
+            // Update button styles
+            ['length', 'weight', 'temperature', 'speed', 'area', 'volume', 'digital'].forEach(cat => {
+                const btn = document.getElementById('cat' + cat.charAt(0).toUpperCase() + cat.slice(1));
+                btn.className = cat === category 
+                    ? 'px-4 py-2 bg-blue-600 text-white rounded-lg' 
+                    : 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg';
+            });
+
+            // Update from unit dropdown
+            const fromUnit = document.getElementById('fromUnit');
+            fromUnit.innerHTML = '';
+            Object.keys(conversions[category]).forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit;
+                option.textContent = conversions[category][unit].label;
+                fromUnit.appendChild(option);
+            });
+
+            convert();
+        }
+
+        function convert() {
+            const value = parseFloat(document.getElementById('inputValue').value) || 0;
+            const fromUnit = document.getElementById('fromUnit').value;
+            const category = currentCategory;
+            const results = document.getElementById('results');
+
+            if (category === 'temperature') {
+                results.innerHTML = convertTemperature(value, fromUnit);
+            } else {
+                const baseValue = value / conversions[category][fromUnit].factor;
+                let html = '';
+
+                Object.keys(conversions[category]).forEach(unit => {
+                    const converted = baseValue * conversions[category][unit].factor;
+                    const isActive = unit === fromUnit;
+                    html += `
+                        <div class="p-4 border ${isActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'} rounded-lg">
+                            <div class="text-sm text-gray-600 mb-1">${conversions[category][unit].label}</div>
+                            <div class="text-2xl font-bold text-gray-900">${converted.toFixed(6)}</div>
+                        </div>
+                    `;
+                });
+
+                results.innerHTML = html;
+            }
+        }
+
+        function convertTemperature(value, from) {
+            let celsius;
+            
+            if (from === 'celsius') celsius = value;
+            else if (from === 'fahrenheit') celsius = (value - 32) * 5/9;
+            else if (from === 'kelvin') celsius = value - 273.15;
+
+            const fahrenheit = (celsius * 9/5) + 32;
+            const kelvin = celsius + 273.15;
+
+            return `
+                <div class="p-4 border ${from === 'celsius' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'} rounded-lg">
+                    <div class="text-sm text-gray-600 mb-1">Celsius</div>
+                    <div class="text-2xl font-bold text-gray-900">${celsius.toFixed(2)}°C</div>
+                </div>
+                <div class="p-4 border ${from === 'fahrenheit' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'} rounded-lg">
+                    <div class="text-sm text-gray-600 mb-1">Fahrenheit</div>
+                    <div class="text-2xl font-bold text-gray-900">${fahrenheit.toFixed(2)}°F</div>
+                </div>
+                <div class="p-4 border ${from === 'kelvin' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'} rounded-lg">
+                    <div class="text-sm text-gray-600 mb-1">Kelvin</div>
+                    <div class="text-2xl font-bold text-gray-900">${kelvin.toFixed(2)}K</div>
+                </div>
+            `;
+        }
+
+        // Initialize
+        selectCategory('length');
+    </script>
+</body>
+</html>

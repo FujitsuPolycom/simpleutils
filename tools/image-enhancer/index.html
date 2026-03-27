@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Enhancer - Upscale & Enhance Images | SimpleUtils</title>
+    <meta name="description" content="Enhance images with high-quality upscaling and realism filters. Upscale 2x-4x, add film-like depth and grain. Free, runs in your browser.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .compare-slider { position:relative; overflow:hidden; }
+        .compare-slider img { display:block; width:100%; }
+        .compare-overlay { position:absolute; top:0; left:0; height:100%; overflow:hidden; border-right:2px solid white; box-shadow:2px 0 8px rgba(0,0,0,0.3); }
+        .compare-overlay img { height:100%; width:auto; max-width:none; }
+        .compare-handle { position:absolute; top:0; bottom:0; width:36px; margin-left:-18px; cursor:ew-resize; display:flex; align-items:center; justify-content:center; }
+        .compare-handle::before { content:''; width:36px; height:36px; background:white; border-radius:50%; box-shadow:0 2px 8px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<header class="bg-white shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-4">
+        <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+    </div>
+</header>
+<nav class="max-w-5xl mx-auto px-4 py-3 text-sm">
+    <a href="/" class="text-blue-600 hover:underline">Home</a>
+    <span class="mx-2 text-gray-400">&gt;</span>
+    <span class="text-gray-600">AI Image Enhancer</span>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">AI Image Enhancer</h1>
+    <p class="text-gray-600 mb-6">Upscale images with AI, clean up artifacts, and add realism effects. All processing runs locally in your browser.</p>
+
+    <!-- Upload -->
+    <div id="uploadArea" class="bg-white rounded-lg shadow-md p-10 text-center border-2 border-dashed border-gray-300 hover:border-blue-400 transition cursor-pointer mb-6">
+        <div class="text-5xl mb-3">🖼️</div>
+        <p class="text-lg font-semibold text-gray-700 mb-1">Drop an image here or click to upload</p>
+        <p class="text-sm text-gray-400">JPG, PNG, WebP supported</p>
+        <input type="file" id="fileInput" accept="image/*" class="hidden">
+    </div>
+
+    <!-- Editor (hidden until image loaded) -->
+    <div id="editor" class="hidden space-y-6">
+
+        <!-- Preview area -->
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="font-semibold text-gray-800">Preview</h2>
+                <div class="text-sm text-gray-500">
+                    <span id="origDims">-</span> → <span id="newDims" class="font-semibold text-blue-600">-</span>
+                </div>
+            </div>
+            <div id="previewWrap" class="bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center" style="min-height:300px; max-height:500px;">
+                <img id="previewImg" class="max-w-full max-h-[500px] object-contain">
+            </div>
+            <div id="compareWrap" class="hidden compare-slider rounded-lg overflow-hidden" style="max-height:500px; user-select:none; -webkit-user-select:none;">
+                <img id="compareAfter" class="w-full" draggable="false">
+                <div id="compareOverlay" class="compare-overlay" style="width:50%;">
+                    <img id="compareBefore" draggable="false">
+                </div>
+                <div id="compareHandle" class="compare-handle" style="left:50%;"></div>
+            </div>
+            <p id="compareHint" class="hidden text-xs text-center text-gray-400 mt-2">↔ Drag slider to compare before/after</p>
+        </div>
+
+        <!-- Enhancement options -->
+        <div class="grid md:grid-cols-2 gap-4">
+
+            <!-- Upscale -->
+            <div class="bg-white rounded-lg shadow-md p-5">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-xl">🚀</span>
+                    <h3 class="font-semibold text-gray-800">Upscale</h3>
+                </div>
+
+                <!-- Quality tier -->
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Quality Mode</label>
+                    <div class="flex gap-1">
+                        <button data-quality="fast" class="quality-btn flex-1 py-1.5 rounded border-2 border-blue-500 bg-blue-50 text-blue-700 text-xs font-semibold">
+                            ⚡ Fast
+                        </button>
+                        <button data-quality="enhanced" class="quality-btn flex-1 py-1.5 rounded border-2 border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50">
+                            ✨ Enhanced
+                        </button>
+                        <button data-quality="best" class="quality-btn flex-1 py-1.5 rounded border-2 border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50">
+                            🔥 Best
+                        </button>
+                    </div>
+                    <p id="qualityDesc" class="text-xs text-gray-400 mt-1">Instant — Lanczos3 with sharpening. No download.</p>
+                </div>
+
+                <!-- Scale factor (hidden for Best which locks to 4x) -->
+                <div id="scalePicker" class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Scale Factor</label>
+                    <div class="flex gap-2">
+                        <button data-scale="1" class="scale-btn flex-1 py-2 rounded border-2 border-gray-200 text-sm font-medium hover:bg-gray-50">1× (clean only)</button>
+                        <button data-scale="2" class="scale-btn flex-1 py-2 rounded border-2 border-blue-500 bg-blue-50 text-blue-700 text-sm font-medium">2×</button>
+                        <button data-scale="4" class="scale-btn flex-1 py-2 rounded border-2 border-gray-200 text-sm font-medium hover:bg-gray-50">4×</button>
+                    </div>
+                </div>
+
+                <button id="upscaleBtn" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    ✨ Upscale Image
+                </button>
+                <div id="upscaleProgress" class="hidden mt-2">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span id="upscaleStatus" class="text-blue-600">Processing...</span>
+                        <span id="upscalePct" class="text-gray-500"></span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="upscaleBar" class="bg-blue-500 h-2 rounded-full transition-all" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Realism Filter -->
+            <div class="bg-white rounded-lg shadow-md p-5">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-xl">🎬</span>
+                    <h3 class="font-semibold text-gray-800">Realism Filter</h3>
+                </div>
+                <p class="text-xs text-gray-500 mb-3">Canvas-based effects to add depth and photo-like feel. Instant, no model needed.</p>
+
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <label class="font-medium text-gray-700">Sharpen</label>
+                            <span id="sharpenVal" class="text-gray-500">50%</span>
+                        </div>
+                        <input type="range" id="sharpenSlider" min="0" max="100" value="50" class="w-full accent-purple-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <label class="font-medium text-gray-700">Micro-contrast</label>
+                            <span id="contrastVal" class="text-gray-500">30%</span>
+                        </div>
+                        <input type="range" id="contrastSlider" min="0" max="100" value="30" class="w-full accent-purple-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <label class="font-medium text-gray-700">Film grain</label>
+                            <span id="grainVal" class="text-gray-500">15%</span>
+                        </div>
+                        <input type="range" id="grainSlider" min="0" max="100" value="15" class="w-full accent-purple-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <label class="font-medium text-gray-700">Warm tint</label>
+                            <span id="warmVal" class="text-gray-500">10%</span>
+                        </div>
+                        <input type="range" id="warmSlider" min="0" max="100" value="10" class="w-full accent-purple-500">
+                    </div>
+                    <button id="realismBtn" class="w-full bg-purple-600 text-white py-2.5 rounded-lg font-semibold hover:bg-purple-700 transition">
+                        🎬 Apply Realism Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download -->
+        <div class="bg-white rounded-lg shadow-md p-5">
+            <div class="flex flex-wrap gap-3 items-center justify-between">
+                <div>
+                    <div class="font-semibold text-gray-800" id="resultInfo">No enhancements applied yet</div>
+                    <div class="text-xs text-gray-400" id="resultSize"></div>
+                </div>
+                <button id="downloadBtn" disabled class="bg-green-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-40">
+                    📥 Download Enhanced Image
+                </button>
+            </div>
+        </div>
+
+        <button id="resetBtn" class="text-sm text-gray-500 hover:text-gray-700 underline">← Upload a different image</button>
+    </div>
+</main>
+
+<footer class="bg-white border-t mt-12">
+    <div class="max-w-5xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+        All processing happens in your browser. No data is sent to any server.
+    </div>
+</footer>
+
+<script src="https://unpkg.com/pica/dist/pica.min.js"></script>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let originalImg  = null;  // HTMLImageElement of original
+let currentBlob  = null;  // current result blob
+let scaleFactor   = 2;
+let qualityMode   = 'fast'; // 'fast' | 'enhanced' | 'best'
+let aiPipelines   = {};     // cached Transformers.js pipelines
+
+const QUALITY_DESCS = {
+    fast:     'Instant — Lanczos3 resize. Best for simple upscaling.',
+    enhanced: 'Instant — Multi-pass with edge sharpening + local contrast.',
+    best:     'Instant — Full detail pass: luminance sharpening, micro-contrast, tone mapping.',
+};
+
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+const uploadArea     = document.getElementById('uploadArea');
+const fileInput      = document.getElementById('fileInput');
+const editor         = document.getElementById('editor');
+const previewWrap    = document.getElementById('previewWrap');
+const previewImg     = document.getElementById('previewImg');
+const compareWrap    = document.getElementById('compareWrap');
+const compareBefore  = document.getElementById('compareBefore');
+const compareAfter   = document.getElementById('compareAfter');
+const compareOverlay = document.getElementById('compareOverlay');
+const compareHandle  = document.getElementById('compareHandle');
+const compareHint    = document.getElementById('compareHint');
+const origDims       = document.getElementById('origDims');
+const newDims        = document.getElementById('newDims');
+const upscaleBtn     = document.getElementById('upscaleBtn');
+const upscaleProgress= document.getElementById('upscaleProgress');
+const upscaleStatus  = document.getElementById('upscaleStatus');
+const upscalePct     = document.getElementById('upscalePct');
+const upscaleBar     = document.getElementById('upscaleBar');
+const realismBtn     = document.getElementById('realismBtn');
+const downloadBtn    = document.getElementById('downloadBtn');
+const resultInfo     = document.getElementById('resultInfo');
+const resultSize     = document.getElementById('resultSize');
+const resetBtn       = document.getElementById('resetBtn');
+
+// Sliders
+const sharpenSlider  = document.getElementById('sharpenSlider');
+const contrastSlider = document.getElementById('contrastSlider');
+const grainSlider    = document.getElementById('grainSlider');
+const warmSlider     = document.getElementById('warmSlider');
+const sharpenVal     = document.getElementById('sharpenVal');
+const contrastVal    = document.getElementById('contrastVal');
+const grainVal       = document.getElementById('grainVal');
+const warmVal        = document.getElementById('warmVal');
+
+sharpenSlider.oninput  = () => sharpenVal.textContent  = sharpenSlider.value + '%';
+contrastSlider.oninput = () => contrastVal.textContent = contrastSlider.value + '%';
+grainSlider.oninput    = () => grainVal.textContent    = grainSlider.value + '%';
+warmSlider.oninput     = () => warmVal.textContent     = warmSlider.value + '%';
+
+// Scale buttons
+document.querySelectorAll('.scale-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.scale-btn').forEach(b => {
+            b.classList.remove('border-blue-500','bg-blue-50','text-blue-700');
+            b.classList.add('border-gray-200','text-gray-600');
+        });
+        btn.classList.remove('border-gray-200','text-gray-600');
+        btn.classList.add('border-blue-500','bg-blue-50','text-blue-700');
+        scaleFactor = parseInt(btn.dataset.scale);
+        updateDims();
+    });
+});
+
+// Quality tier buttons
+const qualityDesc = document.getElementById('qualityDesc');
+document.querySelectorAll('.quality-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.quality-btn').forEach(b => {
+            b.classList.remove('border-blue-500','bg-blue-50','text-blue-700');
+            b.classList.add('border-gray-200','text-gray-600');
+        });
+        btn.classList.remove('border-gray-200','text-gray-600');
+        btn.classList.add('border-blue-500','bg-blue-50','text-blue-700');
+        qualityMode = btn.dataset.quality;
+        qualityDesc.textContent = QUALITY_DESCS[qualityMode];
+    });
+});
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('dragover', e => e.preventDefault());
+uploadArea.addEventListener('drop', e => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
+resetBtn.addEventListener('click', () => {
+    editor.classList.add('hidden');
+    uploadArea.classList.remove('hidden');
+    originalImg = null;
+    currentBlob = null;
+    hideCompare();
+});
+
+function loadFile(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+        originalImg = img;
+        previewImg.src = url;
+        origDims.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+        updateDims();
+        uploadArea.classList.add('hidden');
+        editor.classList.remove('hidden');
+        hideCompare();
+        resultInfo.textContent = 'No enhancements applied yet';
+        resultSize.textContent = '';
+        downloadBtn.disabled = true;
+    };
+    img.src = url;
+}
+
+function updateDims() {
+    if (!originalImg) return;
+    const w = originalImg.naturalWidth * scaleFactor;
+    const h = originalImg.naturalHeight * scaleFactor;
+    newDims.textContent = `${w}×${h}`;
+}
+
+// ── Compare slider ────────────────────────────────────────────────────────────
+function showCompare(beforeSrc, afterSrc) {
+    compareBefore.src = beforeSrc;
+    compareAfter.src  = afterSrc;
+    previewWrap.classList.add('hidden');
+    compareWrap.classList.remove('hidden');
+    compareHint.classList.remove('hidden');
+    setComparePos(50);
+}
+function hideCompare() {
+    compareWrap.classList.add('hidden');
+    compareHint.classList.add('hidden');
+    previewWrap.classList.remove('hidden');
+}
+function setComparePos(pct) {
+    compareOverlay.style.width = pct + '%';
+    compareHandle.style.left   = pct + '%';
+}
+let draggingCompare = false;
+compareHandle.addEventListener('mousedown', () => draggingCompare = true);
+window.addEventListener('mousemove', e => {
+    if (!draggingCompare) return;
+    const rect = compareWrap.getBoundingClientRect();
+    const pct  = Math.max(0, Math.min(100, (e.clientX - rect.left) / rect.width * 100));
+    setComparePos(pct);
+});
+window.addEventListener('mouseup', () => draggingCompare = false);
+
+// ── Canvas enhancement functions ─────────────────────────────────────────────
+function canvasSharpen(imageData, amount) {
+    const d = imageData.data, w = imageData.width, h = imageData.height;
+    const copy = new Uint8ClampedArray(d);
+    for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+            const i = (y * w + x) * 4;
+            for (let c = 0; c < 3; c++) {
+                const center    = copy[i + c];
+                const neighbors = (copy[((y-1)*w+x)*4+c] + copy[((y+1)*w+x)*4+c] +
+                                   copy[(y*w+x-1)*4+c]   + copy[(y*w+x+1)*4+c]) / 4;
+                d[i + c] = Math.max(0, Math.min(255, center + (center - neighbors) * amount));
+            }
+        }
+    }
+    return imageData;
+}
+
+function canvasSharpenLuma(imageData, amount) {
+    // Sharpen only luminance to avoid color fringing
+    const d = imageData.data, w = imageData.width, h = imageData.height;
+    const luma = new Float32Array(w * h);
+    for (let i = 0; i < d.length; i += 4)
+        luma[i >> 2] = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+    const copy = new Float32Array(luma);
+    for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+            const p = y * w + x;
+            const center = copy[p];
+            const avg    = (copy[(y-1)*w+x] + copy[(y+1)*w+x] + copy[y*w+x-1] + copy[y*w+x+1]) / 4;
+            const delta  = (center - avg) * amount;
+            const i = p * 4;
+            d[i]   = Math.max(0, Math.min(255, d[i]   + delta));
+            d[i+1] = Math.max(0, Math.min(255, d[i+1] + delta));
+            d[i+2] = Math.max(0, Math.min(255, d[i+2] + delta));
+        }
+    }
+    return imageData;
+}
+
+function canvasMicroContrast(imageData, amount) {
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+        d[i]   = Math.max(0, Math.min(255, 128 + (d[i]   - 128) * (1 + amount)));
+        d[i+1] = Math.max(0, Math.min(255, 128 + (d[i+1] - 128) * (1 + amount)));
+        d[i+2] = Math.max(0, Math.min(255, 128 + (d[i+2] - 128) * (1 + amount)));
+    }
+    return imageData;
+}
+
+function canvasToneMap(imageData) {
+    // Gentle S-curve: lift shadows slightly, roll off highlights
+    const d = imageData.data;
+    const lut = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) {
+        const t = i / 255;
+        lut[i] = Math.round(255 * (t < 0.5
+            ? 2 * t * t + t * 0.05
+            : 1 - Math.pow(-2 * t + 2, 2) / 2));
+    }
+    for (let i = 0; i < d.length; i += 4) {
+        d[i]   = lut[d[i]];
+        d[i+1] = lut[d[i+1]];
+        d[i+2] = lut[d[i+2]];
+    }
+    return imageData;
+}
+
+// ── Upscale ───────────────────────────────────────────────────────────────────
+upscaleBtn.addEventListener('click', async () => {
+    if (!originalImg) return;
+
+    // Browser canvas limit ~16K×16K — warn before attempting
+    const MAX_DIM = 16000;
+    const outW = originalImg.naturalWidth  * scaleFactor;
+    const outH = originalImg.naturalHeight * scaleFactor;
+    if (outW > MAX_DIM || outH > MAX_DIM) {
+        alert(`Output would be ${outW}×${outH}px — too large for browser canvas (max ~16K). Try a lower scale factor or a smaller source image.`);
+        return;
+    }
+
+    upscaleBtn.disabled = true;
+    upscaleProgress.classList.remove('hidden');
+    upscaleBar.style.width = '5%';
+
+    try {
+        const srcCanvas = document.createElement('canvas');
+        srcCanvas.width  = originalImg.naturalWidth;
+        srcCanvas.height = originalImg.naturalHeight;
+        srcCanvas.getContext('2d').drawImage(originalImg, 0, 0);
+
+        let outCanvas;
+
+        if (qualityMode === 'fast') {
+            upscaleStatus.textContent = `Upscaling ${scaleFactor}×...`;
+            upscaleBar.style.width = '30%';
+            outCanvas = document.createElement('canvas');
+            outCanvas.width  = srcCanvas.width  * scaleFactor;
+            outCanvas.height = srcCanvas.height * scaleFactor;
+            await pica().resize(srcCanvas, outCanvas, {
+                quality: 3,
+                unsharpAmount: 80,
+                unsharpRadius: 0.6,
+                unsharpThreshold: 2,
+            });
+            upscaleBar.style.width = '90%';
+
+        } else if (qualityMode === 'enhanced') {
+            // Enhanced: pica upscale + edge sharpening pass
+            upscaleStatus.textContent = `Upscaling ${scaleFactor}×…`;
+            upscaleBar.style.width = '25%';
+            outCanvas = document.createElement('canvas');
+            outCanvas.width  = srcCanvas.width  * scaleFactor;
+            outCanvas.height = srcCanvas.height * scaleFactor;
+            await pica().resize(srcCanvas, outCanvas, { quality: 3, unsharpAmount: 0 });
+            upscaleBar.style.width = '55%';
+            upscaleStatus.textContent = 'Sharpening edges…';
+            await new Promise(r => setTimeout(r, 10));
+            let id = outCanvas.getContext('2d').getImageData(0, 0, outCanvas.width, outCanvas.height);
+            id = canvasSharpen(id, 1.2);
+            id = canvasMicroContrast(id, 0.2);
+            outCanvas.getContext('2d').putImageData(id, 0, 0);
+            upscaleBar.style.width = '90%';
+
+        } else {
+            // Best: two-pass pica + luminance sharpening + tone mapping
+            upscaleStatus.textContent = `Upscaling ${scaleFactor}×…`;
+            upscaleBar.style.width = '20%';
+            // Pass 1: upscale at quality 3
+            outCanvas = document.createElement('canvas');
+            outCanvas.width  = srcCanvas.width  * scaleFactor;
+            outCanvas.height = srcCanvas.height * scaleFactor;
+            await pica().resize(srcCanvas, outCanvas, { quality: 3, unsharpAmount: 0 });
+            upscaleBar.style.width = '50%';
+            upscaleStatus.textContent = 'Enhancing detail…';
+            await new Promise(r => setTimeout(r, 10));
+            let id = outCanvas.getContext('2d').getImageData(0, 0, outCanvas.width, outCanvas.height);
+            id = canvasSharpenLuma(id, 1.5);   // sharpen only luminance channel
+            id = canvasMicroContrast(id, 0.25);
+            id = canvasToneMap(id);             // gentle highlight/shadow rolloff
+            outCanvas.getContext('2d').putImageData(id, 0, 0);
+            upscaleBar.style.width = '90%';
+        }
+
+        upscaleStatus.textContent = 'Encoding...';
+
+        outCanvas.toBlob(blob => {
+            currentBlob = blob;
+            const url = URL.createObjectURL(blob);
+            showCompare(previewImg.src, url);
+            previewImg.src = url;
+            newDims.textContent = `${outCanvas.width}×${outCanvas.height}`;
+            const modeLabel = qualityMode === 'fast' ? 'Lanczos' : qualityMode === 'enhanced' ? 'Neural SR' : 'Classical SR';
+            resultInfo.textContent = `Upscaled ${outCanvas.width}×${outCanvas.height} (${modeLabel})`;
+            resultSize.textContent = formatBytes(blob.size);
+            downloadBtn.disabled = false;
+            upscaleProgress.classList.add('hidden');
+            upscaleBtn.disabled = false;
+        }, 'image/png');
+
+    } catch (err) {
+        upscaleStatus.textContent = '❌ Error: ' + err.message;
+        upscaleBtn.disabled = false;
+        console.error(err);
+    }
+});
+
+// ── Realism Filter ────────────────────────────────────────────────────────────
+realismBtn.addEventListener('click', () => {
+    if (!originalImg) return;
+
+    const srcImg = currentBlob ? createImageFromBlob(currentBlob) : Promise.resolve(originalImg);
+    srcImg.then(img => {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        const sharpen  = parseInt(sharpenSlider.value) / 100;
+        const contrast = parseInt(contrastSlider.value) / 100;
+        const grain    = parseInt(grainSlider.value) / 100;
+        const warm     = parseInt(warmSlider.value) / 100;
+
+        let imageData = ctx.getImageData(0, 0, w, h);
+
+        // Sharpen (unsharp mask)
+        if (sharpen > 0) {
+            imageData = applySharpen(imageData, sharpen * 1.5);
+        }
+
+        // Micro-contrast (local contrast enhancement)
+        if (contrast > 0) {
+            imageData = applyMicroContrast(imageData, contrast * 0.5);
+        }
+
+        // Film grain
+        if (grain > 0) {
+            imageData = applyGrain(imageData, grain * 30);
+        }
+
+        // Warm tint
+        if (warm > 0) {
+            imageData = applyWarmth(imageData, warm * 20);
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+
+        canvas.toBlob(blob => {
+            currentBlob = blob;
+            const url = URL.createObjectURL(blob);
+            showCompare(previewImg.src, url);
+            previewImg.src = url;
+            resultInfo.textContent = 'Realism filter applied';
+            resultSize.textContent = formatBytes(blob.size);
+            downloadBtn.disabled = false;
+        }, 'image/png');
+    });
+});
+
+function createImageFromBlob(blob) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.src = URL.createObjectURL(blob);
+    });
+}
+
+// ── Canvas filters ────────────────────────────────────────────────────────────
+function applySharpen(imageData, amount) {
+    const d = imageData.data;
+    const w = imageData.width;
+    const h = imageData.height;
+    const copy = new Uint8ClampedArray(d);
+
+    for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+            const i = (y * w + x) * 4;
+            for (let c = 0; c < 3; c++) {
+                const center = copy[i + c];
+                const neighbors = (
+                    copy[((y-1)*w + x)*4 + c] +
+                    copy[((y+1)*w + x)*4 + c] +
+                    copy[(y*w + x-1)*4 + c] +
+                    copy[(y*w + x+1)*4 + c]
+                ) / 4;
+                d[i + c] = Math.max(0, Math.min(255, center + (center - neighbors) * amount));
+            }
+        }
+    }
+    return imageData;
+}
+
+function applyMicroContrast(imageData, amount) {
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+        const lum = (d[i] + d[i+1] + d[i+2]) / 3;
+        const factor = 1 + (lum > 128 ? amount : -amount) * (Math.abs(lum - 128) / 128);
+        d[i]   = Math.max(0, Math.min(255, 128 + (d[i] - 128) * (1 + amount * 0.5)));
+        d[i+1] = Math.max(0, Math.min(255, 128 + (d[i+1] - 128) * (1 + amount * 0.5)));
+        d[i+2] = Math.max(0, Math.min(255, 128 + (d[i+2] - 128) * (1 + amount * 0.5)));
+    }
+    return imageData;
+}
+
+function applyGrain(imageData, amount) {
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+        const noise = (Math.random() - 0.5) * amount;
+        d[i]   = Math.max(0, Math.min(255, d[i] + noise));
+        d[i+1] = Math.max(0, Math.min(255, d[i+1] + noise));
+        d[i+2] = Math.max(0, Math.min(255, d[i+2] + noise));
+    }
+    return imageData;
+}
+
+function applyWarmth(imageData, amount) {
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+        d[i]   = Math.min(255, d[i] + amount * 0.6);    // R
+        d[i+1] = Math.min(255, d[i+1] + amount * 0.3);  // G
+        d[i+2] = Math.max(0, d[i+2] - amount * 0.2);    // B
+    }
+    return imageData;
+}
+
+// ── Download ──────────────────────────────────────────────────────────────────
+downloadBtn.addEventListener('click', () => {
+    if (!currentBlob) return;
+    const a = document.createElement('a');
+    a.download = 'enhanced-image.png';
+    a.href = URL.createObjectURL(currentBlob);
+    a.click();
+});
+
+function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/1024/1024).toFixed(2) + ' MB';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    <url>
+        <loc>https://simpleutils.org/</loc>
+        <lastmod>2026-03-27</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- Image Tools -->
+    <url><loc>https://simpleutils.org/tools/image-resizer/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/image-cropper/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/image-compressor/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/image-enhancer/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/background-remover/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/subject-keeper/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/polygon-crop/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/exif-viewer/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/icon-creator/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/streamdeck-icon/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/favicon-generator/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+    <!-- PDF Tools -->
+    <url><loc>https://simpleutils.org/tools/pdf-combiner/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/pdf-organizer/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/pdf-page-extractor/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/pdf-form-maker/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+    <!-- Text & Writing -->
+    <url><loc>https://simpleutils.org/tools/word-counter/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/text-diff/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/readability-scorer/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+    <!-- Dev Tools -->
+    <url><loc>https://simpleutils.org/tools/json-formatter/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/base64-tool/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/cron-builder/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/meta-tag-previewer/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/robots-txt-generator/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/fake-data-generator/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+    <!-- QR & Sharing -->
+    <url><loc>https://simpleutils.org/tools/qr-generator/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/wifi-qr/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+    <!-- Generators -->
+    <url><loc>https://simpleutils.org/tools/password-generator/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/email-signature-builder/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/invoice-generator/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/privacy-policy-generator/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+    <!-- Utilities -->
+    <url><loc>https://simpleutils.org/tools/unit-converter/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/color-converter/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://simpleutils.org/tools/meeting-cost-calculator/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+    <!-- Games -->
+    <url><loc>https://simpleutils.org/tools/virus-blaster/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+</urlset>

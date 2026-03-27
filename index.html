@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleUtils - Fast, Free Browser Tools. No Signup.</title>
+    <meta name="description" content="25+ free tools that run entirely in your browser — including AI tools. No signup, no tracking, no data ever leaves your device.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Schema.org WebSite markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "SimpleUtils",
+      "url": "https://simpleutils.org",
+      "description": "Fast, free tools that run entirely in your browser. No signup, no tracking, no data sharing — AI tools included.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://simpleutils.org/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <!-- Schema.org ItemList markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "SimpleUtils Tool Collection",
+      "description": "Complete list of browser-based utility tools",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "url": "https://simpleutils.org/tools/image-resizer/", "name": "Image Resizer"},
+        {"@type": "ListItem", "position": 2, "url": "https://simpleutils.org/tools/image-cropper/", "name": "Image Cropper"},
+        {"@type": "ListItem", "position": 3, "url": "https://simpleutils.org/tools/image-compressor/", "name": "Image Compressor"},
+        {"@type": "ListItem", "position": 4, "url": "https://simpleutils.org/tools/background-remover/", "name": "Background Remover"},
+        {"@type": "ListItem", "position": 5, "url": "https://simpleutils.org/tools/exif-viewer/", "name": "EXIF Viewer"},
+        {"@type": "ListItem", "position": 6, "url": "https://simpleutils.org/tools/favicon-generator/", "name": "Favicon Generator"},
+        {"@type": "ListItem", "position": 7, "url": "https://simpleutils.org/tools/pdf-page-extractor/", "name": "PDF Page Extractor"},
+        {"@type": "ListItem", "position": 8, "url": "https://simpleutils.org/tools/qr-generator/", "name": "QR Generator"},
+        {"@type": "ListItem", "position": 9, "url": "https://simpleutils.org/tools/wifi-qr/", "name": "WiFi QR"},
+        {"@type": "ListItem", "position": 10, "url": "https://simpleutils.org/tools/json-formatter/", "name": "JSON Formatter"},
+        {"@type": "ListItem", "position": 11, "url": "https://simpleutils.org/tools/base64-tool/", "name": "Base64 Tool"},
+        {"@type": "ListItem", "position": 12, "url": "https://simpleutils.org/tools/word-counter/", "name": "Word Counter"},
+        {"@type": "ListItem", "position": 13, "url": "https://simpleutils.org/tools/password-generator/", "name": "Password Generator"},
+        {"@type": "ListItem", "position": 14, "url": "https://simpleutils.org/tools/text-diff/", "name": "Text Diff"},
+        {"@type": "ListItem", "position": 15, "url": "https://simpleutils.org/tools/cron-builder/", "name": "Cron Builder"},
+        {"@type": "ListItem", "position": 16, "url": "https://simpleutils.org/tools/meta-tag-previewer/", "name": "Meta Tag Previewer"},
+        {"@type": "ListItem", "position": 17, "url": "https://simpleutils.org/tools/fake-data-generator/", "name": "Fake Data Generator"},
+        {"@type": "ListItem", "position": 18, "url": "https://simpleutils.org/tools/meeting-cost-calculator/", "name": "Meeting Cost Calculator"},
+        {"@type": "ListItem", "position": 19, "url": "https://simpleutils.org/tools/readability-scorer/", "name": "Readability Scorer"},
+        {"@type": "ListItem", "position": 20, "url": "https://simpleutils.org/tools/unit-converter/", "name": "Unit Converter"},
+        {"@type": "ListItem", "position": 21, "url": "https://simpleutils.org/tools/color-converter/", "name": "Color Converter"},
+        {"@type": "ListItem", "position": 22, "url": "https://simpleutils.org/tools/robots-txt-generator/", "name": "Robots.txt Generator"},
+        {"@type": "ListItem", "position": 23, "url": "https://simpleutils.org/tools/privacy-policy-generator/", "name": "Privacy Policy Generator"},
+        {"@type": "ListItem", "position": 24, "url": "https://simpleutils.org/tools/email-signature-builder/", "name": "Email Signature Builder"},
+        {"@type": "ListItem", "position": 25, "url": "https://simpleutils.org/tools/invoice-generator/", "name": "Invoice Generator"}
+      ]
+    }
+    </script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+    
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="border-b border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center">
+                <h1 class="text-4xl sm:text-5xl font-bold text-white mb-2">
+                    ⚡ SimpleUtils
+                </h1>
+                <p class="text-xl text-slate-300 mb-3">Fast, free tools that run entirely in your browser.</p>
+                <div class="flex flex-wrap justify-center gap-3 text-sm">
+                    <a href="/about/privacy.html" class="bg-green-900/50 text-green-300 border border-green-700 px-3 py-1 rounded-full hover:bg-green-800/50 transition">🔒 No data leaves your device</a>
+                    <a href="/about/ai.html"      class="bg-green-900/50 text-green-300 border border-green-700 px-3 py-1 rounded-full hover:bg-green-800/50 transition">🤖 AI runs locally in your browser</a>
+                    <a href="/about/no-signup.html" class="bg-green-900/50 text-green-300 border border-green-700 px-3 py-1 rounded-full hover:bg-green-800/50 transition">🚫 No signup. No tracking.</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- Search Bar -->
+        <div class="mb-12 max-w-2xl mx-auto">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Search tools..." 
+                class="w-full px-6 py-4 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+            >
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Sidebar for ads -->
+            <aside class="lg:w-64 flex-shrink-0 order-2 lg:order-1">
+                <!-- ADSENSE_SIDEBAR -->
+            </aside>
+
+            <!-- Tool Grid -->
+            <div class="flex-1 order-1 lg:order-2">
+                <div id="toolGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- ── IMAGE ─────────────────────────────────────────── -->
+                    <div class="col-span-full flex items-center gap-3 pt-2 pb-1" data-section-header="image">
+                        <span class="text-xl">🖼️</span>
+                        <h2 class="text-base font-bold text-slate-600 uppercase tracking-wider">Image</h2>
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                    </div>
+                    <a href="/tools/image-resizer/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="image resizer" data-section="image">
+                        <div class="text-4xl mb-3">🖼️</div>
+                        <h3 class="text-lg font-semibold mb-2">Image Resizer</h3>
+                        <p class="text-slate-600 text-sm">Resize images to any dimension</p>
+                    </a>
+                    <a href="/tools/image-cropper/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="image cropper" data-section="image">
+                        <div class="text-4xl mb-3">✂️</div>
+                        <h3 class="text-lg font-semibold mb-2">Image Cropper</h3>
+                        <p class="text-slate-600 text-sm">Crop images visually in browser</p>
+                    </a>
+                    <a href="/tools/image-compressor/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="image compressor" data-section="image">
+                        <div class="text-4xl mb-3">🗜️</div>
+                        <h3 class="text-lg font-semibold mb-2">Image Compressor</h3>
+                        <p class="text-slate-600 text-sm">Compress images without losing quality</p>
+                    </a>
+                    <a href="/tools/image-enhancer/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="ai image enhancer upscale realism" data-section="image">
+                        <div class="text-4xl mb-3">✨</div>
+                        <h3 class="text-lg font-semibold mb-2">Image Enhancer</h3>
+                        <p class="text-slate-600 text-sm">Upscale & enhance with multi-pass sharpening</p>
+                    </a>
+                    <a href="/tools/background-remover/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="background remover" data-section="image">
+                        <div class="text-4xl mb-3">🎭</div>
+                        <h3 class="text-lg font-semibold mb-2">Background Remover</h3>
+                        <p class="text-slate-600 text-sm">Remove image backgrounds instantly</p>
+                    </a>
+                    <a href="/tools/subject-keeper/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="subject keeper isolate object" data-section="image">
+                        <div class="text-4xl mb-3">🎯</div>
+                        <h3 class="text-lg font-semibold mb-2">Subject Keeper</h3>
+                        <p class="text-slate-600 text-sm">Describe what to keep, erase everything else</p>
+                    </a>
+                    <a href="/tools/polygon-crop/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="polygon crop freeform selection lasso transparent" data-section="image">
+                        <div class="text-4xl mb-3">🔷</div>
+                        <h3 class="text-lg font-semibold mb-2">Polygon Crop</h3>
+                        <p class="text-slate-600 text-sm">Freeform crop any shape, transparent PNG output</p>
+                    </a>
+                    <a href="/tools/exif-viewer/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="exif viewer metadata photo" data-section="image">
+                        <div class="text-4xl mb-3">📸</div>
+                        <h3 class="text-lg font-semibold mb-2">EXIF Viewer</h3>
+                        <p class="text-slate-600 text-sm">View and strip hidden photo metadata</p>
+                    </a>
+                    <a href="/tools/icon-creator/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="icon creator shortcut app icon" data-section="image">
+                        <div class="text-4xl mb-3">🎨</div>
+                        <h3 class="text-lg font-semibold mb-2">Icon Creator</h3>
+                        <p class="text-slate-600 text-sm">Make icons for shortcuts, apps & bookmarks</p>
+                    </a>
+                    <a href="/tools/streamdeck-icon/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="stream deck icon elgato crop" data-section="image">
+                        <div class="text-4xl mb-3">🎛️</div>
+                        <h3 class="text-lg font-semibold mb-2">Stream Deck Icon Maker</h3>
+                        <p class="text-slate-600 text-sm">Crop & export perfect Stream Deck icons</p>
+                    </a>
+                    <a href="/tools/favicon-generator/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="favicon generator" data-section="image">
+                        <div class="text-4xl mb-3">🌐</div>
+                        <h3 class="text-lg font-semibold mb-2">Favicon Generator</h3>
+                        <p class="text-slate-600 text-sm">Turn any image into a favicon</p>
+                    </a>
+
+                    <!-- ── PDF ───────────────────────────────────────────── -->
+                    <div class="col-span-full flex items-center gap-3 pt-6 pb-1" data-section-header="pdf">
+                        <span class="text-xl">📄</span>
+                        <h2 class="text-base font-bold text-slate-600 uppercase tracking-wider">PDF</h2>
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                    </div>
+                    <a href="/tools/pdf-combiner/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="pdf combiner merge combine pdfs" data-section="pdf">
+                        <div class="text-4xl mb-3">🔗</div>
+                        <h3 class="text-lg font-semibold mb-2">PDF Combiner</h3>
+                        <p class="text-slate-600 text-sm">Merge multiple PDFs into one file</p>
+                    </a>
+                    <a href="/tools/pdf-organizer/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="pdf organizer reorder pages rearrange pdf" data-section="pdf">
+                        <div class="text-4xl mb-3">📑</div>
+                        <h3 class="text-lg font-semibold mb-2">PDF Page Organizer</h3>
+                        <p class="text-slate-600 text-sm">Drag pages to reorder, delete, then export</p>
+                    </a>
+                    <a href="/tools/pdf-page-extractor/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="pdf page extractor" data-section="pdf">
+                        <div class="text-4xl mb-3">📤</div>
+                        <h3 class="text-lg font-semibold mb-2">PDF Page Extractor</h3>
+                        <p class="text-slate-600 text-sm">Extract specific pages from a PDF</p>
+                    </a>
+                    <a href="/tools/pdf-form-maker/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="pdf form maker fillable form fields" data-section="pdf">
+                        <div class="text-4xl mb-3">📝</div>
+                        <h3 class="text-lg font-semibold mb-2">PDF Form Maker</h3>
+                        <p class="text-slate-600 text-sm">Convert any PDF into a fillable form</p>
+                    </a>
+
+                    <!-- ── TEXT & WRITING ─────────────────────────────────── -->
+                    <div class="col-span-full flex items-center gap-3 pt-6 pb-1" data-section-header="text">
+                        <span class="text-xl">✍️</span>
+                        <h2 class="text-base font-bold text-slate-600 uppercase tracking-wider">Text & Writing</h2>
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                    </div>
+                    <a href="/tools/word-counter/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="word counter characters sentences reading time" data-section="text">
+                        <div class="text-4xl mb-3">📝</div>
+                        <h3 class="text-lg font-semibold mb-2">Word Counter</h3>
+                        <p class="text-slate-600 text-sm">Count words, characters, sentences, reading time</p>
+                    </a>
+                    <a href="/tools/text-diff/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="text diff compare differences" data-section="text">
+                        <div class="text-4xl mb-3">🔍</div>
+                        <h3 class="text-lg font-semibold mb-2">Text Diff</h3>
+                        <p class="text-slate-600 text-sm">Compare two texts and highlight differences</p>
+                    </a>
+                    <a href="/tools/readability-scorer/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="readability scorer flesch kincaid" data-section="text">
+                        <div class="text-4xl mb-3">📖</div>
+                        <h3 class="text-lg font-semibold mb-2">Readability Scorer</h3>
+                        <p class="text-slate-600 text-sm">Score text readability with Flesch-Kincaid</p>
+                    </a>
+
+                    <!-- ── DEV TOOLS ──────────────────────────────────────── -->
+                    <div class="col-span-full flex items-center gap-3 pt-6 pb-1" data-section-header="dev">
+                        <span class="text-xl">💻</span>
+                        <h2 class="text-base font-bold text-slate-600 uppercase tracking-wider">Dev Tools</h2>
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                    </div>
+                    <a href="/tools/json-formatter/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="json formatter validate minify" data-section="dev">
+                        <div class="text-4xl mb-3">{ }</div>
+                        <h3 class="text-lg font-semibold mb-2">JSON Formatter</h3>
+                        <p class="text-slate-600 text-sm">Format, validate and minify JSON</p>
+                    </a>
+                    <a href="/tools/base64-tool/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="base64 tool encode decode" data-section="dev">
+                        <div class="text-4xl mb-3">🔐</div>
+                        <h3 class="text-lg font-semibold mb-2">Base64 Tool</h3>
+                        <p class="text-slate-600 text-sm">Encode/decode Base64 text or files</p>
+                    </a>
+                    <a href="/tools/cron-builder/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="cron builder expression scheduler" data-section="dev">
+                        <div class="text-4xl mb-3">⏰</div>
+                        <h3 class="text-lg font-semibold mb-2">Cron Builder</h3>
+                        <p class="text-slate-600 text-sm">Visual cron expression builder and explainer</p>
+                    </a>
+                    <a href="/tools/meta-tag-previewer/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="meta tag previewer seo og social" data-section="dev">
+                        <div class="text-4xl mb-3">🏷️</div>
+                        <h3 class="text-lg font-semibold mb-2">Meta Tag Previewer</h3>
+                        <p class="text-slate-600 text-sm">Preview how your page looks in Google and social</p>
+                    </a>
+                    <a href="/tools/robots-txt-generator/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="robots txt generator seo crawl" data-section="dev">
+                        <div class="text-4xl mb-3">🤖</div>
+                        <h3 class="text-lg font-semibold mb-2">Robots.txt Generator</h3>
+                        <p class="text-slate-600 text-sm">Generate a robots.txt file visually</p>
+                    </a>
+                    <a href="/tools/fake-data-generator/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="fake data generator test names emails" data-section="dev">
+                        <div class="text-4xl mb-3">🎲</div>
+                        <h3 class="text-lg font-semibold mb-2">Fake Data Generator</h3>
+                        <p class="text-slate-600 text-sm">Generate realistic fake names, emails, addresses</p>
+                    </a>
+
+                    <!-- ── QR & SHARING ───────────────────────────────────── -->
+                    <div class="col-span-full flex items-center gap-3 pt-6 pb-1" data-section-header="qr">
+                        <span class="text-xl">📱</span>
+                        <h2 class="text-base font-bold text-slate-600 uppercase tracking-wider">QR & Sharing</h2>
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                    </div>
+                    <a href="/tools/qr-generator/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="qr generator code url" data-section="qr">
+                        <div class="text-4xl mb-3">📱</div>
+                        <h3 class="text-lg font-semibold mb-2">QR Generator</h3>
+                        <p class="text-slate-600 text-sm">Generate QR codes for any URL or text</p>
+                    </a>
+                    <a href="/tools/wifi-qr/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="wifi qr code network share" data-section="qr">
+                        <div class="text-4xl mb-3">📶</div>
+                        <h3 class="text-lg font-semibold mb-2">WiFi QR</h3>
+                        <p class="text-slate-600 text-sm">Generate a QR code to share your WiFi</p>
+                    </a>
+
+                    <!-- ── GENERATORS ─────────────────────────────────────── -->
+                    <div class="col-span-full flex items-center gap-3 pt-6 pb-1" data-section-header="generators">
+                        <span class="text-xl">📋</span>
+                        <h2 class="text-base font-bold text-slate-600 uppercase tracking-wider">Generators</h2>
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                    </div>
+                    <a href="/tools/password-generator/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="password generator strong random" data-section="generators">
+                        <div class="text-4xl mb-3">🔑</div>
+                        <h3 class="text-lg font-semibold mb-2">Password Generator</h3>
+                        <p class="text-slate-600 text-sm">Generate strong random passwords</p>
+                    </a>
+                    <a href="/tools/email-signature-builder/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="email signature builder html" data-section="generators">
+                        <div class="text-4xl mb-3">✉️</div>
+                        <h3 class="text-lg font-semibold mb-2">Email Signature Builder</h3>
+                        <p class="text-slate-600 text-sm">Build an HTML email signature visually</p>
+                    </a>
+                    <a href="/tools/invoice-generator/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="invoice generator pdf billing" data-section="generators">
+                        <div class="text-4xl mb-3">🧾</div>
+                        <h3 class="text-lg font-semibold mb-2">Invoice Generator</h3>
+                        <p class="text-slate-600 text-sm">Create and download a PDF invoice</p>
+                    </a>
+                    <a href="/tools/privacy-policy-generator/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="privacy policy generator legal site" data-section="generators">
+                        <div class="text-4xl mb-3">🔒</div>
+                        <h3 class="text-lg font-semibold mb-2">Privacy Policy Generator</h3>
+                        <p class="text-slate-600 text-sm">Generate a basic privacy policy for your site</p>
+                    </a>
+
+                    <!-- ── UTILITIES ──────────────────────────────────────── -->
+                    <div class="col-span-full flex items-center gap-3 pt-6 pb-1" data-section-header="utilities">
+                        <span class="text-xl">🧮</span>
+                        <h2 class="text-base font-bold text-slate-600 uppercase tracking-wider">Utilities</h2>
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                    </div>
+                    <a href="/tools/unit-converter/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="unit converter length weight temperature speed" data-section="utilities">
+                        <div class="text-4xl mb-3">📏</div>
+                        <h3 class="text-lg font-semibold mb-2">Unit Converter</h3>
+                        <p class="text-slate-600 text-sm">Convert length, weight, temperature, speed and more</p>
+                    </a>
+                    <a href="/tools/color-converter/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="color converter hex rgb hsl" data-section="utilities">
+                        <div class="text-4xl mb-3">🎨</div>
+                        <h3 class="text-lg font-semibold mb-2">Color Converter</h3>
+                        <p class="text-slate-600 text-sm">Convert between HEX, RGB, HSL color formats</p>
+                    </a>
+                    <a href="/tools/meeting-cost-calculator/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="meeting cost calculator salary time" data-section="utilities">
+                        <div class="text-4xl mb-3">💰</div>
+                        <h3 class="text-lg font-semibold mb-2">Meeting Cost Calculator</h3>
+                        <p class="text-slate-600 text-sm">Calculate how much a meeting actually costs</p>
+                    </a>
+
+                    <!-- ── GAMES ────────────────────────────────────────── -->
+                    <div class="col-span-full flex items-center gap-3 pt-6 pb-1" data-section-header="games">
+                        <span class="text-xl">🎮</span>
+                        <h2 class="text-base font-bold text-slate-600 uppercase tracking-wider">Games</h2>
+                        <div class="flex-1 h-px bg-slate-200"></div>
+                    </div>
+                    <a href="/tools/virus-blaster/" class="tool-card bg-white text-slate-900 rounded-lg p-6 hover:shadow-xl transition-shadow duration-200" data-name="vaccine blaster virus game" data-section="games">
+                        <div class="text-4xl mb-3">💉</div>
+                        <h3 class="text-lg font-semibold mb-2">Vaccine Blaster</h3>
+                        <p class="text-slate-600 text-sm">Shoot viruses, save the clinic</p>
+                    </a>
+
+                </div>
+                
+                <div id="noResults" class="hidden text-center py-12">
+                    <p class="text-slate-400 text-lg">No tools found matching your search.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-700 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <p class="text-center text-slate-400">
+                All tools run in your browser. No data is sent to any server.
+            </p>
+            <p class="text-center text-slate-500 text-sm mt-4">
+                © 2026 SimpleUtils. Built with privacy in mind.
+            </p>
+        </div>
+    </footer>
+
+    <script src="/js/common.js"></script>
+</body>
+</html>

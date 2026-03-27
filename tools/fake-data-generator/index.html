@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Data Generator - SimpleUtils</title>
+    <meta name="description" content="Generate realistic fake data for testing and development. Create random names, emails, addresses, phone numbers, and more. Export as JSON, CSV, or view in a table. Perfect for database testing and mockups.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>Fake Data Generator</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Fake Data Generator</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Generate realistic fake data for testing, development, and prototyping. Create random user profiles with names, emails, addresses, phone numbers, and more. Perfect for populating test databases, creating mockups, or demonstrating applications without exposing real user data.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Records (1-100):</label>
+                <input type="number" id="recordCount" min="1" max="100" value="10" class="w-full p-2 border border-gray-300 rounded-lg">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Select Fields to Include:</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_name" checked class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Full Name</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_email" checked class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Email</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_phone" checked class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Phone</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_address" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Address</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_company" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Company</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_job" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Job Title</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_dob" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Date of Birth</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_username" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Username</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_password" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Password</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_creditcard" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">Credit Card</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="field_uuid" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm">UUID</span>
+                    </label>
+                </div>
+            </div>
+
+            <button onclick="generateData()" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold mb-6">
+                Generate Data
+            </button>
+
+            <div id="outputSection" class="hidden">
+                <div class="flex gap-3 mb-4">
+                    <button onclick="showFormat('table')" id="btnTable" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg">Table</button>
+                    <button onclick="showFormat('json')" id="btnJSON" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">JSON</button>
+                    <button onclick="showFormat('csv')" id="btnCSV" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">CSV</button>
+                    <button onclick="downloadData()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Download</button>
+                </div>
+
+                <div id="tableView" class="overflow-auto max-h-96 border border-gray-300 rounded-lg"></div>
+                <div id="textView" class="hidden">
+                    <textarea id="textOutput" readonly class="w-full h-96 p-4 border border-gray-300 rounded-lg font-mono text-sm bg-gray-50"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Choose how many records you want to generate (1-100)</li>
+                <li>Select which fields to include using the checkboxes</li>
+                <li>Click "Generate Data" to create random test data</li>
+                <li>View the data as a table, JSON, or CSV using the format buttons</li>
+                <li>Click "Download" to save the data in the currently selected format</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Is this data real?</h3>
+                    <p class="text-gray-700">No, all data is completely fake and randomly generated. Names, addresses, phone numbers, credit cards, and all other information are fictional and should only be used for testing and development purposes.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Can I use this data in production?</h3>
+                    <p class="text-gray-700">This tool is designed for testing, development, and demonstration purposes only. Never use fake data in production systems or for any purpose that requires real user information.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Are the credit card numbers valid?</h3>
+                    <p class="text-gray-700">The credit card numbers are fake and follow the Luhn algorithm format to appear realistic for testing payment forms, but they are not real credit cards and cannot be used for actual transactions.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What format should I use?</h3>
+                    <p class="text-gray-700">Use JSON for APIs and web applications, CSV for importing into spreadsheets or databases, and the table view for quick visual reference. All formats contain the same data in different structures.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        const firstNames = ['James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael', 'Linda', 'William', 'Elizabeth', 'David', 'Barbara', 'Richard', 'Susan', 'Joseph', 'Jessica', 'Thomas', 'Sarah', 'Charles', 'Karen', 'Christopher', 'Nancy', 'Daniel', 'Lisa', 'Matthew', 'Betty', 'Anthony', 'Margaret', 'Mark', 'Sandra', 'Donald', 'Ashley', 'Steven', 'Kimberly', 'Paul', 'Emily', 'Andrew', 'Donna', 'Joshua', 'Michelle', 'Kenneth', 'Dorothy', 'Kevin', 'Carol', 'Brian', 'Amanda', 'George', 'Melissa', 'Edward', 'Deborah'];
+        
+        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin', 'Lee', 'Perez', 'Thompson', 'White', 'Harris', 'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson', 'Walker', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores', 'Green', 'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell', 'Carter', 'Roberts'];
+        
+        const streets = ['Main', 'Oak', 'Maple', 'Cedar', 'Elm', 'Washington', 'Lake', 'Hill', 'Park', 'River', 'Pine', 'Church', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'North', 'South', 'East', 'West', 'Center', 'Adams', 'Lincoln', 'Madison', 'Jefferson', 'Jackson', 'Franklin', 'Wilson'];
+        
+        const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose', 'Austin', 'Jacksonville', 'Fort Worth', 'Columbus', 'Indianapolis', 'Charlotte', 'San Francisco', 'Seattle', 'Denver', 'Washington', 'Boston', 'Nashville', 'Detroit', 'Portland', 'Las Vegas', 'Memphis', 'Louisville', 'Baltimore', 'Milwaukee', 'Albuquerque'];
+        
+        const companies = ['Tech Corp', 'Global Industries', 'Innovate Inc', 'Digital Solutions', 'Smart Systems', 'Apex Technologies', 'Prime Ventures', 'Elite Enterprises', 'Dynamic Group', 'Quantum Labs', 'Fusion Works', 'Vertex Solutions', 'Pinnacle Corp', 'Nexus Industries', 'Stellar Systems', 'Vanguard Tech', 'Catalyst Group', 'Momentum Inc', 'Synergy Solutions', 'Horizon Ventures'];
+        
+        const jobs = ['Software Engineer', 'Project Manager', 'Sales Manager', 'Marketing Director', 'Data Analyst', 'Product Manager', 'Business Analyst', 'UX Designer', 'DevOps Engineer', 'HR Manager', 'Account Executive', 'Content Writer', 'Graphic Designer', 'Financial Analyst', 'Operations Manager', 'Customer Success Manager', 'QA Engineer', 'Security Analyst', 'Database Administrator', 'Systems Architect'];
+
+        let generatedData = [];
+        let currentFormat = 'table';
+
+        function random(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function randomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function generateData() {
+            const count = parseInt(document.getElementById('recordCount').value);
+            if (count < 1 || count > 100) {
+                alert('Please enter a number between 1 and 100');
+                return;
+            }
+
+            const fields = {
+                name: document.getElementById('field_name').checked,
+                email: document.getElementById('field_email').checked,
+                phone: document.getElementById('field_phone').checked,
+                address: document.getElementById('field_address').checked,
+                company: document.getElementById('field_company').checked,
+                job: document.getElementById('field_job').checked,
+                dob: document.getElementById('field_dob').checked,
+                username: document.getElementById('field_username').checked,
+                password: document.getElementById('field_password').checked,
+                creditcard: document.getElementById('field_creditcard').checked,
+                uuid: document.getElementById('field_uuid').checked
+            };
+
+            generatedData = [];
+            for (let i = 0; i < count; i++) {
+                const record = {};
+                const firstName = random(firstNames);
+                const lastName = random(lastNames);
+                
+                if (fields.name) record.fullName = `${firstName} ${lastName}`;
+                if (fields.email) record.email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`;
+                if (fields.phone) record.phone = `(${randomNumber(200, 999)}) ${randomNumber(200, 999)}-${randomNumber(1000, 9999)}`;
+                if (fields.address) {
+                    const num = randomNumber(100, 9999);
+                    const street = random(streets);
+                    const city = random(cities);
+                    const state = 'XX';
+                    const zip = randomNumber(10000, 99999);
+                    record.address = `${num} ${street} St, ${city}, ${state} ${zip}`;
+                }
+                if (fields.company) record.company = random(companies);
+                if (fields.job) record.jobTitle = random(jobs);
+                if (fields.dob) {
+                    const year = randomNumber(1950, 2005);
+                    const month = String(randomNumber(1, 12)).padStart(2, '0');
+                    const day = String(randomNumber(1, 28)).padStart(2, '0');
+                    record.dateOfBirth = `${year}-${month}-${day}`;
+                }
+                if (fields.username) record.username = `${firstName.toLowerCase()}${randomNumber(10, 999)}`;
+                if (fields.password) {
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+                    record.password = Array.from({length: 12}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+                }
+                if (fields.creditcard) {
+                    record.creditCard = `${randomNumber(4000, 4999)}-${randomNumber(1000, 9999)}-${randomNumber(1000, 9999)}-${randomNumber(1000, 9999)}`;
+                }
+                if (fields.uuid) record.uuid = generateUUID();
+
+                generatedData.push(record);
+            }
+
+            document.getElementById('outputSection').classList.remove('hidden');
+            showFormat('table');
+        }
+
+        function showFormat(format) {
+            currentFormat = format;
+            
+            document.getElementById('btnTable').className = 'flex-1 px-4 py-2 rounded-lg ' + (format === 'table' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700');
+            document.getElementById('btnJSON').className = 'flex-1 px-4 py-2 rounded-lg ' + (format === 'json' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700');
+            document.getElementById('btnCSV').className = 'flex-1 px-4 py-2 rounded-lg ' + (format === 'csv' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700');
+
+            if (format === 'table') {
+                document.getElementById('tableView').classList.remove('hidden');
+                document.getElementById('textView').classList.add('hidden');
+                renderTable();
+            } else {
+                document.getElementById('tableView').classList.add('hidden');
+                document.getElementById('textView').classList.remove('hidden');
+                if (format === 'json') {
+                    document.getElementById('textOutput').value = JSON.stringify(generatedData, null, 2);
+                } else {
+                    document.getElementById('textOutput').value = toCSV();
+                }
+            }
+        }
+
+        function renderTable() {
+            if (generatedData.length === 0) return;
+            
+            const keys = Object.keys(generatedData[0]);
+            let html = '<table class="w-full text-sm"><thead class="bg-gray-100"><tr>';
+            keys.forEach(key => {
+                html += `<th class="px-4 py-2 text-left font-semibold">${key}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            generatedData.forEach((row, idx) => {
+                html += `<tr class="${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">`;
+                keys.forEach(key => {
+                    html += `<td class="px-4 py-2">${row[key]}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('tableView').innerHTML = html;
+        }
+
+        function toCSV() {
+            if (generatedData.length === 0) return '';
+            
+            const keys = Object.keys(generatedData[0]);
+            let csv = keys.join(',') + '\n';
+            
+            generatedData.forEach(row => {
+                const values = keys.map(key => {
+                    const val = row[key].toString();
+                    return val.includes(',') ? `"${val}"` : val;
+                });
+                csv += values.join(',') + '\n';
+            });
+            
+            return csv;
+        }
+
+        function downloadData() {
+            let content, filename, type;
+            
+            if (currentFormat === 'json') {
+                content = JSON.stringify(generatedData, null, 2);
+                filename = 'fake-data.json';
+                type = 'application/json';
+            } else if (currentFormat === 'csv') {
+                content = toCSV();
+                filename = 'fake-data.csv';
+                type = 'text/csv';
+            } else {
+                alert('Please select JSON or CSV format to download');
+                return;
+            }
+
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

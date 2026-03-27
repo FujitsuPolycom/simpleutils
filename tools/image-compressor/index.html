@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Compressor - Compress Images Online Free | SimpleUtils</title>
+    <meta name="description" content="Compress images online for free and reduce file size without losing quality. Adjust compression level with an easy slider and see instant file size comparison. Perfect for optimizing images for web, email, and storage.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">Image Compressor</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Image Compressor</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Reduce image file size online with our free image compression tool. Control compression quality with an intuitive slider and instantly see how much space you'll save. Ideal for speeding up website load times, reducing email attachments, and saving storage space without sacrificing visual quality.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <!-- Tool Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                <input type="file" id="imageInput" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+
+            <div id="controls" class="hidden space-y-6">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-medium text-gray-700">Compression Quality</label>
+                        <span id="qualityValue" class="text-sm font-semibold text-blue-600">80%</span>
+                    </div>
+                    <input type="range" id="qualitySlider" min="1" max="100" value="80" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Smaller file</span>
+                        <span>Better quality</span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-medium text-gray-700">Compression Passes</label>
+                        <span id="mainPassesValue" class="text-sm font-semibold text-blue-600">1×</span>
+                    </div>
+                    <input type="range" id="mainPassesSlider" min="1" max="50" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Single pass</span>
+                        <span>50 passes</span>
+                    </div>
+                    <p id="multiPassHint" class="hidden text-xs text-blue-600 mt-1">💡 Multi-pass compresses the output repeatedly — great for squeezing extra size out at higher quality settings.</p>
+                </div>
+
+                <div id="sizeComparison" class="bg-gray-50 rounded-lg p-4 grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-sm text-gray-600">Original Size</div>
+                        <div id="originalSize" class="text-2xl font-bold text-gray-900">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-600">Compressed Size</div>
+                        <div id="compressedSize" class="text-2xl font-bold text-green-600">-</div>
+                    </div>
+                    <div class="col-span-2">
+                        <div class="text-sm text-gray-600">Space Saved</div>
+                        <div id="savedPercentage" class="text-xl font-bold text-blue-600">-</div>
+                    </div>
+                </div>
+
+                <button id="compressBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    Compress Image
+                </button>
+
+                <div id="processing" class="hidden text-center text-gray-600">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                    <div id="processingText">Compressing...</div>
+                    <div id="processingPassBar" class="hidden w-full max-w-xs mx-auto mt-2 bg-gray-200 rounded-full h-2">
+                        <div id="processingPassFill" class="bg-blue-500 h-2 rounded-full transition-all" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result" class="hidden mt-6">
+                <h3 class="text-lg font-semibold mb-3">Compressed Image</h3>
+                <img id="resultImage" class="max-w-full border border-gray-300 rounded mb-4">
+                <div class="flex flex-wrap gap-3">
+                    <button id="downloadBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                        Download Compressed Image
+                    </button>
+                    <button id="deepFryShowBtn" class="bg-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 transition">
+                        🔥 Deep Fry This
+                    </button>
+                </div>
+            </div>
+
+            <!-- Deep Fry Panel -->
+            <div id="deepFryPanel" class="hidden mt-6 border-2 border-orange-300 rounded-lg p-5 bg-orange-50">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-2xl">🔥</span>
+                    <h3 class="text-lg font-bold text-orange-700">Deep Fry Mode</h3>
+                </div>
+                <p class="text-sm text-orange-600 mb-4">Compress the image over and over until it looks like it was saved on a Nokia in 2003. Results may vary. Side effects include: artifacts, sadness, and nostalgia.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-sm font-medium text-gray-700">Passes (how many times to compress)</label>
+                            <span id="passesValue" class="text-sm font-bold text-orange-600">10×</span>
+                        </div>
+                        <input type="range" id="passesSlider" min="1" max="50" value="10" class="w-full h-2 bg-orange-200 rounded-lg appearance-none cursor-pointer accent-orange-500">
+                        <div class="flex justify-between text-xs text-orange-400 mt-1">
+                            <span>Lightly toasted (1)</span>
+                            <span>Send help (50)</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-sm font-medium text-gray-700">Quality per pass</label>
+                            <span id="fryQualityValue" class="text-sm font-bold text-orange-600">20%</span>
+                        </div>
+                        <input type="range" id="fryQualitySlider" min="1" max="80" value="20" class="w-full h-2 bg-orange-200 rounded-lg appearance-none cursor-pointer accent-orange-500">
+                        <div class="flex justify-between text-xs text-orange-400 mt-1">
+                            <span>Maximum suffering (1%)</span>
+                            <span>Gentle warmth (80%)</span>
+                        </div>
+                    </div>
+
+                    <button id="deepFryBtn" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold hover:bg-orange-600 transition text-lg">
+                        🔥 Start Deep Frying
+                    </button>
+
+                    <div id="fryProgress" class="hidden">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span id="fryStatusText" class="text-orange-700 font-medium">Frying...</span>
+                            <span id="fryPassNum" class="text-orange-500 font-mono"></span>
+                        </div>
+                        <div class="w-full bg-orange-200 rounded-full h-3 overflow-hidden">
+                            <div id="fryBar" class="bg-orange-500 h-3 rounded-full transition-all duration-150" style="width:0%"></div>
+                        </div>
+                        <div id="frySizeTrack" class="text-xs text-orange-400 mt-1"></div>
+                    </div>
+                </div>
+
+                <div id="fryResult" class="hidden mt-5">
+                    <div id="fryStats" class="text-sm font-medium text-orange-700 mb-3"></div>
+                    <img id="friedImage" class="max-w-full border-2 border-orange-300 rounded mb-3">
+                    <button id="downloadFriedBtn" class="bg-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 transition">
+                        🍟 Download Fried Image
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use the Image Compressor</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Click "Choose File" and select the image you want to compress</li>
+                <li>Adjust the quality slider to set your desired compression level (lower = smaller file, higher = better quality)</li>
+                <li>Watch the file size comparison update to see how much space you'll save</li>
+                <li>Click "Compress Image" to process your image</li>
+                <li>Preview the result and download your compressed image if you're satisfied</li>
+            </ol>
+        </section>
+
+        <!-- FAQ -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What quality level should I use?</h3>
+                    <p class="text-gray-700">For most web images, 70-85% quality provides an excellent balance between file size and visual quality. For photos where quality is critical, use 85-95%. For thumbnails or backgrounds, 50-70% is often sufficient.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Will compression damage my original image?</h3>
+                    <p class="text-gray-700">No! Your original image file remains untouched. The compression creates a new, smaller file that you can download. You always keep your original high-quality version.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">How much can I reduce file size?</h3>
+                    <p class="text-gray-700">Compression results vary by image type and content. Typically, you can reduce file size by 50-80% while maintaining good visual quality. Photos with solid colors compress better than highly detailed images.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Does this work for PNG images?</h3>
+                    <p class="text-gray-700">Yes! Our compressor works with JPG, PNG, and WebP formats. PNG compression is particularly effective for images with transparency or graphics with solid colors.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <script>
+        let originalFile = null;
+        let compressedBlob = null;
+
+        const imageInput = document.getElementById('imageInput');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        const mainPassesSlider = document.getElementById('mainPassesSlider');
+        const mainPassesValue  = document.getElementById('mainPassesValue');
+        const multiPassHint    = document.getElementById('multiPassHint');
+        const compressBtn = document.getElementById('compressBtn');
+        const controls = document.getElementById('controls');
+        const processing = document.getElementById('processing');
+        const processingText = document.getElementById('processingText');
+        const processingPassBar  = document.getElementById('processingPassBar');
+        const processingPassFill = document.getElementById('processingPassFill');
+        const result = document.getElementById('result');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const originalSize = document.getElementById('originalSize');
+        const compressedSize = document.getElementById('compressedSize');
+        const savedPercentage = document.getElementById('savedPercentage');
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Single canvas-based compress pass (fast, no worker overhead for repeated passes)
+        async function compressOnePass(blob, quality) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const url = URL.createObjectURL(blob);
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    canvas.toBlob(resolve, 'image/jpeg', quality);
+                };
+                img.src = url;
+            });
+        }
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            originalFile = file;
+            originalSize.textContent = formatBytes(file.size);
+            controls.classList.remove('hidden');
+            result.classList.add('hidden');
+            compressedSize.textContent = '-';
+            savedPercentage.textContent = '-';
+        });
+
+        qualitySlider.addEventListener('input', (e) => {
+            qualityValue.textContent = e.target.value + '%';
+        });
+
+        mainPassesSlider.addEventListener('input', () => {
+            const v = parseInt(mainPassesSlider.value);
+            mainPassesValue.textContent = v + '×';
+            multiPassHint.classList.toggle('hidden', v === 1);
+            compressBtn.textContent = v > 1 ? `Compress Image (${v} passes)` : 'Compress Image';
+        });
+
+        compressBtn.addEventListener('click', async () => {
+            if (!originalFile) return;
+
+            const quality = parseInt(qualitySlider.value) / 100;
+            const passes  = parseInt(mainPassesSlider.value);
+
+            processing.classList.remove('hidden');
+            result.classList.add('hidden');
+
+            try {
+                let currentBlob;
+
+                if (passes === 1) {
+                    // Use imageCompression library for single pass (handles PNG, WebP etc.)
+                    processingText.textContent = 'Compressing...';
+                    processingPassBar.classList.add('hidden');
+                    const options = { maxSizeMB: 999, maxWidthOrHeight: 4096, useWebWorker: true, quality };
+                    currentBlob = await imageCompression(originalFile, options);
+                } else {
+                    // Multi-pass: first pass via imageCompression, subsequent via canvas
+                    processingPassBar.classList.remove('hidden');
+                    processingText.textContent = `Pass 1 / ${passes}`;
+                    processingPassFill.style.width = '0%';
+                    const options = { maxSizeMB: 999, maxWidthOrHeight: 4096, useWebWorker: true, quality };
+                    currentBlob = await imageCompression(originalFile, options);
+
+                    for (let i = 2; i <= passes; i++) {
+                        processingText.textContent = `Pass ${i} / ${passes}`;
+                        processingPassFill.style.width = ((i / passes) * 100) + '%';
+                        currentBlob = await compressOnePass(currentBlob, quality);
+                        await new Promise(r => setTimeout(r, 0));
+                    }
+                }
+
+                compressedBlob = currentBlob;
+                compressedSize.textContent = formatBytes(compressedBlob.size);
+                const savedPercent = Math.round((1 - compressedBlob.size / originalFile.size) * 100);
+                savedPercentage.textContent = savedPercent + '% (' + formatBytes(originalFile.size - compressedBlob.size) + ')';
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    resultImage.src = e.target.result;
+                    result.classList.remove('hidden');
+                };
+                reader.readAsDataURL(compressedBlob);
+            } catch (error) {
+                alert('Error compressing image: ' + error.message);
+            } finally {
+                processing.classList.add('hidden');
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!compressedBlob) return;
+
+            const link = document.createElement('a');
+            link.download = 'compressed-image.' + originalFile.name.split('.').pop();
+            link.href = URL.createObjectURL(compressedBlob);
+            link.click();
+        });
+
+        // ── Deep Fry ──────────────────────────────────────────────────────────
+        const passesSlider    = document.getElementById('passesSlider');
+        const passesValue     = document.getElementById('passesValue');
+        const fryQualitySlider= document.getElementById('fryQualitySlider');
+        const fryQualityValue = document.getElementById('fryQualityValue');
+        const deepFryShowBtn  = document.getElementById('deepFryShowBtn');
+        const deepFryPanel    = document.getElementById('deepFryPanel');
+        const deepFryBtn      = document.getElementById('deepFryBtn');
+        const fryProgress     = document.getElementById('fryProgress');
+        const fryBar          = document.getElementById('fryBar');
+        const fryStatusText   = document.getElementById('fryStatusText');
+        const fryPassNum      = document.getElementById('fryPassNum');
+        const frySizeTrack    = document.getElementById('frySizeTrack');
+        const fryResult       = document.getElementById('fryResult');
+        const fryStats        = document.getElementById('fryStats');
+        const friedImage      = document.getElementById('friedImage');
+        const downloadFriedBtn= document.getElementById('downloadFriedBtn');
+
+        let friedBlob = null;
+
+        passesSlider.addEventListener('input', () => passesValue.textContent = passesSlider.value + '×');
+        fryQualitySlider.addEventListener('input', () => fryQualityValue.textContent = fryQualitySlider.value + '%');
+
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'deepFryShowBtn') {
+                deepFryPanel.classList.toggle('hidden');
+                if (!deepFryPanel.classList.contains('hidden')) {
+                    deepFryPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        });
+
+        async function compressBlob(blob, quality) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const url = URL.createObjectURL(blob);
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width  = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    canvas.toBlob(resolve, 'image/jpeg', quality);
+                };
+                img.src = url;
+            });
+        }
+
+        const fryMessages = [
+            'Adding artifacts...', 'Destroying pixels...', 'Applying sadness...',
+            'Removing dignity...', 'Adding more artifacts...', 'Why are you doing this?',
+            'The pixels are screaming...', 'Embracing the crunch...', 'Getting worse...',
+            'Truly committed now...', 'No going back...', 'Pure chaos...',
+        ];
+
+        deepFryBtn.addEventListener('click', async () => {
+            if (!compressedBlob) return;
+
+            const passes  = parseInt(passesSlider.value);
+            const quality = parseInt(fryQualitySlider.value) / 100;
+
+            deepFryBtn.disabled = true;
+            fryResult.classList.add('hidden');
+            fryProgress.classList.remove('hidden');
+
+            let currentBlob = compressedBlob;
+            const startSize = currentBlob.size;
+
+            for (let i = 1; i <= passes; i++) {
+                const pct = Math.round(i / passes * 100);
+                fryBar.style.width = pct + '%';
+                fryPassNum.textContent = `Pass ${i} / ${passes}`;
+                fryStatusText.textContent = fryMessages[(i - 1) % fryMessages.length];
+                frySizeTrack.textContent = `Current size: ${formatBytes(currentBlob.size)}`;
+
+                currentBlob = await compressBlob(currentBlob, quality);
+                // Let the browser breathe + update UI
+                await new Promise(r => setTimeout(r, 10));
+            }
+
+            friedBlob = currentBlob;
+
+            const totalDrop = Math.round((1 - friedBlob.size / startSize) * 100);
+            fryStats.innerHTML = `
+                After <strong>${passes} passes</strong> at <strong>${Math.round(quality*100)}%</strong> quality:<br>
+                ${formatBytes(startSize)} → <strong>${formatBytes(friedBlob.size)}</strong>
+                ${totalDrop > 0 ? `(${totalDrop}% smaller, 100% worse)` : '(somehow larger, truly cursed)'}
+            `;
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                friedImage.src = e.target.result;
+                fryResult.classList.remove('hidden');
+                fryProgress.classList.add('hidden');
+                deepFryBtn.disabled = false;
+            };
+            reader.readAsDataURL(friedBlob);
+        });
+
+        downloadFriedBtn.addEventListener('click', () => {
+            if (!friedBlob) return;
+            const link = document.createElement('a');
+            link.download = 'deep-fried.jpg';
+            link.href = URL.createObjectURL(friedBlob);
+            link.click();
+        });
+    </script>
+</body>
+</html>

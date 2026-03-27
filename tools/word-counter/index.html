@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Counter & Text Analyzer - SimpleUtils</title>
+    <meta name="description" content="Free online word counter and text analyzer. Count words, characters, sentences, and paragraphs instantly. Get reading time estimates, speaking time, and keyword density analysis for your content.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>Word Counter</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Word Counter & Text Analyzer</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Analyze your text with real-time word count, character count, and readability metrics. Perfect for writers, students, and content creators who need to meet specific word limits or optimize content length. Get instant reading time estimates and keyword density analysis to improve your writing.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Paste or type your text here:</label>
+                <textarea id="textInput" oninput="analyzeText()" class="w-full h-64 p-4 border border-gray-300 rounded-lg text-sm" placeholder="Start typing or paste your text here..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                    <div class="text-3xl font-bold text-blue-600" id="wordCount">0</div>
+                    <div class="text-sm text-gray-600">Words</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg text-center">
+                    <div class="text-3xl font-bold text-green-600" id="charCount">0</div>
+                    <div class="text-sm text-gray-600">Characters</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg text-center">
+                    <div class="text-3xl font-bold text-purple-600" id="charNoSpaces">0</div>
+                    <div class="text-sm text-gray-600">Chars (no spaces)</div>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg text-center">
+                    <div class="text-3xl font-bold text-orange-600" id="sentenceCount">0</div>
+                    <div class="text-sm text-gray-600">Sentences</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-indigo-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-indigo-600" id="paragraphCount">0</div>
+                    <div class="text-sm text-gray-600">Paragraphs</div>
+                </div>
+                <div class="bg-pink-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-pink-600" id="readingTime">0 min</div>
+                    <div class="text-sm text-gray-600">Reading Time (200 wpm)</div>
+                </div>
+                <div class="bg-teal-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl font-bold text-teal-600" id="speakingTime">0 min</div>
+                    <div class="text-sm text-gray-600">Speaking Time (130 wpm)</div>
+                </div>
+            </div>
+
+            <div id="keywordSection" class="hidden">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Top 10 Keywords (Density Analysis)</h3>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div id="keywordList" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Type or paste your text into the text area above</li>
+                <li>Statistics update automatically as you type, showing word count, character count, sentences, and paragraphs</li>
+                <li>View estimated reading time (based on 200 words per minute) and speaking time (130 wpm)</li>
+                <li>Scroll down to see keyword density analysis showing your most frequently used words</li>
+                <li>Use these insights to optimize content length, improve readability, and avoid keyword stuffing</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">How is word count calculated?</h3>
+                    <p class="text-gray-700">Words are counted by splitting text on whitespace and punctuation. Hyphenated words count as one word. Numbers and special characters are excluded unless they're part of a word.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What reading speed is used for time estimates?</h3>
+                    <p class="text-gray-700">Reading time is calculated at 200 words per minute, which is the average reading speed for adults. Speaking time uses 130 words per minute, the average speaking pace for presentations and speeches.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What is keyword density analysis?</h3>
+                    <p class="text-gray-700">Keyword density shows how often specific words appear in your text. This helps identify overused words and ensures natural keyword distribution for SEO. Common words (stop words) like "the" and "and" are excluded from the analysis.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">How accurate is the character count?</h3>
+                    <p class="text-gray-700">Character count includes all visible characters, spaces, and punctuation. The "characters without spaces" count excludes only space characters. Both counts are accurate for word processors, social media limits, and content management systems.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        const stopWords = new Set(['the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take', 'people', 'into', 'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us', 'is', 'was', 'are', 'been', 'has', 'had', 'were', 'said', 'did', 'having', 'may', 'should', 'am']);
+
+        function analyzeText() {
+            const text = document.getElementById('textInput').value;
+            
+            // Word count
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0 && /\w/.test(word));
+            const wordCount = text.trim() === '' ? 0 : words.length;
+            document.getElementById('wordCount').textContent = wordCount;
+
+            // Character count
+            const charCount = text.length;
+            document.getElementById('charCount').textContent = charCount;
+
+            // Characters without spaces
+            const charNoSpaces = text.replace(/\s/g, '').length;
+            document.getElementById('charNoSpaces').textContent = charNoSpaces;
+
+            // Sentence count
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            const sentenceCount = sentences.length;
+            document.getElementById('sentenceCount').textContent = sentenceCount;
+
+            // Paragraph count
+            const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 0);
+            const paragraphCount = paragraphs.length;
+            document.getElementById('paragraphCount').textContent = paragraphCount;
+
+            // Reading time (200 wpm)
+            const readingMinutes = Math.ceil(wordCount / 200);
+            document.getElementById('readingTime').textContent = readingMinutes + ' min';
+
+            // Speaking time (130 wpm)
+            const speakingMinutes = Math.ceil(wordCount / 130);
+            document.getElementById('speakingTime').textContent = speakingMinutes + ' min';
+
+            // Keyword density
+            if (wordCount > 0) {
+                analyzeKeywords(words);
+            } else {
+                document.getElementById('keywordSection').classList.add('hidden');
+            }
+        }
+
+        function analyzeKeywords(words) {
+            const wordFreq = {};
+            
+            words.forEach(word => {
+                const cleaned = word.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (cleaned.length > 2 && !stopWords.has(cleaned)) {
+                    wordFreq[cleaned] = (wordFreq[cleaned] || 0) + 1;
+                }
+            });
+
+            const sorted = Object.entries(wordFreq)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            if (sorted.length > 0) {
+                const totalWords = words.length;
+                const listHtml = sorted.map(([word, count]) => {
+                    const percentage = ((count / totalWords) * 100).toFixed(2);
+                    const barWidth = Math.min((count / sorted[0][1]) * 100, 100);
+                    return `
+                        <div class="flex items-center gap-3">
+                            <div class="w-24 font-medium text-gray-700">${word}</div>
+                            <div class="flex-1 bg-gray-200 rounded-full h-6 relative">
+                                <div class="bg-blue-600 h-6 rounded-full" style="width: ${barWidth}%"></div>
+                                <span class="absolute right-2 top-0 text-xs text-gray-700 leading-6">${count} (${percentage}%)</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('keywordList').innerHTML = listHtml;
+                document.getElementById('keywordSection').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

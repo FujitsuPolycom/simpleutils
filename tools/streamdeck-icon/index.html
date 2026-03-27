@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Deck Icon Maker - Crop & Export Icons | SimpleUtils</title>
+    <meta name="description" content="Create perfectly cropped Stream Deck icons from any photo. Upload, pan, zoom, and export at 72x72 or 144x144. Free, no signup, runs in browser.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #cropCanvas { cursor: grab; touch-action: none; }
+        #cropCanvas.dragging { cursor: grabbing; }
+        .checkerboard {
+            background-image: repeating-conic-gradient(#e5e7eb 0% 25%, white 0% 50%);
+            background-size: 16px 16px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <header class="bg-white shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-5xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">Stream Deck Icon Maker</span>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Stream Deck Icon Maker</h1>
+        <p class="text-lg text-gray-700 mb-8">Upload any image, pan and zoom to get the perfect crop, then export as a Stream Deck-ready icon.</p>
+
+        <!-- Upload area (shown before image load) -->
+        <div id="uploadArea" class="bg-white rounded-lg shadow-md p-12 text-center border-2 border-dashed border-gray-300 hover:border-blue-400 transition cursor-pointer mb-6">
+            <div class="text-5xl mb-4">🖼️</div>
+            <p class="text-lg font-semibold text-gray-700 mb-1">Drop an image here or click to upload</p>
+            <p class="text-sm text-gray-400">JPG, PNG, WebP — any size</p>
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+        </div>
+
+        <!-- Editor (hidden until image loaded) -->
+        <div id="editor" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- Canvas -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm font-semibold text-gray-700">Drag to pan · Scroll or pinch to zoom</span>
+                            <button id="resetBtn" class="text-xs text-blue-600 hover:underline">Reset</button>
+                        </div>
+                        <div class="flex justify-center">
+                            <canvas id="cropCanvas" width="480" height="480" class="rounded border border-gray-200 max-w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls + Preview -->
+                <div class="space-y-4">
+
+                    <!-- Preview -->
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <div class="text-sm font-semibold text-gray-700 mb-3">Preview</div>
+                        <div class="flex items-end gap-4">
+                            <div class="text-center">
+                                <div class="checkerboard inline-block rounded p-1 shadow-sm">
+                                    <canvas id="preview144" width="144" height="144" class="block rounded" style="width:72px;height:72px;image-rendering:pixelated"></canvas>
+                                </div>
+                                <div class="text-xs text-gray-400 mt-1">144px</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="checkerboard inline-block rounded p-1 shadow-sm">
+                                    <canvas id="preview72" width="72" height="72" class="block rounded" style="width:36px;height:36px;image-rendering:pixelated"></canvas>
+                                </div>
+                                <div class="text-xs text-gray-400 mt-1">72px</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Zoom -->
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Zoom: <span id="zoomLabel">100%</span>
+                        </label>
+                        <input type="range" id="zoomSlider" min="10" max="500" value="100" class="w-full accent-blue-600">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>10%</span><span>500%</span>
+                        </div>
+                    </div>
+
+                    <!-- Corner radius -->
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Corner Radius: <span id="radiusLabel">18%</span>
+                        </label>
+                        <input type="range" id="radiusSlider" min="0" max="50" value="18" class="w-full accent-blue-600">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>None</span><span>Circle</span>
+                        </div>
+                    </div>
+
+                    <!-- Background color -->
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Background (for transparent images)</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="color" id="bgColor" value="#000000" class="w-10 h-8 rounded cursor-pointer border border-gray-200">
+                            <div class="flex gap-1">
+                                <button class="bg-swatch w-7 h-7 rounded border-2 border-transparent hover:border-gray-400" style="background:#000000" data-color="#000000"></button>
+                                <button class="bg-swatch w-7 h-7 rounded border-2 border-transparent hover:border-gray-400" style="background:#ffffff;border-color:#e5e7eb" data-color="#ffffff"></button>
+                                <button class="bg-swatch w-7 h-7 rounded border-2 border-transparent hover:border-gray-400" style="background:#1f2937" data-color="#1f2937"></button>
+                                <button class="bg-swatch w-7 h-7 rounded border-2 border-transparent hover:border-gray-400" style="background:#3b82f6" data-color="#3b82f6"></button>
+                                <button class="bg-swatch w-7 h-7 rounded border-2 border-transparent hover:border-gray-400" style="background:#10b981" data-color="#10b981"></button>
+                                <!-- Transparent -->
+                                <button id="transparentBtn" class="bg-swatch w-7 h-7 rounded border-2 border-gray-300 hover:border-gray-400 overflow-hidden" data-color="transparent" title="Transparent" style="background-image: repeating-conic-gradient(#ccc 0% 25%, white 0% 50%); background-size: 8px 8px;"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download -->
+                    <div class="bg-white rounded-lg shadow-md p-4 space-y-2">
+                        <div class="text-sm font-semibold text-gray-700 mb-1">Export</div>
+                        <button id="dl72" class="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
+                            Download 72 × 72 px
+                        </button>
+                        <button id="dl144" class="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
+                            Download 144 × 144 px (retina)
+                        </button>
+                        <button id="dlBoth" class="w-full border border-blue-600 text-blue-600 py-2 rounded-lg text-sm font-semibold hover:bg-blue-50 transition">
+                            Download Both (ZIP)
+                        </button>
+                        <button id="changeImage" class="w-full border border-gray-300 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50 transition">
+                            Change image
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-5xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script>
+        // ── State ──────────────────────────────────────────────────────────
+        const CANVAS_SIZE = 480;  // display canvas px
+        const CROP_SIZE   = 360;  // crop square px within canvas
+
+        let img = null;
+        let offsetX = 0, offsetY = 0;   // image pan (canvas coords)
+        let zoom = 1;
+        let cornerRadius = 18;  // percent
+        let bgColor = '#000000';
+
+        // ── Elements ───────────────────────────────────────────────────────
+        const uploadArea   = document.getElementById('uploadArea');
+        const fileInput    = document.getElementById('fileInput');
+        const editor       = document.getElementById('editor');
+        const cropCanvas   = document.getElementById('cropCanvas');
+        const ctx          = cropCanvas.getContext('2d');
+        const zoomSlider   = document.getElementById('zoomSlider');
+        const zoomLabel    = document.getElementById('zoomLabel');
+        const radiusSlider = document.getElementById('radiusSlider');
+        const radiusLabel  = document.getElementById('radiusLabel');
+        const bgColorInput = document.getElementById('bgColor');
+
+        // ── Upload ─────────────────────────────────────────────────────────
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('border-blue-500'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('border-blue-500'));
+        uploadArea.addEventListener('drop', e => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+        fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
+        document.getElementById('changeImage').addEventListener('click', () => fileInput.click());
+
+        function loadFile(file) {
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            const image = new Image();
+            image.onload = () => {
+                img = image;
+                resetView();
+                uploadArea.classList.add('hidden');
+                editor.classList.remove('hidden');
+                draw();
+            };
+            image.src = url;
+        }
+
+        function resetView() {
+            // Fit image to fill the crop square
+            const fitScale = Math.max(CROP_SIZE / img.naturalWidth, CROP_SIZE / img.naturalHeight);
+            zoom = fitScale;
+            // Center image in canvas
+            offsetX = (CANVAS_SIZE - img.naturalWidth * zoom) / 2;
+            offsetY = (CANVAS_SIZE - img.naturalHeight * zoom) / 2;
+            zoomSlider.value = Math.round(zoom * 100);
+            zoomLabel.textContent = Math.round(zoom * 100) + '%';
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', () => { resetView(); draw(); });
+
+        // ── Draw ───────────────────────────────────────────────────────────
+        const cropX = (CANVAS_SIZE - CROP_SIZE) / 2;
+        const cropY = (CANVAS_SIZE - CROP_SIZE) / 2;
+
+        function draw() {
+            ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+            // Draw image (full canvas)
+            if (img) {
+                ctx.save();
+                ctx.globalAlpha = 1;
+                ctx.drawImage(img, offsetX, offsetY, img.naturalWidth * zoom, img.naturalHeight * zoom);
+                ctx.restore();
+            }
+
+            // Darken only outside crop area using even-odd fill
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.55)';
+            ctx.beginPath();
+            ctx.rect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+            roundRectPath(ctx, cropX, cropY, CROP_SIZE, CROP_SIZE, cornerRadius / 100 * CROP_SIZE / 2);
+            ctx.fill('evenodd');
+            ctx.restore();
+
+            // Crop border
+            ctx.save();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 3]);
+            roundRectPath(ctx, cropX, cropY, CROP_SIZE, CROP_SIZE, cornerRadius / 100 * CROP_SIZE / 2);
+            ctx.stroke();
+            // Corner handles
+            ctx.setLineDash([]);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#ffffff';
+            const h = 14, r = cornerRadius / 100 * CROP_SIZE / 2;
+            drawHandle(ctx, cropX, cropY, h, r, 'tl');
+            drawHandle(ctx, cropX + CROP_SIZE, cropY, h, r, 'tr');
+            drawHandle(ctx, cropX, cropY + CROP_SIZE, h, r, 'bl');
+            drawHandle(ctx, cropX + CROP_SIZE, cropY + CROP_SIZE, h, r, 'br');
+            ctx.restore();
+
+            // Update previews
+            updatePreviews();
+        }
+
+        function drawHandle(ctx, x, y, h, r, corner) {
+            ctx.beginPath();
+            if (corner === 'tl') { ctx.moveTo(x + h, y); ctx.lineTo(x + r, y); ctx.arcTo(x, y, x, y + r, r); ctx.lineTo(x, y + h); }
+            if (corner === 'tr') { ctx.moveTo(x - h, y); ctx.lineTo(x - r, y); ctx.arcTo(x, y, x, y + r, r); ctx.lineTo(x, y + h); }
+            if (corner === 'bl') { ctx.moveTo(x + h, y); ctx.lineTo(x + r, y); ctx.arcTo(x, y, x, y - r, r); ctx.lineTo(x, y - h); }
+            if (corner === 'br') { ctx.moveTo(x - h, y); ctx.lineTo(x - r, y); ctx.arcTo(x, y, x, y - r, r); ctx.lineTo(x, y - h); }
+            ctx.stroke();
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            roundRectPath(ctx, x, y, w, h, r);
+            ctx.fill();
+        }
+
+        function roundRectPath(ctx, x, y, w, h, r) {
+            r = Math.min(r, w / 2, h / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.arcTo(x + w, y, x + w, y + r, r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+            ctx.lineTo(x + r, y + h);
+            ctx.arcTo(x, y + h, x, y + h - r, r);
+            ctx.lineTo(x, y + r);
+            ctx.arcTo(x, y, x + r, y, r);
+            ctx.closePath();
+        }
+
+        // ── Render export canvas ───────────────────────────────────────────
+        function renderExport(size) {
+            const c = document.createElement('canvas');
+            c.width = size; c.height = size;
+            const ectx = c.getContext('2d');
+
+            const scale = size / CROP_SIZE;
+            const r = cornerRadius / 100 * size / 2;
+
+            // Background
+            if (bgColor !== 'transparent') {
+                ectx.fillStyle = bgColor;
+                ectx.fillRect(0, 0, size, size);
+            }
+
+            // Clip to rounded rect
+            roundRectPath(ectx, 0, 0, size, size, r);
+            ectx.clip();
+
+            // Draw image scaled to export size
+            if (img) {
+                const ix = (offsetX - cropX) * scale;
+                const iy = (offsetY - cropY) * scale;
+                const iw = img.naturalWidth * zoom * scale;
+                const ih = img.naturalHeight * zoom * scale;
+                ectx.drawImage(img, ix, iy, iw, ih);
+            }
+
+            return c;
+        }
+
+        function updatePreviews() {
+            const p144 = document.getElementById('preview144');
+            const p72  = document.getElementById('preview72');
+            const ctx144 = p144.getContext('2d');
+            const ctx72  = p72.getContext('2d');
+            ctx144.clearRect(0, 0, 144, 144);
+            ctx72.clearRect(0, 0, 72, 72);
+            ctx144.drawImage(renderExport(144), 0, 0);
+            ctx72.drawImage(renderExport(72), 0, 0);
+        }
+
+        function downloadCanvas(size, name) {
+            renderExport(size).toBlob(b => {
+                const a = document.createElement('a');
+                a.download = name;
+                a.href = URL.createObjectURL(b);
+                a.click();
+            });
+        }
+
+        document.getElementById('dl72').addEventListener('click', () => downloadCanvas(72, 'streamdeck-icon-72.png'));
+        document.getElementById('dl144').addEventListener('click', () => downloadCanvas(144, 'streamdeck-icon-144.png'));
+        document.getElementById('dlBoth').addEventListener('click', async () => {
+            const zip = new JSZip();
+            const [b72, b144] = await Promise.all([
+                new Promise(r => renderExport(72).toBlob(r)),
+                new Promise(r => renderExport(144).toBlob(r)),
+            ]);
+            zip.file('streamdeck-icon-72.png', b72);
+            zip.file('streamdeck-icon-144.png', b144);
+            const content = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a');
+            a.download = 'streamdeck-icons.zip';
+            a.href = URL.createObjectURL(content);
+            a.click();
+        });
+
+        // ── Drag to pan ────────────────────────────────────────────────────
+        let dragging = false, lastX = 0, lastY = 0;
+
+        cropCanvas.addEventListener('mousedown', e => {
+            dragging = true; lastX = e.clientX; lastY = e.clientY;
+            cropCanvas.classList.add('dragging');
+        });
+        window.addEventListener('mousemove', e => {
+            if (!dragging) return;
+            offsetX += e.clientX - lastX;
+            offsetY += e.clientY - lastY;
+            lastX = e.clientX; lastY = e.clientY;
+            draw();
+        });
+        window.addEventListener('mouseup', () => { dragging = false; cropCanvas.classList.remove('dragging'); });
+
+        // Touch drag
+        let lastTouchX = 0, lastTouchY = 0, lastPinchDist = 0;
+        cropCanvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            if (e.touches.length === 1) {
+                lastTouchX = e.touches[0].clientX;
+                lastTouchY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+                lastPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+            }
+        }, { passive: false });
+        cropCanvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            if (e.touches.length === 1) {
+                offsetX += e.touches[0].clientX - lastTouchX;
+                offsetY += e.touches[0].clientY - lastTouchY;
+                lastTouchX = e.touches[0].clientX;
+                lastTouchY = e.touches[0].clientY;
+                draw();
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                const delta = dist / lastPinchDist;
+                applyZoom(zoom * delta, CANVAS_SIZE / 2, CANVAS_SIZE / 2);
+                lastPinchDist = dist;
+            }
+        }, { passive: false });
+
+        // ── Scroll to zoom ─────────────────────────────────────────────────
+        cropCanvas.addEventListener('wheel', e => {
+            e.preventDefault();
+            const factor = e.deltaY < 0 ? 1.08 : 0.93;
+            const rect = cropCanvas.getBoundingClientRect();
+            const scaleRatio = CANVAS_SIZE / rect.width;
+            const mx = (e.clientX - rect.left) * scaleRatio;
+            const my = (e.clientY - rect.top)  * scaleRatio;
+            applyZoom(zoom * factor, mx, my);
+        }, { passive: false });
+
+        function applyZoom(newZoom, pivotX, pivotY) {
+            newZoom = Math.min(Math.max(newZoom, 0.1), 5);
+            const scale = newZoom / zoom;
+            offsetX = pivotX + (offsetX - pivotX) * scale;
+            offsetY = pivotY + (offsetY - pivotY) * scale;
+            zoom = newZoom;
+            zoomSlider.value = Math.round(zoom * 100);
+            zoomLabel.textContent = Math.round(zoom * 100) + '%';
+            draw();
+        }
+
+        // ── Zoom slider ────────────────────────────────────────────────────
+        zoomSlider.addEventListener('input', () => {
+            const newZoom = zoomSlider.value / 100;
+            applyZoom(newZoom, CANVAS_SIZE / 2, CANVAS_SIZE / 2);
+            zoomLabel.textContent = zoomSlider.value + '%';
+        });
+
+        // ── Corner radius ──────────────────────────────────────────────────
+        radiusSlider.addEventListener('input', () => {
+            cornerRadius = parseInt(radiusSlider.value);
+            radiusLabel.textContent = cornerRadius + '%';
+            draw();
+        });
+
+        // ── Background color ───────────────────────────────────────────────
+        bgColorInput.addEventListener('input', e => { bgColor = e.target.value; bgColorInput.disabled = false; draw(); });
+        document.querySelectorAll('.bg-swatch').forEach(el => {
+            el.addEventListener('click', () => {
+                bgColor = el.dataset.color;
+                if (bgColor === 'transparent') {
+                    bgColorInput.disabled = true;
+                    bgColorInput.style.opacity = '0.3';
+                } else {
+                    bgColorInput.value = bgColor;
+                    bgColorInput.disabled = false;
+                    bgColorInput.style.opacity = '1';
+                }
+                draw();
+            });
+        });
+    </script>
+</body>
+</html>

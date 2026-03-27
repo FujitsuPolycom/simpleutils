@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polygon Crop - Freeform Image Crop with Transparent Background | SimpleUtils</title>
+    <meta name="description" content="Crop any shape from an image using freeform polygon selection. Place points, adjust them, crop or inverse crop, and download as transparent PNG. Free, runs in browser.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #mainCanvas { touch-action: none; }
+        body { user-select: none; }
+        .point-pill { font-size: 11px; line-height: 1; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<header class="bg-white shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-4">
+        <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+    </div>
+</header>
+<nav class="max-w-6xl mx-auto px-4 py-3 text-sm">
+    <a href="/" class="text-blue-600 hover:underline">Home</a>
+    <span class="mx-2 text-gray-400">&gt;</span>
+    <span class="text-gray-600">Polygon Crop</span>
+</nav>
+
+<main class="max-w-6xl mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-1">Polygon Crop</h1>
+    <p class="text-gray-600 mb-6">Click to place points, close the shape, then crop or inverse crop. Supports multiple shapes. Download as transparent PNG.</p>
+
+    <!-- Upload -->
+    <div id="uploadArea" class="bg-white rounded-lg shadow-md p-12 text-center border-2 border-dashed border-gray-300 hover:border-blue-400 transition cursor-pointer mb-4">
+        <div class="text-5xl mb-3">✂️</div>
+        <p class="text-lg font-semibold text-gray-700 mb-1">Drop an image here or click to upload</p>
+        <p class="text-sm text-gray-400">JPG, PNG, WebP</p>
+        <input type="file" id="fileInput" accept="image/*" class="hidden">
+    </div>
+
+    <!-- Editor -->
+    <div id="editor" class="hidden">
+        <div class="flex gap-4 flex-col lg:flex-row">
+
+            <!-- Canvas area -->
+            <div class="flex-1 min-w-0">
+                <!-- Toolbar -->
+                <div class="bg-white rounded-lg shadow-sm mb-2 px-3 py-2 flex flex-wrap gap-2 items-center">
+                    <div class="flex rounded-md border border-gray-200 overflow-hidden text-sm">
+                        <button id="modeAdd"  class="mode-btn px-3 py-1.5 bg-blue-600 text-white font-medium" title="Click to add points. On a closed shape, click near an edge to insert a point.">✏️ Add</button>
+                        <button id="modeMove" class="mode-btn px-3 py-1.5 bg-white text-gray-600 hover:bg-gray-50 font-medium" title="Drag points to reposition">↕️ Move</button>
+                        <button id="modePan"  class="mode-btn px-3 py-1.5 bg-white text-gray-600 hover:bg-gray-50 font-medium" title="Drag to pan image (also: Space+drag)">🖐 Pan</button>
+                    </div>
+
+                    <div class="w-px h-5 bg-gray-200"></div>
+
+                    <button id="zoomOut" class="px-2.5 py-1.5 border border-gray-200 rounded text-sm hover:bg-gray-50">−</button>
+                    <span id="zoomLabel" class="text-sm font-mono w-14 text-center">100%</span>
+                    <button id="zoomIn" class="px-2.5 py-1.5 border border-gray-200 rounded text-sm hover:bg-gray-50">+</button>
+                    <button id="zoomFit" class="px-2.5 py-1.5 border border-gray-200 rounded text-xs hover:bg-gray-50">Fit</button>
+
+                    <div class="w-px h-5 bg-gray-200"></div>
+
+                    <button id="closeBtn"   class="px-3 py-1.5 bg-green-600 text-white text-sm rounded font-medium hover:bg-green-700 disabled:opacity-40" disabled>Close Shape</button>
+                    <button id="newShapeBtn" class="px-3 py-1.5 bg-purple-600 text-white text-sm rounded font-medium hover:bg-purple-700 disabled:opacity-40" disabled>+ New Shape</button>
+                    <button id="clearBtn"  class="px-3 py-1.5 border border-red-200 text-red-600 text-sm rounded hover:bg-red-50">Clear All</button>
+
+                    <div class="w-px h-5 bg-gray-200 ml-auto hidden lg:block"></div>
+                    <button id="changeImg" class="px-2.5 py-1.5 border border-gray-200 rounded text-xs text-gray-500 hover:bg-gray-50">Change image</button>
+                </div>
+
+                <!-- Canvas wrapper -->
+                <div id="canvasWrap" class="bg-gray-800 rounded-lg overflow-hidden relative" style="height:560px;">
+                    <canvas id="mainCanvas" class="absolute inset-0"></canvas>
+                    <div id="hint" class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full pointer-events-none">
+                        Click to place first point
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right panel -->
+            <div class="w-full lg:w-64 space-y-4 flex-shrink-0">
+
+                <!-- Live Preview -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-gray-700">Preview</span>
+                        <span id="previewLabel" class="text-xs text-gray-400">No selection</span>
+                    </div>
+                    <div id="previewWrap" class="bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center" style="min-height:110px;">
+                        <canvas id="previewCanvas" class="max-w-full rounded" style="display:none; max-height:180px;"></canvas>
+                        <span id="previewEmpty" class="text-xs text-gray-400 py-4">Close a shape to preview</span>
+                    </div>
+                </div>
+
+                <!-- Adjustments -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-sm font-semibold text-gray-700">Adjustments</p>
+                        <button id="resetAdjBtn" class="text-xs text-gray-400 hover:text-red-500 transition">↺ Reset</button>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Brightness</span><span id="brightnessLabel">0</span>
+                            </div>
+                            <input type="range" id="brightnessSlider" min="-50" max="50" value="0" class="w-full accent-yellow-500">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Contrast</span><span id="contrastLabel">0</span>
+                            </div>
+                            <input type="range" id="contrastSlider" min="-50" max="50" value="0" class="w-full accent-gray-500">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Saturation</span><span id="saturationLabel">0</span>
+                            </div>
+                            <input type="range" id="saturationSlider" min="-100" max="100" value="0" class="w-full accent-green-500">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Sharpen</span><span id="sharpenLabel">0</span>
+                            </div>
+                            <input type="range" id="sharpenSlider" min="0" max="3" step="0.1" value="0" class="w-full accent-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feather -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Edge Feather: <span id="featherLabel">0px</span></label>
+                    <input type="range" id="featherSlider" min="0" max="40" value="0" class="w-full accent-blue-600">
+                    <p class="text-xs text-gray-400 mt-1">Softens the crop edge</p>
+                </div>
+
+                <!-- Shapes / Points list -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-gray-700">Shapes</span>
+                        <span id="totalShapesLabel" class="text-xs text-gray-400"></span>
+                    </div>
+                    <!-- Shape tabs -->
+                    <div id="shapeTabs" class="flex flex-wrap gap-1 mb-3"></div>
+                    <!-- Points for active shape -->
+                    <div class="text-xs text-gray-500 font-medium mb-1">Points in active shape: <span id="pointCount">0</span></div>
+                    <div id="pointList" class="space-y-1 max-h-40 overflow-y-auto text-xs text-gray-500">
+                        <span>No points yet</span>
+                    </div>
+                </div>
+
+                <!-- Crop actions -->
+                <div class="bg-white rounded-lg shadow-md p-4 space-y-2">
+                    <p class="text-sm font-semibold text-gray-700 mb-2">Export</p>
+
+                    <!-- Enhancement options -->
+                    <div class="bg-gray-50 rounded-lg p-2 space-y-2 mb-2">
+                        <p class="text-xs font-medium text-gray-600">✨ Enhancements</p>
+
+                        <!-- Upscaler -->
+                        <div>
+                            <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer mb-1">
+                                <input type="checkbox" id="enhanceUpscale" class="accent-blue-600">
+                                <span class="font-medium">Upscale</span>
+                            </label>
+                            <div id="upscaleOptions" class="hidden pl-3 space-y-1.5">
+                                <div class="flex gap-1">
+                                    <button id="scale2x" class="scale-btn flex-1 text-xs py-1 rounded border bg-blue-600 text-white border-blue-600 font-medium">2×</button>
+                                    <button id="scale4x" class="scale-btn flex-1 text-xs py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100">4×</button>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-gray-500 mb-0.5">
+                                        <span>Post-upscale sharpen</span><span id="upscaleSharpenLabel">0</span>
+                                    </div>
+                                    <input type="range" id="upscaleSharpenSlider" min="0" max="100" value="0" class="w-full accent-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Realism filter -->
+                        <div>
+                            <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer mb-1">
+                                <input type="checkbox" id="enhanceRealism" class="accent-purple-600">
+                                <span class="font-medium">Realism filter</span>
+                            </label>
+                            <div id="realismOptions" class="hidden pl-3 space-y-1.5">
+                                <div class="flex gap-1">
+                                    <button class="preset-btn flex-1 text-xs py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100" data-preset="natural">Natural</button>
+                                    <button class="preset-btn flex-1 text-xs py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100" data-preset="punchy">Punchy</button>
+                                    <button class="preset-btn flex-1 text-xs py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100" data-preset="filmic">Filmic</button>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-gray-500 mb-0.5"><span>Sharpen</span><span id="rSharpenLabel">0.75</span></div>
+                                    <input type="range" id="rSharpenSlider" min="0" max="3" step="0.05" value="0.75" class="w-full accent-purple-500">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-gray-500 mb-0.5"><span>Micro-contrast</span><span id="rContrastLabel">0.15</span></div>
+                                    <input type="range" id="rContrastSlider" min="0" max="1" step="0.01" value="0.15" class="w-full accent-purple-500">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-gray-500 mb-0.5"><span>Grain</span><span id="rGrainLabel">5.0</span></div>
+                                    <input type="range" id="rGrainSlider" min="0" max="20" step="0.5" value="5" class="w-full accent-purple-500">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-gray-500 mb-0.5"><span>Warmth</span><span id="rWarmthLabel">5.0</span></div>
+                                    <input type="range" id="rWarmthSlider" min="0" max="20" step="0.5" value="5" class="w-full accent-purple-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="cropBtn" disabled class="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        ✂️ Crop Selection
+                    </button>
+                    <button id="inverseCropBtn" disabled class="w-full border border-blue-600 text-blue-600 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        🔲 Inverse Crop
+                    </button>
+                    <div id="enhanceProgress" class="hidden text-xs text-blue-600 text-center py-1"></div>
+                    <p class="text-xs text-gray-400 text-center">All closed shapes used for crop</p>
+                </div>
+
+                <!-- Tips -->
+                <div class="bg-blue-50 rounded-lg p-3 text-xs text-blue-700 space-y-1">
+                    <p class="font-semibold mb-1">Tips</p>
+                    <p>🖱 Scroll to zoom</p>
+                    <p>Space + drag to pan</p>
+                    <p>Click near green point to close</p>
+                    <p>In Add mode, click a closed shape's edge to insert a point</p>
+                    <p>Right-click a point to delete</p>
+                    <p>Delete key removes selected point</p>
+                    <p>+ New Shape adds another region</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-white border-t mt-12">
+    <div class="max-w-6xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+        All processing happens in your browser. No data is sent to any server.
+    </div>
+</footer>
+
+<script src="https://unpkg.com/pica/dist/pica.min.js"></script>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────────
+const S = {
+    image: null,
+    polygons: [{ points: [], closed: false }],
+    activePoly: 0,
+    zoom: 1,
+    panX: 0, panY: 0,
+    selectedIdx: -1,
+    mode: 'add',
+    feather: 0,
+    dragging: false,
+    dragPolyIdx: -1,
+    dragPointIdx: -1,
+    panStartX: 0, panStartY: 0,
+    panStartPanX: 0, panStartPanY: 0,
+    spaceDown: false,
+    adjustments: { brightness: 0, contrast: 0, saturation: 0, sharpen: 0 },
+    upscaleScale: 2,
+    upscaleSharpen: 0,
+    realismParams: { sharpen: 0.75, contrast: 0.15, grain: 5, warmth: 5 },
+};
+
+// Helper: active polygon
+function ap() { return S.polygons[S.activePoly]; }
+
+// Palette for polygons
+const POLY_COLORS = ['#3b82f6','#8b5cf6','#f59e0b','#10b981','#ef4444','#06b6d4'];
+function polyColor(i) { return POLY_COLORS[i % POLY_COLORS.length]; }
+
+// ── Elements ─────────────────────────────────────────────────────────────────
+const uploadArea    = document.getElementById('uploadArea');
+const fileInput     = document.getElementById('fileInput');
+const editor        = document.getElementById('editor');
+const canvasWrap    = document.getElementById('canvasWrap');
+const canvas        = document.getElementById('mainCanvas');
+const ctx           = canvas.getContext('2d');
+const hint          = document.getElementById('hint');
+const zoomLabel     = document.getElementById('zoomLabel');
+const pointCountEl  = document.getElementById('pointCount');
+const pointListEl   = document.getElementById('pointList');
+const shapeTabsEl   = document.getElementById('shapeTabs');
+const totalShapesEl = document.getElementById('totalShapesLabel');
+const closeBtn      = document.getElementById('closeBtn');
+const newShapeBtn   = document.getElementById('newShapeBtn');
+const clearBtn      = document.getElementById('clearBtn');
+const cropBtn       = document.getElementById('cropBtn');
+const inverseCropBtn= document.getElementById('inverseCropBtn');
+const featherSlider = document.getElementById('featherSlider');
+const featherLabel  = document.getElementById('featherLabel');
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('dragover', e => e.preventDefault());
+uploadArea.addEventListener('drop', e => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
+document.getElementById('changeImg').addEventListener('click', () => fileInput.click());
+
+function loadFile(file) {
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => {
+        S.image = img;
+        S.polygons = [{ points: [], closed: false }];
+        S.activePoly = 0;
+        S.selectedIdx = -1;
+        fitToView();
+        uploadArea.classList.add('hidden');
+        editor.classList.remove('hidden');
+        resizeCanvas();
+        draw();
+        updateUI();
+    };
+    img.src = URL.createObjectURL(file);
+}
+
+// ── Canvas resize ─────────────────────────────────────────────────────────────
+function resizeCanvas() {
+    const wrap = canvasWrap.getBoundingClientRect();
+    canvas.width  = wrap.width;
+    canvas.height = wrap.height;
+    draw();
+}
+window.addEventListener('resize', resizeCanvas);
+
+// ── Coord transforms ──────────────────────────────────────────────────────────
+function imgToCanvas(x, y) { return { x: x * S.zoom + S.panX, y: y * S.zoom + S.panY }; }
+function canvasToImg(x, y) { return { x: (x - S.panX) / S.zoom, y: (y - S.panY) / S.zoom }; }
+
+function fitToView() {
+    if (!S.image) return;
+    const cw = canvasWrap.getBoundingClientRect().width  || 800;
+    const ch = canvasWrap.getBoundingClientRect().height || 560;
+    S.zoom = Math.min((cw - 40) / S.image.naturalWidth, (ch - 40) / S.image.naturalHeight, 1);
+    S.panX = (cw - S.image.naturalWidth  * S.zoom) / 2;
+    S.panY = (ch - S.image.naturalHeight * S.zoom) / 2;
+    zoomLabel.textContent = Math.round(S.zoom * 100) + '%';
+}
+
+// ── Draw ──────────────────────────────────────────────────────────────────────
+const POINT_R = 7;
+const CLOSE_R = 14;
+
+function drawPolygon(poly, polyIdx) {
+    if (poly.points.length === 0) return;
+    const isActive = polyIdx === S.activePoly;
+    const color    = polyColor(polyIdx);
+    const pts      = poly.points.map(p => imgToCanvas(p.x, p.y));
+
+    // Fill
+    if (poly.closed && pts.length >= 3) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.closePath();
+        ctx.fillStyle = isActive ? `${color}26` : `${color}15`;
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // Lines
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = isActive ? 2 : 1.5;
+    ctx.globalAlpha = isActive ? 1 : 0.6;
+    ctx.setLineDash(poly.closed ? [] : [5, 3]);
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    if (poly.closed) ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+
+    // Points
+    pts.forEach((p, i) => {
+        const isFirst    = i === 0;
+        const isSelected = isActive && i === S.selectedIdx;
+
+        // Green ring on first point when closeable
+        if (isActive && isFirst && !poly.closed && poly.points.length >= 3) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, CLOSE_R, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(34,197,94,0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([3, 2]);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, isActive ? POINT_R : POINT_R - 2, 0, Math.PI * 2);
+        ctx.fillStyle   = isSelected ? '#f59e0b' : isFirst ? '#22c55e' : color;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth   = 2;
+        ctx.globalAlpha = isActive ? 1 : 0.7;
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        if (isActive) {
+            ctx.save();
+            ctx.font = 'bold 9px system-ui';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(i + 1, p.x, p.y);
+            ctx.restore();
+        }
+    });
+}
+
+function draw() {
+    if (!S.image) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const p0 = imgToCanvas(0, 0);
+    ctx.drawImage(S.image, p0.x, p0.y, S.image.naturalWidth * S.zoom, S.image.naturalHeight * S.zoom);
+
+    // Draw inactive polygons first, active on top
+    S.polygons.forEach((poly, i) => { if (i !== S.activePoly) drawPolygon(poly, i); });
+    drawPolygon(ap(), S.activePoly);
+    schedulePreview();
+}
+
+// ── Adjustments & Preview ────────────────────────────────────────────────────
+function buildFilter(adj) {
+    const b   = 1 + adj.brightness / 100;
+    const c   = 1 + adj.contrast   / 100;
+    const sat = 1 + adj.saturation / 100;
+    return `brightness(${b}) contrast(${c}) saturate(${sat})`;
+}
+
+let previewPending = false;
+function schedulePreview() {
+    if (previewPending) return;
+    previewPending = true;
+    requestAnimationFrame(() => { previewPending = false; renderPreview(); });
+}
+
+function renderPreview() {
+    const closedPolys = S.polygons.filter(p => p.closed && p.points.length >= 3);
+    const pc   = document.getElementById('previewCanvas');
+    const empty= document.getElementById('previewEmpty');
+    const lbl  = document.getElementById('previewLabel');
+
+    if (!S.image || closedPolys.length === 0) {
+        pc.style.display    = 'none';
+        empty.style.display = 'block';
+        lbl.textContent     = 'No selection';
+        return;
+    }
+
+    // Bounding box
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const poly of closedPolys) {
+        for (const pt of poly.points) {
+            if (pt.x < minX) minX = pt.x; if (pt.y < minY) minY = pt.y;
+            if (pt.x > maxX) maxX = pt.x; if (pt.y > maxY) maxY = pt.y;
+        }
+    }
+    minX = Math.max(0, Math.floor(minX)); minY = Math.max(0, Math.floor(minY));
+    maxX = Math.min(S.image.naturalWidth, Math.ceil(maxX));
+    maxY = Math.min(S.image.naturalHeight, Math.ceil(maxY));
+    const bw = maxX - minX, bh = maxY - minY;
+    if (bw <= 0 || bh <= 0) return;
+
+    const maxW = 240, maxH = 180;
+    const scale = Math.min(maxW / bw, maxH / bh, 1);
+    const pw = Math.round(bw * scale), ph = Math.round(bh * scale);
+
+    pc.width = pw; pc.height = ph;
+    pc.style.display    = 'block';
+    empty.style.display = 'none';
+    lbl.textContent     = `${bw} × ${bh}px`;
+
+    const pctx = pc.getContext('2d');
+    pctx.clearRect(0, 0, pw, ph);
+
+    // Clip to polygon shape
+    pctx.save();
+    pctx.beginPath();
+    for (const poly of closedPolys) {
+        pctx.moveTo((poly.points[0].x - minX) * scale, (poly.points[0].y - minY) * scale);
+        for (let i = 1; i < poly.points.length; i++)
+            pctx.lineTo((poly.points[i].x - minX) * scale, (poly.points[i].y - minY) * scale);
+        pctx.closePath();
+    }
+    pctx.clip();
+
+    // Apply brightness/contrast/saturation via canvas filter
+    pctx.filter = buildFilter(S.adjustments);
+    pctx.drawImage(S.image, -minX * scale, -minY * scale, S.image.naturalWidth * scale, S.image.naturalHeight * scale);
+    pctx.filter = 'none';
+    pctx.restore();
+
+    // Sharpen on preview (lightweight version)
+    if (S.adjustments.sharpen > 0) {
+        const id = pctx.getImageData(0, 0, pw, ph);
+        applySharpen(id, S.adjustments.sharpen * 0.6);
+        pctx.putImageData(id, 0, 0);
+    }
+}
+
+// ── Geometry helpers ──────────────────────────────────────────────────────────
+function hitPoint(cx, cy) {
+    // Check active polygon first
+    const checkOrder = [S.activePoly, ...S.polygons.map((_,i) => i).filter(i => i !== S.activePoly)];
+    for (const pi of checkOrder) {
+        const pts = S.polygons[pi].points;
+        for (let i = pts.length - 1; i >= 0; i--) {
+            const p = imgToCanvas(pts[i].x, pts[i].y);
+            if (Math.hypot(cx - p.x, cy - p.y) <= POINT_R + 4) return { pi, i };
+        }
+    }
+    return null;
+}
+
+function pointToSegmentDist(p, a, b) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const lenSq = dx*dx + dy*dy;
+    if (lenSq === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+    const t = Math.max(0, Math.min(1, ((p.x-a.x)*dx + (p.y-a.y)*dy) / lenSq));
+    return Math.hypot(p.x - (a.x + t*dx), p.y - (a.y + t*dy));
+}
+
+// Try to insert a point on the nearest edge of a closed polygon
+// Returns true if inserted
+function tryInsertOnEdge(cx, cy) {
+    const poly = ap();
+    if (!poly.closed || poly.points.length < 2) return false;
+    const ip = canvasToImg(cx, cy);
+    const THRESHOLD = 10 / S.zoom; // 10 canvas px in image space
+    let bestDist = THRESHOLD, bestIdx = -1;
+    const pts = poly.points;
+    for (let i = 0; i < pts.length; i++) {
+        const a = pts[i], b = pts[(i + 1) % pts.length];
+        const d = pointToSegmentDist(ip, a, b);
+        if (d < bestDist) { bestDist = d; bestIdx = i; }
+    }
+    if (bestIdx >= 0) {
+        pts.splice(bestIdx + 1, 0, { x: ip.x, y: ip.y });
+        S.selectedIdx = bestIdx + 1;
+        return true;
+    }
+    return false;
+}
+
+// ── Mouse events ──────────────────────────────────────────────────────────────
+canvas.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const cy = (e.clientY - rect.top)  * (canvas.height / rect.height);
+    const hit = hitPoint(cx, cy);
+    if (hit) {
+        S.activePoly = hit.pi;
+        deletePoint(hit.i);
+    }
+});
+
+canvas.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    const rect = canvas.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const cy = (e.clientY - rect.top)  * (canvas.height / rect.height);
+    const isPanning = S.mode === 'pan' || S.spaceDown;
+
+    if (isPanning) {
+        S.dragging = true; S.dragPolyIdx = -1; S.dragPointIdx = -1;
+        S.panStartX = e.clientX; S.panStartY = e.clientY;
+        S.panStartPanX = S.panX; S.panStartPanY = S.panY;
+        canvas.style.cursor = 'grabbing';
+        return;
+    }
+
+    const hit = hitPoint(cx, cy);
+
+    if (hit) {
+        // Clicking any point: select it, switch active polygon
+        S.activePoly  = hit.pi;
+        S.selectedIdx = hit.i;
+        S.dragging    = true;
+        S.dragPolyIdx = hit.pi;
+        S.dragPointIdx= hit.i;
+        updateUI(); draw();
+        return;
+    }
+
+    if (S.mode === 'move') return; // Move mode: only drag points
+
+    // Add mode
+    const poly = ap();
+
+    if (poly.closed) {
+        // Try to insert on edge of active polygon
+        if (tryInsertOnEdge(cx, cy)) {
+            updateUI(); draw();
+        }
+        return;
+    }
+
+    if (poly.points.length >= 3) {
+        const fp = imgToCanvas(poly.points[0].x, poly.points[0].y);
+        if (Math.hypot(cx - fp.x, cy - fp.y) <= CLOSE_R) {
+            closePolygon();
+            return;
+        }
+    }
+
+    const ip = canvasToImg(cx, cy);
+    poly.points.push({ x: ip.x, y: ip.y });
+    S.selectedIdx = poly.points.length - 1;
+    updateUI(); draw();
+});
+
+window.addEventListener('mousemove', e => {
+    if (!S.dragging) return;
+    if (S.dragPolyIdx === -1) {
+        // Pan
+        S.panX = S.panStartPanX + (e.clientX - S.panStartX);
+        S.panY = S.panStartPanY + (e.clientY - S.panStartY);
+    } else {
+        const rect = canvas.getBoundingClientRect();
+        const cx = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const cy = (e.clientY - rect.top)  * (canvas.height / rect.height);
+        const ip = canvasToImg(cx, cy);
+        S.polygons[S.dragPolyIdx].points[S.dragPointIdx] = { x: ip.x, y: ip.y };
+        updatePointList();
+    }
+    draw();
+});
+
+window.addEventListener('mouseup', () => {
+    S.dragging = false; S.dragPolyIdx = -1; S.dragPointIdx = -1;
+    canvas.style.cursor = '';
+});
+
+// Touch
+let lastTouchDist = 0;
+canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (e.touches.length === 2) lastTouchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 2) {
+        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        const rect = canvas.getBoundingClientRect();
+        applyZoom(S.zoom * (dist / lastTouchDist),
+            ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left,
+            ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top);
+        lastTouchDist = dist;
+    }
+}, { passive: false });
+
+// ── Zoom ─────────────────────────────────────────────────────────────────────
+canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    applyZoom(S.zoom * (e.deltaY < 0 ? 1.1 : 0.91),
+        (e.clientX - rect.left) * (canvas.width / rect.width),
+        (e.clientY - rect.top)  * (canvas.height / rect.height));
+}, { passive: false });
+
+function applyZoom(newZoom, pivotX, pivotY) {
+    newZoom = Math.min(Math.max(newZoom, 0.05), 20);
+    const scale = newZoom / S.zoom;
+    S.panX = pivotX + (S.panX - pivotX) * scale;
+    S.panY = pivotY + (S.panY - pivotY) * scale;
+    S.zoom = newZoom;
+    zoomLabel.textContent = Math.round(S.zoom * 100) + '%';
+    draw();
+}
+document.getElementById('zoomIn').addEventListener('click',  () => applyZoom(S.zoom * 1.25, canvas.width/2, canvas.height/2));
+document.getElementById('zoomOut').addEventListener('click', () => applyZoom(S.zoom / 1.25, canvas.width/2, canvas.height/2));
+document.getElementById('zoomFit').addEventListener('click', () => { fitToView(); draw(); });
+
+// ── Keyboard ──────────────────────────────────────────────────────────────────
+window.addEventListener('keydown', e => {
+    if (e.code === 'Space' && !e.target.matches('input,textarea')) { e.preventDefault(); S.spaceDown = true; canvas.style.cursor = 'grab'; }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && S.selectedIdx >= 0 && !e.target.matches('input,textarea')) deletePoint(S.selectedIdx);
+});
+window.addEventListener('keyup', e => { if (e.code === 'Space') { S.spaceDown = false; canvas.style.cursor = ''; } });
+
+// ── Mode buttons ──────────────────────────────────────────────────────────────
+['modeAdd','modeMove','modePan'].forEach(id => {
+    document.getElementById(id).addEventListener('click', () => {
+        S.mode = id.replace('mode','').toLowerCase();
+        document.querySelectorAll('.mode-btn').forEach(b => {
+            const active = b.id === id;
+            b.classList.toggle('bg-blue-600', active); b.classList.toggle('text-white',    active);
+            b.classList.toggle('bg-white',    !active); b.classList.toggle('text-gray-600', !active);
+        });
+    });
+});
+
+// ── Close / New / Clear ───────────────────────────────────────────────────────
+closeBtn.addEventListener('click', closePolygon);
+newShapeBtn.addEventListener('click', () => {
+    S.polygons.push({ points: [], closed: false });
+    S.activePoly  = S.polygons.length - 1;
+    S.selectedIdx = -1;
+    updateUI(); draw();
+});
+clearBtn.addEventListener('click', () => {
+    S.polygons = [{ points: [], closed: false }];
+    S.activePoly = 0; S.selectedIdx = -1;
+    updateUI(); draw();
+});
+
+function closePolygon() {
+    if (ap().points.length < 3) return;
+    ap().closed = true;
+    updateUI(); draw();
+}
+
+function deletePoint(idx) {
+    const poly = ap();
+    poly.points.splice(idx, 1);
+    if (poly.points.length < 3) poly.closed = false;
+    if (S.selectedIdx >= poly.points.length) S.selectedIdx = poly.points.length - 1;
+    updateUI(); draw();
+}
+
+// ── Feather ───────────────────────────────────────────────────────────────────
+featherSlider.addEventListener('input', () => {
+    S.feather = parseInt(featherSlider.value);
+    featherLabel.textContent = S.feather + 'px';
+});
+
+// ── Adjustments ───────────────────────────────────────────────────────────────
+const brightnessSlider  = document.getElementById('brightnessSlider');
+const contrastSlider    = document.getElementById('contrastSlider');
+const saturationSlider  = document.getElementById('saturationSlider');
+const sharpenSlider     = document.getElementById('sharpenSlider');
+
+function syncAdj() {
+    S.adjustments.brightness = parseInt(brightnessSlider.value);
+    S.adjustments.contrast   = parseInt(contrastSlider.value);
+    S.adjustments.saturation = parseInt(saturationSlider.value);
+    S.adjustments.sharpen    = parseFloat(sharpenSlider.value);
+    document.getElementById('brightnessLabel').textContent = S.adjustments.brightness;
+    document.getElementById('contrastLabel').textContent   = S.adjustments.contrast;
+    document.getElementById('saturationLabel').textContent = S.adjustments.saturation;
+    document.getElementById('sharpenLabel').textContent    = S.adjustments.sharpen.toFixed(1);
+    schedulePreview();
+}
+
+[brightnessSlider, contrastSlider, saturationSlider, sharpenSlider].forEach(el =>
+    el.addEventListener('input', syncAdj)
+);
+
+document.getElementById('resetAdjBtn').addEventListener('click', () => {
+    brightnessSlider.value = 0; contrastSlider.value = 0;
+    saturationSlider.value = 0; sharpenSlider.value  = 0;
+    syncAdj();
+});
+
+// ── Update UI ─────────────────────────────────────────────────────────────────
+function updateUI() {
+    const poly = ap();
+    const n = poly.points.length;
+    const closedPolys = S.polygons.filter(p => p.closed && p.points.length >= 3);
+
+    pointCountEl.textContent = n;
+    closeBtn.disabled    = n < 3 || poly.closed;
+    newShapeBtn.disabled = !poly.closed;
+    cropBtn.disabled     = closedPolys.length === 0;
+    inverseCropBtn.disabled = closedPolys.length === 0;
+    totalShapesEl.textContent = `${closedPolys.length} closed`;
+
+    // Hint text
+    if (poly.closed) {
+        hint.textContent = 'Shape closed — click edge in Add mode to insert point, or + New Shape';
+    } else {
+        const msgs = ['Click to place first point','Click to add more points','Add more points to define your shape'];
+        hint.textContent = n < 3 ? (msgs[n] ?? msgs[2]) : 'Click near the green point to close the shape';
+    }
+
+    updateShapeTabs();
+    updatePointList();
+}
+
+function updateShapeTabs() {
+    shapeTabsEl.innerHTML = S.polygons.map((poly, i) => {
+        const color  = polyColor(i);
+        const active = i === S.activePoly;
+        const label  = `Shape ${i+1}${poly.closed ? ' ✓' : ''}`;
+        return `<button class="shape-tab text-xs px-2 py-1 rounded font-medium border transition"
+            style="background:${active ? color : 'white'}; color:${active ? 'white' : color}; border-color:${color}"
+            data-idx="${i}">${label}</button>`;
+    }).join('');
+    shapeTabsEl.querySelectorAll('.shape-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            S.activePoly  = parseInt(btn.dataset.idx);
+            S.selectedIdx = -1;
+            updateUI(); draw();
+        });
+    });
+}
+
+function updatePointList() {
+    const pts = ap().points;
+    if (pts.length === 0) { pointListEl.innerHTML = '<span>No points yet</span>'; return; }
+    const color = polyColor(S.activePoly);
+    pointListEl.innerHTML = pts.map((p, i) => `
+        <div class="flex items-center gap-1 group rounded px-1 py-0.5 ${i === S.selectedIdx ? 'bg-amber-50' : 'hover:bg-gray-50'} cursor-pointer" data-idx="${i}">
+            <span class="w-4 h-4 rounded-full text-white text-center flex items-center justify-center point-pill flex-shrink-0"
+                style="background:${i===0?'#22c55e':color}">${i+1}</span>
+            <span class="font-mono text-gray-500 flex-1">${Math.round(p.x)}, ${Math.round(p.y)}</span>
+            <button class="del-pt opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 px-1" data-idx="${i}" title="Delete">×</button>
+        </div>`).join('');
+    pointListEl.querySelectorAll('[data-idx]').forEach(el => {
+        el.addEventListener('click', e => {
+            if (e.target.classList.contains('del-pt')) return;
+            S.selectedIdx = parseInt(el.dataset.idx);
+            updateUI(); draw();
+        });
+    });
+    pointListEl.querySelectorAll('.del-pt').forEach(el => {
+        el.addEventListener('click', e => { e.stopPropagation(); deletePoint(parseInt(el.dataset.idx)); });
+    });
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+function buildMaskPath(mctx, closedPolys) {
+    mctx.beginPath();
+    closedPolys.forEach(poly => {
+        mctx.moveTo(poly.points[0].x, poly.points[0].y);
+        for (let i = 1; i < poly.points.length; i++) mctx.lineTo(poly.points[i].x, poly.points[i].y);
+        mctx.closePath();
+    });
+}
+
+// ── Enhancement options ───────────────────────────────────────────────────────
+const enhanceUpscaleChk  = document.getElementById('enhanceUpscale');
+const enhanceRealismChk  = document.getElementById('enhanceRealism');
+const enhanceProgress    = document.getElementById('enhanceProgress');
+
+function showEnhanceProgress(msg) {
+    enhanceProgress.textContent = msg;
+    enhanceProgress.classList.remove('hidden');
+}
+function hideEnhanceProgress() {
+    enhanceProgress.classList.add('hidden');
+}
+
+// Upscale sub-controls
+const upscaleOptionsEl     = document.getElementById('upscaleOptions');
+const upscaleSharpenSlider = document.getElementById('upscaleSharpenSlider');
+const upscaleSharpenLabel  = document.getElementById('upscaleSharpenLabel');
+
+enhanceUpscaleChk.addEventListener('change', () => {
+    upscaleOptionsEl.classList.toggle('hidden', !enhanceUpscaleChk.checked);
+});
+upscaleSharpenSlider.addEventListener('input', () => {
+    S.upscaleSharpen = parseInt(upscaleSharpenSlider.value);
+    upscaleSharpenLabel.textContent = S.upscaleSharpen;
+});
+
+function setUpscaleScale(n) {
+    S.upscaleScale = n;
+    document.getElementById('scale2x').className = n === 2
+        ? 'scale-btn flex-1 text-xs py-1 rounded border bg-blue-600 text-white border-blue-600 font-medium'
+        : 'scale-btn flex-1 text-xs py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100';
+    document.getElementById('scale4x').className = n === 4
+        ? 'scale-btn flex-1 text-xs py-1 rounded border bg-blue-600 text-white border-blue-600 font-medium'
+        : 'scale-btn flex-1 text-xs py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100';
+}
+document.getElementById('scale2x').addEventListener('click', () => setUpscaleScale(2));
+document.getElementById('scale4x').addEventListener('click', () => setUpscaleScale(4));
+
+// Realism sub-controls
+const realismOptionsEl = document.getElementById('realismOptions');
+const rSharpenSlider   = document.getElementById('rSharpenSlider');
+const rContrastSlider  = document.getElementById('rContrastSlider');
+const rGrainSlider     = document.getElementById('rGrainSlider');
+const rWarmthSlider    = document.getElementById('rWarmthSlider');
+
+const REALISM_PRESETS = {
+    natural: { sharpen: 0.50, contrast: 0.10, grain: 3,  warmth: 3 },
+    punchy:  { sharpen: 1.20, contrast: 0.30, grain: 4,  warmth: 8 },
+    filmic:  { sharpen: 0.60, contrast: 0.15, grain: 12, warmth: 1 },
+};
+
+enhanceRealismChk.addEventListener('change', () => {
+    realismOptionsEl.classList.toggle('hidden', !enhanceRealismChk.checked);
+});
+
+function syncRealismSliders(highlightPreset) {
+    rSharpenSlider.value  = S.realismParams.sharpen;
+    rContrastSlider.value = S.realismParams.contrast;
+    rGrainSlider.value    = S.realismParams.grain;
+    rWarmthSlider.value   = S.realismParams.warmth;
+    document.getElementById('rSharpenLabel').textContent  = S.realismParams.sharpen.toFixed(2);
+    document.getElementById('rContrastLabel').textContent = S.realismParams.contrast.toFixed(2);
+    document.getElementById('rGrainLabel').textContent    = S.realismParams.grain.toFixed(1);
+    document.getElementById('rWarmthLabel').textContent   = S.realismParams.warmth.toFixed(1);
+    document.querySelectorAll('.preset-btn').forEach(b => {
+        b.className = b.dataset.preset === highlightPreset
+            ? 'preset-btn flex-1 text-xs py-1 rounded border bg-purple-600 text-white border-purple-600 font-medium'
+            : 'preset-btn flex-1 text-xs py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100';
+    });
+}
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        S.realismParams = { ...REALISM_PRESETS[btn.dataset.preset] };
+        syncRealismSliders(btn.dataset.preset);
+    });
+});
+
+function onRealismSliderChange() {
+    S.realismParams.sharpen  = parseFloat(rSharpenSlider.value);
+    S.realismParams.contrast = parseFloat(rContrastSlider.value);
+    S.realismParams.grain    = parseFloat(rGrainSlider.value);
+    S.realismParams.warmth   = parseFloat(rWarmthSlider.value);
+    syncRealismSliders(null);
+}
+[rSharpenSlider, rContrastSlider, rGrainSlider, rWarmthSlider].forEach(el =>
+    el.addEventListener('input', onRealismSliderChange)
+);
+
+// Realism filter functions
+function applySharpen(imageData, amount) {
+    const d = imageData.data, w = imageData.width, h = imageData.height;
+    const copy = new Uint8ClampedArray(d);
+    for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+            const i = (y * w + x) * 4;
+            for (let c = 0; c < 3; c++) {
+                const center = copy[i + c];
+                const neighbors = (copy[((y-1)*w+x)*4+c] + copy[((y+1)*w+x)*4+c] + copy[(y*w+x-1)*4+c] + copy[(y*w+x+1)*4+c]) / 4;
+                d[i + c] = Math.max(0, Math.min(255, center + (center - neighbors) * amount));
+            }
+        }
+    }
+    return imageData;
+}
+function applyMicroContrast(imageData, amount) {
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+        d[i]   = Math.max(0, Math.min(255, 128 + (d[i] - 128) * (1 + amount * 0.5)));
+        d[i+1] = Math.max(0, Math.min(255, 128 + (d[i+1] - 128) * (1 + amount * 0.5)));
+        d[i+2] = Math.max(0, Math.min(255, 128 + (d[i+2] - 128) * (1 + amount * 0.5)));
+    }
+    return imageData;
+}
+function applyGrain(imageData, amount) {
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+        const noise = (Math.random() - 0.5) * amount;
+        d[i]   = Math.max(0, Math.min(255, d[i] + noise));
+        d[i+1] = Math.max(0, Math.min(255, d[i+1] + noise));
+        d[i+2] = Math.max(0, Math.min(255, d[i+2] + noise));
+    }
+    return imageData;
+}
+function applyWarmth(imageData, amount) {
+    const d = imageData.data;
+    for (let i = 0; i < d.length; i += 4) {
+        d[i]   = Math.min(255, d[i] + amount * 0.6);
+        d[i+1] = Math.min(255, d[i+1] + amount * 0.3);
+        d[i+2] = Math.max(0, d[i+2] - amount * 0.2);
+    }
+    return imageData;
+}
+
+function applyRealismFilter(canvas, params) {
+    params = params || { sharpen: 0.75, contrast: 0.15, grain: 5, warmth: 5 };
+    const ctx = canvas.getContext('2d');
+    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    if (params.sharpen  > 0) imageData = applySharpen(imageData, params.sharpen);
+    if (params.contrast > 0) imageData = applyMicroContrast(imageData, params.contrast);
+    if (params.grain    > 0) imageData = applyGrain(imageData, params.grain);
+    if (params.warmth   > 0) imageData = applyWarmth(imageData, params.warmth);
+    ctx.putImageData(imageData, 0, 0);
+    return canvas;
+}
+
+async function exportCrop(inverse) {
+    const img = S.image;
+    const W = img.naturalWidth, H = img.naturalHeight;
+    const closedPolys = S.polygons.filter(p => p.closed && p.points.length >= 3);
+    if (!closedPolys.length) return;
+
+    const doUpscale  = enhanceUpscaleChk.checked;
+    const doRealism  = enhanceRealismChk.checked;
+
+    // Disable buttons during processing
+    cropBtn.disabled = true;
+    inverseCropBtn.disabled = true;
+
+    // ── Compute bounding box of all polygon points ────────────────────────────
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const poly of closedPolys) {
+        for (const pt of poly.points) {
+            if (pt.x < minX) minX = pt.x;
+            if (pt.y < minY) minY = pt.y;
+            if (pt.x > maxX) maxX = pt.x;
+            if (pt.y > maxY) maxY = pt.y;
+        }
+    }
+    minX = Math.max(0, Math.floor(minX));
+    minY = Math.max(0, Math.floor(minY));
+    maxX = Math.min(W, Math.ceil(maxX));
+    maxY = Math.min(H, Math.ceil(maxY));
+    const bw = maxX - minX;
+    const bh = maxY - minY;
+
+    const outW = inverse ? W : bw;
+    const outH = inverse ? H : bh;
+    const offX = inverse ? 0 : -minX;
+    const offY = inverse ? 0 : -minY;
+
+    // ── Build full-res masked canvas ──────────────────────────────────────────
+    const full  = document.createElement('canvas'); full.width = W; full.height = H;
+    const fctx  = full.getContext('2d');
+    fctx.drawImage(img, 0, 0);
+
+    if (S.feather > 0) {
+        const mask  = document.createElement('canvas'); mask.width = W; mask.height = H;
+        const mctx  = mask.getContext('2d');
+        mctx.fillStyle = inverse ? 'white' : 'black';
+        mctx.fillRect(0, 0, W, H);
+        mctx.shadowColor = inverse ? 'black' : 'white';
+        mctx.shadowBlur  = S.feather * 2;
+        mctx.fillStyle   = inverse ? 'black' : 'white';
+        buildMaskPath(mctx, closedPolys);
+        mctx.fill();
+        const id = fctx.getImageData(0,0,W,H), md = mctx.getImageData(0,0,W,H);
+        for (let i = 0; i < id.data.length; i += 4) id.data[i+3] = Math.round(id.data[i+3] * md.data[i] / 255);
+        fctx.putImageData(id, 0, 0);
+    } else {
+        fctx.globalCompositeOperation = 'destination-in';
+        if (inverse) {
+            const tmp  = document.createElement('canvas'); tmp.width = W; tmp.height = H;
+            const tctx = tmp.getContext('2d');
+            tctx.fillStyle = 'white'; tctx.fillRect(0,0,W,H);
+            tctx.globalCompositeOperation = 'destination-out';
+            buildMaskPath(tctx, closedPolys);
+            tctx.fill();
+            fctx.drawImage(tmp, 0, 0);
+        } else {
+            buildMaskPath(fctx, closedPolys);
+            fctx.fillStyle = 'white';
+            fctx.fill();
+        }
+        fctx.globalCompositeOperation = 'source-over';
+    }
+
+    // ── Stamp onto output canvas at bounding-box size ─────────────────────────
+    let out  = document.createElement('canvas'); out.width = outW; out.height = outH;
+    let ectx = out.getContext('2d');
+    // Apply brightness/contrast/saturation
+    const adjFilter = buildFilter(S.adjustments);
+    if (adjFilter !== 'brightness(1) contrast(1) saturate(1)') ectx.filter = adjFilter;
+    ectx.drawImage(full, offX, offY);
+    ectx.filter = 'none';
+    // Apply sharpen
+    if (S.adjustments.sharpen > 0) {
+        const sid = ectx.getImageData(0, 0, outW, outH);
+        applySharpen(sid, S.adjustments.sharpen);
+        ectx.putImageData(sid, 0, 0);
+    }
+
+    // ── Apply enhancements ────────────────────────────────────────────────────
+    try {
+        if (doUpscale) {
+            showEnhanceProgress(`Upscaling ${S.upscaleScale}×...`);
+            await new Promise(r => setTimeout(r, 10));
+            const upscaled = document.createElement('canvas');
+            upscaled.width  = out.width  * S.upscaleScale;
+            upscaled.height = out.height * S.upscaleScale;
+            await pica().resize(out, upscaled, {
+                quality: 3,
+                unsharpAmount: S.upscaleSharpen * 1.5,
+                unsharpRadius: 0.6,
+                unsharpThreshold: 2,
+            });
+            out = upscaled;
+        }
+
+        if (doRealism) {
+            showEnhanceProgress('Applying realism filter...');
+            await new Promise(r => setTimeout(r, 10));
+            out = applyRealismFilter(out, S.realismParams);
+        }
+
+        hideEnhanceProgress();
+    } catch (err) {
+        showEnhanceProgress('⚠️ Enhancement failed: ' + err.message);
+        setTimeout(hideEnhanceProgress, 3000);
+    }
+
+    // ── Download ──────────────────────────────────────────────────────────────
+    out.toBlob(blob => {
+        const a = document.createElement('a');
+        let filename = inverse ? 'inverse-crop' : 'crop';
+        if (doUpscale) filename += `-${S.upscaleScale}x`;
+        if (doRealism) filename += '-enhanced';
+        a.download = filename + '.png';
+        a.href = URL.createObjectURL(blob);
+        a.click();
+
+        // Re-enable buttons
+        cropBtn.disabled = false;
+        inverseCropBtn.disabled = false;
+    }, 'image/png');
+}
+
+cropBtn.addEventListener('click',        () => exportCrop(false));
+inverseCropBtn.addEventListener('click', () => exportCrop(true));
+</script>
+</body>
+</html>

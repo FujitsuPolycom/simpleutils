@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favicon Generator - Create Favicons Online Free | SimpleUtils</title>
+    <meta name="description" content="Generate favicons for your website in multiple sizes from any image. Create 16x16, 32x32, 48x48, and Apple touch icons instantly. Download individual sizes or get all favicons in a ZIP file. Free online favicon maker.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">Favicon Generator</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Favicon Generator</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Create professional favicons for your website in all required sizes. Upload any image and our favicon generator creates optimized versions in 16x16, 32x32, 48x48, and 180x180 pixels for Apple devices. Download icons individually or get all sizes in a convenient ZIP file. Perfect for web developers and designers.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <!-- Tool Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                <input type="file" id="imageInput" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                <p class="text-xs text-gray-500 mt-1">For best results, use a square image at least 512x512 pixels</p>
+            </div>
+
+            <div id="result" class="hidden">
+                <h3 class="text-lg font-semibold mb-4">Generated Favicons</h3>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="text-center">
+                        <div class="bg-gray-100 p-4 rounded mb-2 flex items-center justify-center h-24">
+                            <canvas id="canvas16" width="16" height="16" class="border border-gray-300" style="image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div class="text-sm font-medium text-gray-700">16x16</div>
+                        <button onclick="downloadSize(16)" class="text-xs text-blue-600 hover:underline mt-1">Download</button>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-gray-100 p-4 rounded mb-2 flex items-center justify-center h-24">
+                            <canvas id="canvas32" width="32" height="32" class="border border-gray-300" style="image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div class="text-sm font-medium text-gray-700">32x32</div>
+                        <button onclick="downloadSize(32)" class="text-xs text-blue-600 hover:underline mt-1">Download</button>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-gray-100 p-4 rounded mb-2 flex items-center justify-center h-24">
+                            <canvas id="canvas48" width="48" height="48" class="border border-gray-300"></canvas>
+                        </div>
+                        <div class="text-sm font-medium text-gray-700">48x48</div>
+                        <button onclick="downloadSize(48)" class="text-xs text-blue-600 hover:underline mt-1">Download</button>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-gray-100 p-4 rounded mb-2 flex items-center justify-center h-24">
+                            <canvas id="canvas180" width="180" height="180" class="border border-gray-300 max-w-full h-auto"></canvas>
+                        </div>
+                        <div class="text-sm font-medium text-gray-700">180x180 (Apple)</div>
+                        <button onclick="downloadSize(180)" class="text-xs text-blue-600 hover:underline mt-1">Download</button>
+                    </div>
+                </div>
+
+                <button id="downloadAllBtn" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                    Download All Sizes as ZIP
+                </button>
+
+                <div class="mt-4 p-4 bg-blue-50 rounded">
+                    <h4 class="font-semibold text-sm text-gray-700 mb-2">HTML Code for Your Website:</h4>
+                    <code class="text-xs bg-white p-2 block rounded border border-gray-200 overflow-x-auto">
+&lt;link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"&gt;<br>
+&lt;link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"&gt;<br>
+&lt;link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png"&gt;<br>
+&lt;link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"&gt;
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use the Favicon Generator</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Upload your logo or image (square images work best, at least 512x512 pixels recommended)</li>
+                <li>Preview all generated favicon sizes to ensure they look good at small dimensions</li>
+                <li>Download individual sizes or click "Download All Sizes as ZIP" for a complete favicon package</li>
+                <li>Upload the favicon files to your website's root directory</li>
+                <li>Copy the provided HTML code and paste it in your website's &lt;head&gt; section</li>
+            </ol>
+        </section>
+
+        <!-- FAQ -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What sizes do I need for a modern website?</h3>
+                    <p class="text-gray-700">Modern websites should include 16x16 and 32x32 for browser tabs, 48x48 for desktop shortcuts, and 180x180 for Apple devices. Our generator creates all these sizes automatically.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What's the difference between favicon and Apple touch icon?</h3>
+                    <p class="text-gray-700">Favicons appear in browser tabs and bookmarks. Apple touch icons are used when someone saves your website to their iPhone or iPad home screen. They're larger (180x180) and display as app-like icons.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Should I use PNG or ICO format?</h3>
+                    <p class="text-gray-700">PNG is now the standard and widely supported by all modern browsers. It offers better quality and transparency support compared to the older ICO format. Our generator creates PNG files for maximum compatibility.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Why do my favicons look blurry at small sizes?</h3>
+                    <p class="text-gray-700">Complex logos or detailed images often don't scale well to 16x16 pixels. For best results, use simple designs with bold shapes and high contrast. Consider creating a simplified version of your logo specifically for favicons.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        const sizes = [16, 32, 48, 180];
+        const imageInput = document.getElementById('imageInput');
+        const result = document.getElementById('result');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        let sourceImage = null;
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                sourceImage = new Image();
+                sourceImage.onload = () => {
+                    generateFavicons();
+                    result.classList.remove('hidden');
+                };
+                sourceImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function generateFavicons() {
+            sizes.forEach(size => {
+                const canvas = document.getElementById(`canvas${size}`);
+                const ctx = canvas.getContext('2d');
+                
+                // Use high-quality scaling
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                ctx.drawImage(sourceImage, 0, 0, size, size);
+            });
+        }
+
+        window.downloadSize = function(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            canvas.toBlob((blob) => {
+                const link = document.createElement('a');
+                const filename = size === 180 ? 'apple-touch-icon.png' : `favicon-${size}x${size}.png`;
+                link.download = filename;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            });
+        };
+
+        downloadAllBtn.addEventListener('click', async () => {
+            const zip = new JSZip();
+
+            for (const size of sizes) {
+                const canvas = document.getElementById(`canvas${size}`);
+                const blob = await new Promise(resolve => canvas.toBlob(resolve));
+                const filename = size === 180 ? 'apple-touch-icon.png' : `favicon-${size}x${size}.png`;
+                zip.file(filename, blob);
+            }
+
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            const link = document.createElement('a');
+            link.download = 'favicons.zip';
+            link.href = URL.createObjectURL(zipBlob);
+            link.click();
+        });
+    </script>
+</body>
+</html>

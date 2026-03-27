@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robots.txt Generator - Free SEO Tool | SimpleUtils</title>
+    <meta name="description" content="Generate custom robots.txt files for your website. Control search engine crawlers, set crawl delays, and block AI bots like GPTBot. Free online tool.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-gray-100 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700">
+        <div class="container mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-indigo-400 hover:text-indigo-300">⚡ SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="container mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-indigo-400 hover:text-indigo-300">Home</a>
+        <span class="text-gray-500 mx-2">&gt;</span>
+        <span class="text-gray-300">Robots.txt Generator</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <h1 class="text-4xl font-bold mb-4">Robots.txt Generator</h1>
+        <p class="text-gray-300 mb-8">
+            Create a custom robots.txt file to control how search engines and bots crawl your website. Set crawl delays, block specific AI scrapers, and manage access to different sections of your site. Essential for SEO and privacy management.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Configuration Panel -->
+            <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">Configuration</h2>
+
+                <!-- Presets -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Quick Presets:</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="applyPreset('allowAll')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Allow All</button>
+                        <button onclick="applyPreset('blockAll')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Block All</button>
+                        <button onclick="applyPreset('blockAI')" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Block AI Bots</button>
+                        <button onclick="applyPreset('standard')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Standard</button>
+                    </div>
+                </div>
+
+                <!-- Sitemap URL -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Sitemap URL (optional):</label>
+                    <input type="url" id="sitemapUrl" placeholder="https://example.com/sitemap.xml" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <!-- Crawl Delay -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Crawl Delay (seconds, optional):</label>
+                    <input type="number" id="crawlDelay" placeholder="10" min="0" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <!-- Rules -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">Custom Rules:</h3>
+                    <div id="rulesContainer" class="space-y-3">
+                        <!-- Rules will be added here dynamically -->
+                    </div>
+                    <button onclick="addRule()" class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">+ Add Rule</button>
+                </div>
+
+                <!-- Common Bot Blockers -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">Block Specific Bots:</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="bot-checkbox mr-2" data-bot="GPTBot">
+                            <span>GPTBot (OpenAI)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="bot-checkbox mr-2" data-bot="CCBot">
+                            <span>CCBot (Common Crawl)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="bot-checkbox mr-2" data-bot="Google-Extended">
+                            <span>Google-Extended (AI training)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="bot-checkbox mr-2" data-bot="anthropic-ai">
+                            <span>anthropic-ai (Claude)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="bot-checkbox mr-2" data-bot="Claude-Web">
+                            <span>Claude-Web</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="bot-checkbox mr-2" data-bot="Bytespider">
+                            <span>Bytespider (ByteDance/TikTok)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button onclick="generateRobotsTxt()" class="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold">Generate robots.txt</button>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">Preview</h2>
+                <div class="mb-4">
+                    <textarea id="robotsPreview" readonly class="w-full h-96 px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm" placeholder="Your robots.txt will appear here..."></textarea>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="copyRobotsTxt()" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Copy to Clipboard</button>
+                    <button onclick="downloadRobotsTxt()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Download File</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6 mt-8 mb-8">
+            <h2 class="text-2xl font-bold mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Choose a quick preset or start from scratch with custom rules</li>
+                <li>Add your sitemap URL to help search engines discover your content</li>
+                <li>Set a crawl delay if you want to limit how fast bots can access your site</li>
+                <li>Add custom rules by specifying user-agents and allowed/disallowed paths</li>
+                <li>Check boxes to block specific AI bots from scraping your content</li>
+                <li>Click "Generate" to see your robots.txt, then copy or download it</li>
+                <li>Upload the robots.txt file to your website's root directory</li>
+            </ol>
+        </div>
+
+        <!-- FAQ -->
+        <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+            <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-1">What is robots.txt and why do I need it?</h3>
+                    <p class="text-gray-700">A robots.txt file tells search engines and bots which pages they can and cannot access on your website. It's essential for SEO, privacy, and controlling how your content is crawled and indexed.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Where should I place the robots.txt file?</h3>
+                    <p class="text-gray-700">The robots.txt file must be placed in your website's root directory and be accessible at https://yourdomain.com/robots.txt. It won't work if placed in subdirectories.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Will blocking a bot guarantee it won't crawl my site?</h3>
+                    <p class="text-gray-700">No. The robots.txt file is a guideline that well-behaved bots follow voluntarily. Malicious bots may ignore it. For stronger protection, use server-side access controls and authentication.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Should I block AI bots from my website?</h3>
+                    <p class="text-gray-700">It depends on your goals. Blocking AI bots prevents them from using your content for training, but may reduce your site's visibility in AI-powered search tools. Consider your priorities and audience.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container mx-auto px-4 py-8 text-center text-gray-400 text-sm">
+        All processing happens in your browser. No data is sent to any server.
+    </footer>
+
+    <script>
+        let ruleCounter = 0;
+
+        function addRule(userAgent = '*', type = 'Disallow', path = '') {
+            const rulesContainer = document.getElementById('rulesContainer');
+            const ruleId = `rule-${ruleCounter++}`;
+            
+            const ruleDiv = document.createElement('div');
+            ruleDiv.id = ruleId;
+            ruleDiv.className = 'flex gap-2 items-start';
+            ruleDiv.innerHTML = `
+                <input type="text" placeholder="User-agent" value="${userAgent}" 
+                       class="rule-agent flex-1 px-3 py-2 border border-gray-300 rounded text-sm">
+                <select class="rule-type px-3 py-2 border border-gray-300 rounded text-sm">
+                    <option value="Allow" ${type === 'Allow' ? 'selected' : ''}>Allow</option>
+                    <option value="Disallow" ${type === 'Disallow' ? 'selected' : ''}>Disallow</option>
+                </select>
+                <input type="text" placeholder="/path" value="${path}" 
+                       class="rule-path flex-1 px-3 py-2 border border-gray-300 rounded text-sm">
+                <button onclick="removeRule('${ruleId}')" class="px-3 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700">×</button>
+            `;
+            
+            rulesContainer.appendChild(ruleDiv);
+        }
+
+        function removeRule(ruleId) {
+            document.getElementById(ruleId).remove();
+        }
+
+        function applyPreset(preset) {
+            const rulesContainer = document.getElementById('rulesContainer');
+            rulesContainer.innerHTML = '';
+            document.querySelectorAll('.bot-checkbox').forEach(cb => cb.checked = false);
+            
+            switch(preset) {
+                case 'allowAll':
+                    addRule('*', 'Allow', '/');
+                    break;
+                case 'blockAll':
+                    addRule('*', 'Disallow', '/');
+                    break;
+                case 'blockAI':
+                    document.querySelectorAll('.bot-checkbox').forEach(cb => cb.checked = true);
+                    break;
+                case 'standard':
+                    addRule('*', 'Disallow', '/admin/');
+                    addRule('*', 'Disallow', '/private/');
+                    addRule('*', 'Allow', '/');
+                    break;
+            }
+            
+            generateRobotsTxt();
+        }
+
+        function generateRobotsTxt() {
+            let content = '# Generated by SimpleUtils Robots.txt Generator\n';
+            content += '# ' + new Date().toISOString().split('T')[0] + '\n\n';
+
+            // Add custom rules
+            const rules = document.querySelectorAll('#rulesContainer > div');
+            const rulesByAgent = {};
+            
+            rules.forEach(rule => {
+                const agent = rule.querySelector('.rule-agent').value || '*';
+                const type = rule.querySelector('.rule-type').value;
+                const path = rule.querySelector('.rule-path').value || '/';
+                
+                if (!rulesByAgent[agent]) {
+                    rulesByAgent[agent] = [];
+                }
+                rulesByAgent[agent].push({ type, path });
+            });
+
+            // Add blocked bots
+            const blockedBots = [];
+            document.querySelectorAll('.bot-checkbox:checked').forEach(cb => {
+                blockedBots.push(cb.dataset.bot);
+            });
+
+            blockedBots.forEach(bot => {
+                if (!rulesByAgent[bot]) {
+                    rulesByAgent[bot] = [{ type: 'Disallow', path: '/' }];
+                }
+            });
+
+            // Generate output
+            Object.keys(rulesByAgent).forEach(agent => {
+                content += `User-agent: ${agent}\n`;
+                rulesByAgent[agent].forEach(rule => {
+                    content += `${rule.type}: ${rule.path}\n`;
+                });
+                
+                // Add crawl delay for this agent if specified
+                const crawlDelay = document.getElementById('crawlDelay').value;
+                if (crawlDelay && agent === '*') {
+                    content += `Crawl-delay: ${crawlDelay}\n`;
+                }
+                
+                content += '\n';
+            });
+
+            // Add sitemap
+            const sitemap = document.getElementById('sitemapUrl').value;
+            if (sitemap) {
+                content += `Sitemap: ${sitemap}\n`;
+            }
+
+            document.getElementById('robotsPreview').value = content;
+        }
+
+        function copyRobotsTxt() {
+            const textarea = document.getElementById('robotsPreview');
+            textarea.select();
+            document.execCommand('copy');
+            alert('Copied to clipboard!');
+        }
+
+        function downloadRobotsTxt() {
+            const content = document.getElementById('robotsPreview').value;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'robots.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Add listeners
+        document.getElementById('sitemapUrl').addEventListener('input', generateRobotsTxt);
+        document.getElementById('crawlDelay').addEventListener('input', generateRobotsTxt);
+        document.querySelectorAll('.bot-checkbox').forEach(cb => {
+            cb.addEventListener('change', generateRobotsTxt);
+        });
+
+        // Initialize with default rule
+        addRule('*', 'Allow', '/');
+        generateRobotsTxt();
+    </script>
+</body>
+</html>

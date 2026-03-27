@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cell Defender 🦠</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#06100a; display:flex; justify-content:center; align-items:center; height:100vh; overflow:hidden; }
+canvas { display:block; cursor:none; touch-action:none; }
+#back { position:absolute; top:10px; left:10px; color:rgba(255,255,255,0.3); font-size:12px; text-decoration:none; z-index:9; }
+#back:hover { color:white; }
+</style>
+</head>
+<body>
+<a href="/" id="back">← SimpleUtils</a>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const W = canvas.width  = Math.min(window.innerWidth,  900);
+const H = canvas.height = Math.min(window.innerHeight, 640);
+const CX = W/2, CY = H/2;
+const CRX = W/2 - 62;   // cell ellipse X radius  (leaves room for syringe outside)
+const CRY = H/2 - 62;   // cell ellipse Y radius
+
+let tick = 0;
+const lerp = (a,b,t)=>a+(b-a)*t;
+const lc   = (r1,g1,b1,r2,g2,b2,t)=>
+  `rgb(${~~lerp(r1,r2,t)},${~~lerp(g1,g2,t)},${~~lerp(b1,b2,t)})`;
+const lca  = (r1,g1,b1,a1,r2,g2,b2,a2,t)=>
+  `rgba(${~~lerp(r1,r2,t)},${~~lerp(g1,g2,t)},${~~lerp(b1,b2,t)},${lerp(a1,a2,t).toFixed(2)})`;
+
+// ── Input ─────────────────────────────────────────────────────────────────────
+let mx = CX, my = CY + 200;   // start below
+function ptPos(e){
+  const r=canvas.getBoundingClientRect(), s=e.touches?e.touches[0]:e;
+  mx=(s.clientX-r.left)*(W/r.width);
+  my=(s.clientY-r.top)*(H/r.height);
+}
+canvas.addEventListener('mousemove', ptPos);
+canvas.addEventListener('touchmove', e=>{e.preventDefault();ptPos(e);},{passive:false});
+canvas.addEventListener('click',      e=>{ptPos(e);onTap();});
+canvas.addEventListener('touchstart', e=>{e.preventDefault();ptPos(e);onTap();},{passive:false});
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let state='MENU', score=0, wave=1, totalKills=0, killsToWin=20;
+let cellHealth=1.0;  // 0=dead
+let cureProgress=0;  // 1=win
+let lastShot=0;      // cooldown tick
+
+function onTap(){
+  if(state==='MENU'||state==='DEAD'||state==='WIN'){ initGame(); return; }
+  fire();
+}
+
+// ── Syringe aim: tip is on membrane at mouse angle from center ─────────────────
+function syringeAngle(){ return Math.atan2(my-CY, mx-CX); }
+function membraneTip(angle){
+  return { x: CX + Math.cos(angle)*CRX, y: CY + Math.sin(angle)*CRY };
+}
+function oppositePoint(angle){
+  return { x: CX - Math.cos(angle)*CRX, y: CY - Math.sin(angle)*CRY };
+}
+
+// ── Game entities ─────────────────────────────────────────────────────────────
+let viruses=[], darts=[], particles=[];
+
+const VCOLS=['#f72585','#7209b7','#4cc9f0','#f77f00','#06d6a0'];
+
+function mkVirus(x,y,gen){
+  gen=gen??0;
+  const sz=[34,21,12][gen];
+  const ang=Math.random()*Math.PI*2;
+  const spd=0.6+Math.random()*0.55+wave*0.04;
+  return {
+    x: x??(CX+(Math.random()-0.5)*CRX*0.6),
+    y: y??(CY+(Math.random()-0.5)*CRY*0.55),
+    vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd,
+    sz, gen, col:VCOLS[~~(Math.random()*VCOLS.length)],
+    rot:0, rotV:(Math.random()-0.5)*0.022,
+    spikes:6+~~(Math.random()*3),
+    squish:1, bobble:Math.random()*Math.PI*2,
+    latched:false, flashPhase:0,
+  };
+}
+function spawnWave(){
+  const n=1+wave;
+  for(let i=0;i<n;i++) setTimeout(()=>viruses.push(mkVirus()),i*700);
+}
+
+function fire(){
+  if(tick-lastShot<12) return; // small cooldown
+  lastShot=tick;
+  const ang=syringeAngle();
+  const tip=membraneTip(ang);
+  // Dart travels from membrane edge toward opposite side (straight through)
+  const dx=-Math.cos(ang), dy=-Math.sin(ang);
+  const spd=13;
+  darts.push({x:tip.x,y:tip.y, vx:dx*spd, vy:dy*spd, live:true, age:0, trail:[]});
+}
+
+function burst(x,y,col,type){
+  for(let i=0;i<10;i++){
+    const a=(i/10)*Math.PI*2, s=1.5+Math.random()*3;
+    particles.push({x,y, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+      col:type==='heal'?'#88ffcc':col,
+      sz:type==='heal'?10:5, life:1, decay:0.022, type});
+  }
+}
+
+function initGame(){
+  score=0; wave=1; totalKills=0; killsToWin=20;
+  cellHealth=1; cureProgress=0;
+  viruses=[]; darts=[]; particles=[];
+  state='PLAYING'; spawnWave();
+}
+
+// ── Ellipse helpers ────────────────────────────────────────────────────────────
+function inCell(x,y,margin=0){
+  const dx=(x-CX)/(CRX-margin), dy=(y-CY)/(CRY-margin);
+  return dx*dx+dy*dy<1;
+}
+function bounceCell(v){
+  const dx=(v.x-CX)/CRX, dy=(v.y-CY)/CRY;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  const edge=v.sz/Math.min(CRX,CRY);
+  if(dist+edge>=1){
+    const nx=dx/dist/CRX, ny=dy/dist/CRY;
+    const nm=Math.hypot(nx,ny);
+    const nnx=nx/nm, nny=ny/nm;
+    const dot=v.vx*nnx+v.vy*nny;
+    v.vx-=2*dot*nnx; v.vy-=2*dot*nny;
+    v.x-=nnx*(dist+edge-0.98)*Math.min(CRX,CRY);
+    v.y-=nny*(dist+edge-0.98)*Math.min(CRX,CRY);
+    v.squish=0.65;
+  }
+}
+
+// ── Update ─────────────────────────────────────────────────────────────────────
+function update(){
+  tick++;
+  if(state!=='PLAYING') return;
+
+  // ── Latch & health drain ──────────────────────────────────────────────────
+  // Only latched viruses drain health, and very slowly
+  let latchedCount=0;
+  viruses.forEach(v=>{
+    if(v.latched){
+      latchedCount++;
+      // Follow the organelle it latched onto
+      const op=orgPos(ORGS[v.latchOrgIdx]);
+      v.x=op.x+v.latchOffX;
+      v.y=op.y+v.latchOffY;
+      v.flashPhase=(v.flashPhase||0)+0.18;
+      v.rot+=v.rotV*0.3;
+      v.bobble+=0.05;
+    }
+  });
+  if(latchedCount>0){
+    cellHealth=Math.max(0, cellHealth - latchedCount*0.00008); // ~0.3%/sec per latched virus
+    if(cellHealth<=0){ state='DEAD'; return; }
+  } else if(viruses.length===0){
+    cellHealth=Math.min(1, cellHealth+0.0003); // slow regen when clear
+  }
+
+  // Move unlatched viruses
+  viruses.forEach(v=>{
+    if(v.latched) return;
+    v.x+=v.vx; v.y+=v.vy;
+    v.rot+=v.rotV; v.bobble+=0.05;
+    v.squish=Math.min(1,v.squish+0.06);
+    bounceCell(v);
+    // Check latch onto organelle
+    for(let oi=0;oi<ORGS.length;oi++){
+      const o=ORGS[oi];
+      const op=orgPos(o);
+      const dx=v.x-op.x, dy=v.y-op.y;
+      if(Math.hypot(dx,dy)<(o.cr+v.sz*0.55)){
+        v.latched=true;
+        v.latchOrgIdx=oi;
+        v.latchOffX=dx; v.latchOffY=dy;
+        v.vx=0; v.vy=0;
+        v.flashPhase=0;
+        v.squish=0.7;
+        // Small warning burst at latch point
+        burst(v.x, v.y, '#ff4444', 'pop');
+        break;
+      }
+    }
+  });
+
+  // Darts
+  darts.forEach(d=>{
+    d.trail.push({x:d.x,y:d.y});
+    if(d.trail.length>8) d.trail.shift();
+    d.x+=d.vx; d.y+=d.vy; d.age++;
+  });
+  darts=darts.filter(d=>d.live&&d.age<90&&inCell(d.x,d.y,-4));
+
+  // Particles
+  particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.05; p.life-=p.decay; });
+  particles=particles.filter(p=>p.life>0);
+
+  // Dart ↔ Virus
+  for(let di=darts.length-1;di>=0;di--){
+    const d=darts[di]; if(!d.live) continue;
+    for(let vi=viruses.length-1;vi>=0;vi--){
+      const v=viruses[vi];
+      const dx=d.x-v.x, dy=d.y-v.y;
+      if(dx*dx+dy*dy<v.sz*v.sz){
+        d.live=false; burst(v.x,v.y,v.col,'pop');
+        if(v.gen===0){ score+=10; for(let s=0;s<2;s++){ const a=s*Math.PI+Math.random(),sp=1.4+Math.random()*0.5; viruses.push({...mkVirus(v.x,v.y,1),vx:Math.cos(a)*sp,vy:Math.sin(a)*sp}); }
+        } else if(v.gen===1){ score+=20; for(let s=0;s<2;s++){ const a=s*Math.PI+Math.random(),sp=2+Math.random()*0.5; viruses.push({...mkVirus(v.x,v.y,2),vx:Math.cos(a)*sp,vy:Math.sin(a)*sp}); }
+        } else { score+=30; totalKills++; cureProgress=Math.min(1,totalKills/killsToWin); cellHealth=Math.min(1,cellHealth+0.04); burst(v.x,v.y,'#88ffcc','heal'); }
+        viruses.splice(vi,1); break;
+      }
+    }
+  }
+  darts=darts.filter(d=>d.live);
+
+  if(viruses.length===0){ wave++; killsToWin+=4; setTimeout(spawnWave,1400); }
+  if(cureProgress>=1) state='WIN';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ORGANELLE DRAWING FUNCTIONS
+// Each draws at (0,0) — caller does translate/rotate
+// ══════════════════════════════════════════════════════════════════════════════
+
+function drawNucleus(hp){
+  const t=hp, a=70, b=56;
+  ctx.save();
+  // Nuclear interior fill
+  const g=ctx.createRadialGradient(-a*0.2,-b*0.2,5, 0,0, a);
+  g.addColorStop(0, lca(190,155,235,0.75, 215,180,255,0.8, t));
+  g.addColorStop(1, lca(95, 65,170,0.55,  120, 85,200,0.6, t));
+  ctx.beginPath(); ctx.ellipse(0,0,a,b,0,0,Math.PI*2);
+  ctx.fillStyle=g; ctx.fill();
+  // Inner nuclear membrane
+  ctx.strokeStyle=lca(115,80,195,0.7,145,105,230,0.8,t); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.ellipse(0,0,a-6,b-5,0,0,Math.PI*2); ctx.stroke();
+  // Perinuclear space (gap)
+  ctx.strokeStyle=lca(60,35,130,0.4,80,50,165,0.5,t); ctx.lineWidth=5;
+  ctx.beginPath(); ctx.ellipse(0,0,a-2,b-2,0,0,Math.PI*2); ctx.stroke();
+  // Outer nuclear membrane
+  ctx.strokeStyle=lca(125,90,210,0.85,160,120,245,0.9,t); ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.ellipse(0,0,a,b,0,0,Math.PI*2); ctx.stroke();
+  // Nuclear pores — small octagonal complexes
+  ctx.fillStyle=lca(70,42,150,0.9,95,62,185,0.95,t);
+  for(let i=0;i<12;i++){
+    const ang=(i/12)*Math.PI*2;
+    const px=Math.cos(ang)*a, py=Math.sin(ang)*b;
+    ctx.beginPath(); ctx.arc(px,py,4.5,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(px,py,4.5,0,Math.PI*2); ctx.stroke();
+  }
+  // Chromatin — darker irregular blobs
+  ctx.fillStyle=lca(70,42,148,0.45,90,58,182,0.5,t);
+  [[-32,-14,20,13,0.3],[16,-24,15,11,-0.2],[-12,20,22,15,0.5],[26,15,17,12,-0.4],[-5,-30,12,9,0.1]].forEach(([x,y,w,h,r])=>{
+    ctx.save(); ctx.translate(x,y); ctx.rotate(r);
+    ctx.beginPath(); ctx.ellipse(0,0,w,h,0,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+  // Nucleolus — dense dark oval, offset inside
+  const nlg=ctx.createRadialGradient(-9,-6,2,-9,-6,22);
+  nlg.addColorStop(0, lca(130,92,205,0.88,160,115,240,0.92,t));
+  nlg.addColorStop(1, lca(88, 58,175,0.7, 112, 75,210,0.75,t));
+  ctx.beginPath(); ctx.ellipse(-9,-7,23,18,0.35,0,Math.PI*2);
+  ctx.fillStyle=nlg; ctx.fill();
+  ctx.strokeStyle=lca(110,75,192,0.7,140,100,228,0.8,t); ctx.lineWidth=2; ctx.stroke();
+  ctx.restore();
+}
+
+function drawMitochondrion(w,h,rot,hp){
+  const t=hp;
+  ctx.save(); ctx.rotate(rot);
+  const breathe=1+Math.sin(tick*0.013)*0.022; ctx.scale(breathe,1/breathe);
+  // Outer membrane
+  const og=ctx.createRadialGradient(0,-h*0.25,2,0,0,w);
+  og.addColorStop(0,lca(255,195,110,0.85,255,215,130,0.9,t));
+  og.addColorStop(1,lca(185,105, 38,0.65,210,130, 52,0.7,t));
+  ctx.beginPath(); ctx.ellipse(0,0,w,h,0,0,Math.PI*2);
+  ctx.fillStyle=og; ctx.fill();
+  ctx.strokeStyle=lca(200,130,48,0.9,228,160,65,0.95,t); ctx.lineWidth=2.5; ctx.stroke();
+  // Clip for inner structures
+  ctx.save();
+  ctx.beginPath(); ctx.ellipse(0,0,w,h,0,0,Math.PI*2); ctx.clip();
+  // Intermembrane space + inner membrane
+  ctx.strokeStyle=lca(185,110,35,0.7,215,145,55,0.75,t); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.ellipse(0,0,w*0.78,h*0.72,0,0,Math.PI*2); ctx.stroke();
+  // Matrix (lighter interior)
+  ctx.beginPath(); ctx.ellipse(0,0,w*0.72,h*0.65,0,0,Math.PI*2);
+  ctx.fillStyle=lca(255,220,160,0.35,255,235,180,0.4,t); ctx.fill();
+  // Cristae — perpendicular folds from inner membrane (like fingers)
+  ctx.strokeStyle=lca(178,105,32,0.6,210,138,50,0.65,t); ctx.lineWidth=2;
+  const nc=Math.floor(w/7);
+  for(let i=0;i<nc;i++){
+    const cx=-w*0.68+i*(w*1.36/(nc-1));
+    const fh=h*(0.38+Math.sin(i*1.3)*0.1); // vary fold depth
+    // Top fold
+    ctx.beginPath(); ctx.moveTo(cx,-h*0.7); ctx.lineTo(cx,-h*0.7+fh); ctx.stroke();
+    // Bottom fold (offset pattern)
+    if(i%2===0){
+      ctx.beginPath(); ctx.moveTo(cx,h*0.7); ctx.lineTo(cx,h*0.7-fh); ctx.stroke();
+    }
+  }
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawGolgi(hp){
+  const t=hp;
+  ctx.save();
+  // 5 stacked curved cisternae — each is a lens/pita shape
+  const nsacks=5;
+  for(let i=0;i<nsacks;i++){
+    const yOff=(i-(nsacks-1)/2)*14;
+    const bw=60-Math.abs(i-(nsacks-1)/2)*3;
+    const curve=10+Math.abs(i-(nsacks-1)/2)*4; // ends bow up more at extremes
+    const lightness=lerp(0.7,1,t);
+    const r=~~lerp(210,240,t), g2=~~lerp(170,200,t), b=~~lerp(45,70,t);
+    const dr=~~lerp(165,190,t), dg=~~lerp(120,148,t), db=~~lerp(28,50,t);
+    // Draw sac as a closed bezier (lens shape)
+    ctx.beginPath();
+    ctx.moveTo(-bw, yOff);
+    ctx.bezierCurveTo(-bw*0.4,yOff-curve, bw*0.4,yOff-curve, bw,yOff);
+    ctx.bezierCurveTo( bw*0.4,yOff+curve,-bw*0.4,yOff+curve,-bw,yOff);
+    ctx.closePath();
+    const gg=ctx.createLinearGradient(0,yOff-curve,0,yOff+curve);
+    gg.addColorStop(0,`rgba(${r},${g2},${b},${0.8*lightness})`);
+    gg.addColorStop(1,`rgba(${dr},${dg},${db},${0.65*lightness})`);
+    ctx.fillStyle=gg; ctx.fill();
+    ctx.strokeStyle=`rgba(${r},${g2},${b},${0.9})`; ctx.lineWidth=1.5; ctx.stroke();
+  }
+  // Transport vesicles budding off (cis and trans face)
+  const vcol=lca(220,178,52,0.75,248,210,80,0.8,t);
+  ctx.fillStyle=vcol;
+  ctx.strokeStyle=lca(195,148,38,0.85,225,178,60,0.9,t); ctx.lineWidth=1.5;
+  [[-68,-22,7],[72,-12,6],[-64,-8,5],[70,5,5],[-66,14,6],[68,20,5],
+   [-62,26,4],[65,-25,5]].forEach(([x,y,r])=>{
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function drawRoughER(hp){
+  const t=hp;
+  ctx.save();
+  const nlayers=5;
+  for(let i=0;i<nlayers;i++){
+    const yo=(i-(nlayers-1)/2)*17;
+    // Two membrane lines (bilayer pair) — wavy
+    const alpha=0.55+t*0.1;
+    for(const dy of [-3.5,3.5]){
+      ctx.strokeStyle=lca(55,148,162,alpha,78,182,198,alpha+0.05,t); ctx.lineWidth=2.5;
+      ctx.beginPath();
+      ctx.moveTo(-82,yo+dy);
+      ctx.bezierCurveTo(-50,yo+dy-10, -20,yo+dy+9, 5,yo+dy-5);
+      ctx.bezierCurveTo( 28,yo+dy-14,  55,yo+dy+8, 80,yo+dy+2);
+      ctx.stroke();
+    }
+    // Lumen (space between membranes)
+    ctx.fillStyle=lca(100,185,200,0.12,130,210,225,0.15,t);
+    ctx.beginPath();
+    ctx.moveTo(-82,yo-3.5);
+    ctx.bezierCurveTo(-50,yo-3.5-10,-20,yo-3.5+9,5,yo-3.5-5);
+    ctx.bezierCurveTo(28,yo-3.5-14,55,yo-3.5+8,80,yo-3.5+2);
+    ctx.lineTo(80,yo+3.5+2); ctx.bezierCurveTo(55,yo+3.5+8,28,yo+3.5-14,5,yo+3.5-5);
+    ctx.bezierCurveTo(-20,yo+3.5+9,-50,yo+3.5-10,-82,yo+3.5); ctx.closePath();
+    ctx.fill();
+    // Ribosomes — pairs of dots on cytoplasmic face (outside surface)
+    ctx.fillStyle=lca(38,100,82,0.85,55,135,110,0.9,t);
+    for(let j=0;j<8;j++){
+      const rx=-75+j*21;
+      const ry=yo-6+Math.sin(rx*0.05)*5;
+      // Ribosome is two subunits
+      ctx.beginPath(); ctx.arc(rx,  ry-2, 3.2,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(rx+3,ry+1, 2.2,0,Math.PI*2); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawVacuole(r, phase, hp){
+  const t=hp;
+  ctx.save();
+  const w=1+Math.sin(tick*0.009+phase)*0.03;
+  ctx.scale(w,1/w);
+  // Outer membrane
+  ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2);
+  ctx.fillStyle=lca(155,200,250,0.18,180,220,255,0.22,t); ctx.fill();
+  ctx.strokeStyle=lca(120,170,225,0.55,150,195,245,0.65,t); ctx.lineWidth=2.5; ctx.stroke();
+  // Inner tone
+  ctx.beginPath(); ctx.arc(0,0,r*0.78,0,Math.PI*2);
+  ctx.fillStyle=lca(175,215,255,0.1,200,230,255,0.14,t); ctx.fill();
+  // Membrane protein dots
+  ctx.fillStyle=lca(95,148,205,0.5,125,175,230,0.6,t);
+  for(let i=0;i<8;i++){ const a=(i/8)*Math.PI*2; ctx.beginPath(); ctx.arc(Math.cos(a)*r,Math.sin(a)*r,2.5,0,Math.PI*2); ctx.fill(); }
+  // Highlight
+  ctx.beginPath(); ctx.ellipse(-r*0.28,-r*0.28,r*0.32,r*0.2,-0.5,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.fill();
+  ctx.restore();
+}
+
+function drawLysosome(r,phase,hp){
+  const t=hp;
+  ctx.save();
+  const w=1+Math.sin(tick*0.012+phase)*0.04; ctx.scale(w,1/w);
+  const lg=ctx.createRadialGradient(-r*0.28,-r*0.28,1,0,0,r);
+  lg.addColorStop(0,lca(218,108,240,0.88,235,135,255,0.92,t));
+  lg.addColorStop(1,lca(130, 42,175,0.65,158, 62,210,0.72,t));
+  ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2);
+  ctx.fillStyle=lg; ctx.fill();
+  ctx.strokeStyle=lca(158,58,198,0.75,188,80,235,0.82,t); ctx.lineWidth=2; ctx.stroke();
+  // Enzyme granules inside
+  ctx.fillStyle=lca(175,80,215,0.55,200,105,245,0.6,t);
+  [[0,0,r*0.22],[-r*.28,-r*.18,r*0.16],[r*.22,r*.15,r*0.14]].forEach(([x,y,sr])=>{
+    ctx.beginPath(); ctx.arc(x,y,sr,0,Math.PI*2); ctx.fill();
+  });
+  ctx.restore();
+}
+
+function drawCentrosome(hp){
+  const t=hp;
+  ctx.save(); ctx.rotate(tick*0.004);
+  // Two centrioles (cylinders in cross-section)
+  const r=7;
+  for(let pass=0;pass<2;pass++){
+    ctx.save(); ctx.rotate(pass*Math.PI/2);
+    // Barrel of 9 triplet microtubules
+    for(let i=0;i<9;i++){
+      const a=(i/9)*Math.PI*2, px=Math.cos(a)*15, py=Math.sin(a)*15;
+      ctx.beginPath(); ctx.arc(px,py,r*0.38,0,Math.PI*2);
+      ctx.fillStyle=lca(165,195,235,0.7,192,218,255,0.78,t); ctx.fill();
+    }
+    ctx.restore();
+  }
+  // Aster radiating lines
+  for(let i=0;i<12;i++){
+    const a=(i/12)*Math.PI*2;
+    ctx.strokeStyle=lca(140,175,220,0.25,168,200,248,0.3,t); ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(Math.cos(a)*20,Math.sin(a)*20); ctx.lineTo(Math.cos(a)*40,Math.sin(a)*40); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── Organelle layout — home positions + drift params ─────────────────────────
+// All positions as absolute canvas coords
+const ORGS = [
+  { type:'nucleus',    hx:CX-CRX*0.22, hy:CY-CRY*0.12, df:0.0006, da:4,  ph:0.0,  cr:72 },
+  { type:'roughER',    hx:CX+CRX*0.05, hy:CY-CRY*0.05, df:0.0005, da:3,  ph:1.8,  cr:58 },
+  { type:'golgi',      hx:CX+CRX*0.30, hy:CY-CRY*0.20, df:0.0007, da:4,  ph:3.4,  cr:45 },
+  { type:'mito',       hx:CX-CRX*0.12, hy:CY+CRY*0.45, df:0.0009, da:5,  ph:0.7,  w:54,h:22,rot: 0.25, cr:30 },
+  { type:'mito',       hx:CX+CRX*0.52, hy:CY+CRY*0.12, df:0.0010, da:4,  ph:2.2,  w:46,h:19,rot:-0.55, cr:26 },
+  { type:'mito',       hx:CX-CRX*0.55, hy:CY+CRY*0.25, df:0.0008, da:5,  ph:4.5,  w:40,h:17,rot: 0.80, cr:24 },
+  { type:'mito',       hx:CX+CRX*0.22, hy:CY+CRY*0.52, df:0.0011, da:4,  ph:5.8,  w:44,h:18,rot:-0.35, cr:27 },
+  { type:'vacuole',    hx:CX+CRX*0.48, hy:CY-CRY*0.42, df:0.0009, da:5,  ph:1.2,  r:27, cr:27 },
+  { type:'vacuole',    hx:CX-CRX*0.52, hy:CY-CRY*0.38, df:0.0010, da:4,  ph:3.0,  r:18, cr:18 },
+  { type:'vacuole',    hx:CX+CRX*0.10, hy:CY+CRY*0.58, df:0.0008, da:5,  ph:5.2,  r:21, cr:21 },
+  { type:'lyso',       hx:CX+CRX*0.42, hy:CY+CRY*0.32, df:0.0013, da:5,  ph:2.8,  r:13, cr:13 },
+  { type:'lyso',       hx:CX+CRX*0.60, hy:CY-CRY*0.18, df:0.0012, da:4,  ph:4.1,  r:10, cr:10 },
+  { type:'lyso',       hx:CX-CRX*0.18, hy:CY+CRY*0.62, df:0.0014, da:5,  ph:0.4,  r:11, cr:11 },
+  { type:'lyso',       hx:CX+CRX*0.35, hy:CY-CRY*0.50, df:0.0011, da:4,  ph:1.5,  r: 9, cr: 9 },
+  { type:'centrosome', hx:CX+CRX*0.32, hy:CY+CRY*0.18, df:0.0007, da:4,  ph:2.1,  cr:20 },
+];
+function orgPos(o){
+  return {
+    x: o.hx+Math.sin(tick*o.df+o.ph)*o.da,
+    y: o.hy+Math.cos(tick*o.df*1.3+o.ph)*o.da*0.7,
+  };
+}
+
+function drawAllOrganelles(){
+  clipCell(()=>{
+    ORGS.forEach(o=>{
+      const {x,y}=orgPos(o);
+      ctx.save(); ctx.translate(x,y);
+      const hp=cureProgress;
+      if     (o.type==='nucleus')     drawNucleus(hp);
+      else if(o.type==='roughER')     drawRoughER(hp);
+      else if(o.type==='golgi')       drawGolgi(hp);
+      else if(o.type==='mito')        drawMitochondrion(o.w,o.h,o.rot,hp);
+      else if(o.type==='vacuole')     drawVacuole(o.r,o.ph,hp);
+      else if(o.type==='lyso')        drawLysosome(o.r,o.ph,hp);
+      else if(o.type==='centrosome')  drawCentrosome(hp);
+      ctx.restore();
+    });
+  });
+}
+
+// ── Cell world rendering ───────────────────────────────────────────────────────
+function clipCell(fn){
+  ctx.save();
+  ctx.beginPath(); ctx.ellipse(CX,CY,CRX-2,CRY-2,0,0,Math.PI*2); ctx.clip();
+  fn();
+  ctx.restore();
+}
+
+function drawCytoplasm(){
+  const t=cureProgress;
+  clipCell(()=>{
+    const g=ctx.createRadialGradient(CX-CRX*0.15,CY-CRY*0.15,15,CX,CY,Math.max(CRX,CRY));
+    g.addColorStop(0, lc(228,238,195,255,252,218,t));
+    g.addColorStop(0.65,lc(192,212,152,238,234,192,t));
+    g.addColorStop(1,  lc(158,182,115,215,222,168,t));
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    // Sick tinge
+    if(t<1){ ctx.fillStyle=`rgba(20,42,5,${(1-t)*0.2})`; ctx.fillRect(0,0,W,H); }
+    // Cytoskeleton fiber network
+    drawCytoSkeleton(t);
+  });
+}
+
+function drawCytoSkeleton(t){
+  ctx.strokeStyle=`rgba(115,152,72,${0.05+t*0.06})`; ctx.lineWidth=1;
+  [ [CX-CRX*.7,CY+CRY*.2, CX-CRX*.1,CY-CRY*.5, CX+CRX*.5,CY-CRY*.2, CX+CRX*.65,CY+CRY*.45],
+    [CX-CRX*.5,CY-CRY*.6, CX+CRX*.1,CY-CRY*.1, CX-CRX*.1,CY+CRY*.5, CX+CRX*.35,CY+CRY*.62],
+    [CX+CRX*.55,CY-CRY*.55, CX+CRX*.05,CY+CRY*.15, CX-CRX*.5,CY+CRY*.3],
+  ].forEach(pts=>{
+    ctx.beginPath(); ctx.moveTo(pts[0],pts[1]);
+    for(let i=2;i<pts.length;i+=2) ctx.lineTo(pts[i],pts[i+1]);
+    ctx.stroke();
+  });
+  // Floating ribosome dots
+  ctx.fillStyle=`rgba(75,108,52,${0.08+t*0.07})`;
+  for(let i=0;i<70;i++){
+    const rx=CX+Math.sin(i*17.3)*CRX*0.82, ry=CY+Math.cos(i*11.7)*CRY*0.82;
+    if(!inCell(rx,ry,25)) continue;
+    ctx.beginPath(); ctx.arc(rx,ry,2,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function drawMembrane(){
+  const t=cureProgress;
+  // Outer dark halo
+  ctx.beginPath(); ctx.ellipse(CX,CY,CRX+8,CRY+8,0,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(${~~lerp(8,18,t)},${~~lerp(28,62,t)},${~~lerp(5,18,t)},0.9)`; ctx.lineWidth=18; ctx.stroke();
+  // Main membrane
+  ctx.beginPath(); ctx.ellipse(CX,CY,CRX,CRY,0,0,Math.PI*2);
+  ctx.strokeStyle=lc(52,95,32,88,148,55,t); ctx.lineWidth=16; ctx.stroke();
+  ctx.strokeStyle=lc(78,135,48,120,182,72,t); ctx.lineWidth=8; ctx.stroke();
+  // Inner glow
+  ctx.strokeStyle=`rgba(${~~lerp(105,160,t)},${~~lerp(185,225,t)},${~~lerp(68,118,t)},${lerp(0.18,0.38,t)})`; ctx.lineWidth=5; ctx.stroke();
+  // Lipid bilayer dots (membrane proteins)
+  for(let i=0;i<64;i++){
+    const a=(i/64)*Math.PI*2;
+    ctx.fillStyle=i%2===0?lc(48,88,30,78,128,50,t):lc(68,108,42,105,162,65,t);
+    ctx.beginPath(); ctx.arc(CX+Math.cos(a)*CRX,CY+Math.sin(a)*CRY,3,0,Math.PI*2); ctx.fill();
+  }
+}
+
+// ── Game entity rendering ─────────────────────────────────────────────────────
+function drawSyringe(){
+  const ang=syringeAngle();
+  const tip=membraneTip(ang);
+  // Trajectory preview dotted line (inside cell)
+  const opp=oppositePoint(ang);
+  ctx.save();
+  ctx.setLineDash([6,6]); ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(180,230,180,0.22)';
+  ctx.beginPath(); ctx.moveTo(tip.x,tip.y); ctx.lineTo(opp.x,opp.y); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+  // Draw syringe — barrel outside cell, needle penetrating membrane
+  ctx.save();
+  ctx.translate(tip.x, tip.y);
+  ctx.rotate(ang);   // now +x points into cell
+  // Needle (going into cell)
+  ctx.strokeStyle='rgba(185,195,210,0.9)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(18,0); ctx.stroke();
+  ctx.fillStyle='rgba(210,220,230,0.9)';
+  ctx.beginPath(); ctx.moveTo(16,-1.5); ctx.lineTo(24,0); ctx.lineTo(16,1.5); ctx.closePath(); ctx.fill();
+  // Barrel (outside cell, going left from tip)
+  ctx.fillStyle='rgba(232,244,255,0.92)';
+  ctx.beginPath(); ctx.roundRect(-52,-6,48,12,3); ctx.fill();
+  ctx.strokeStyle='rgba(170,190,215,0.7)'; ctx.lineWidth=1; ctx.stroke();
+  // Vaccine liquid
+  ctx.fillStyle='rgba(72,210,105,0.85)';
+  ctx.beginPath(); ctx.roundRect(-48,-4,30+~~(Math.sin(tick*0.05)*2),8,2); ctx.fill();
+  // Graduation marks
+  ctx.strokeStyle='rgba(140,165,195,0.5)'; ctx.lineWidth=1;
+  for(let i=0;i<5;i++){ ctx.beginPath(); ctx.moveTo(-44+i*8,-6); ctx.lineTo(-44+i*8,6); ctx.stroke(); }
+  // Plunger
+  ctx.fillStyle='rgba(240,80,80,0.9)';
+  ctx.beginPath(); ctx.roundRect(-52,-7,8,14,2); ctx.fill();
+  // Hub (needle-barrel junction)
+  ctx.fillStyle='rgba(190,200,215,0.9)';
+  ctx.beginPath(); ctx.roundRect(-6,-5,10,10,2); ctx.fill();
+  ctx.restore();
+}
+
+function drawVirus(v){
+  ctx.save(); ctx.translate(v.x,v.y+(v.latched?0:Math.sin(v.bobble)*2.5));
+  // Latched flash effect — pulsing red danger ring
+  if(v.latched){
+    const pulse=Math.sin(v.flashPhase*4);
+    const ringR=v.sz+6+pulse*4;
+    ctx.beginPath(); ctx.arc(0,0,ringR,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,40,40,${0.45+pulse*0.3})`; ctx.lineWidth=3; ctx.stroke();
+    // Second inner ring
+    ctx.beginPath(); ctx.arc(0,0,v.sz+2,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,120,120,${0.3+pulse*0.2})`; ctx.lineWidth=2; ctx.stroke();
+  }
+  ctx.rotate(v.rot);
+  const sy=v.squish<1?v.squish:1+Math.sin(v.bobble*0.7)*0.04;
+  ctx.scale(1/sy,sy);
+  const r=v.sz, ir=r*0.58, sp=v.spikes*2;
+  ctx.beginPath();
+  for(let i=0;i<sp;i++){
+    const a=(i/sp)*Math.PI*2, rr=i%2===0?r:ir;
+    i===0?ctx.moveTo(Math.cos(a)*rr,Math.sin(a)*rr):ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);
+  }
+  ctx.closePath();
+  const vg=ctx.createRadialGradient(-r*0.28,-r*0.28,r*0.04,0,0,r*1.1);
+  vg.addColorStop(0,'rgba(255,255,255,0.9)'); vg.addColorStop(0.28,v.col+'ee'); vg.addColorStop(1,v.col+'66');
+  ctx.fillStyle=vg; ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1.5; ctx.stroke();
+  const er=r*0.12, ex=r*0.22, ey=-r*0.06;
+  ctx.fillStyle='white';
+  ctx.beginPath(); ctx.arc(-ex,ey,er*1.2,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc( ex,ey,er*1.2,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1a1a1a';
+  ctx.beginPath(); ctx.arc(-ex+er*0.15,ey,er*0.7,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc( ex+er*0.15,ey,er*0.7,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='white';
+  ctx.beginPath(); ctx.arc(-ex+er*0.05,ey-er*0.25,er*0.28,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc( ex+er*0.05,ey-er*0.25,er*0.28,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(15,15,15,0.6)'; ctx.lineWidth=r*0.09;
+  ctx.beginPath(); ctx.arc(0,r*0.24,r*0.2,0.15,Math.PI-0.15); ctx.stroke();
+  ctx.restore();
+}
+
+function drawDartEntity(d){
+  ctx.save();
+  // Trail
+  if(d.trail.length>1){
+    ctx.strokeStyle='rgba(100,220,120,0.15)'; ctx.lineWidth=6;
+    ctx.beginPath(); ctx.moveTo(d.trail[0].x,d.trail[0].y);
+    d.trail.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.stroke();
+  }
+  ctx.translate(d.x,d.y); ctx.rotate(Math.atan2(d.vy,d.vx));
+  // Needle flying through cytoplasm
+  ctx.strokeStyle='rgba(190,205,220,0.92)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(-12,0); ctx.lineTo(10,0); ctx.stroke();
+  ctx.fillStyle='rgba(200,215,230,0.9)';
+  ctx.beginPath(); ctx.moveTo(8,-1.8); ctx.lineTo(16,0); ctx.lineTo(8,1.8); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawParticle(p){
+  ctx.save(); ctx.globalAlpha=Math.max(0,p.life);
+  if(p.type==='heal'){
+    ctx.font='14px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('✨',p.x,p.y);
+  } else {
+    const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.sz*p.life);
+    g.addColorStop(0,'rgba(255,255,255,0.8)'); g.addColorStop(1,p.col+'00');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ── HUD ───────────────────────────────────────────────────────────────────────
+function drawHUD(){
+  // Cell Health bar (left side of cell edge)
+  const bw=180, bh=14, bx=14, by=14;
+  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.roundRect(bx-2,by-2,bw+4,bh+4,4); ctx.fill();
+  const hg=ctx.createLinearGradient(bx,0,bx+bw,0);
+  hg.addColorStop(0,'#e63946'); hg.addColorStop(0.5,'#f4a261'); hg.addColorStop(1,'#52b788');
+  ctx.fillStyle=hg; ctx.beginPath(); ctx.roundRect(bx,by,bw*cellHealth,bh,3); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,3); ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='10px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('CELL HEALTH',bx,by-3);
+
+  // Cure progress bar (right)
+  const bx2=W-bw-14;
+  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.roundRect(bx2-2,by-2,bw+4,bh+4,4); ctx.fill();
+  const cg=ctx.createLinearGradient(bx2,0,bx2+bw,0);
+  cg.addColorStop(0,'#4361ee'); cg.addColorStop(1,'#4cc9f0');
+  if(cureProgress>0){ ctx.fillStyle=cg; ctx.beginPath(); ctx.roundRect(bx2,by,bw*cureProgress,bh,3); ctx.fill(); }
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.roundRect(bx2,by,bw,bh,3); ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='10px sans-serif'; ctx.textAlign='right';
+  ctx.fillText('CURE PROGRESS',bx2+bw,by-3);
+
+  // Score + wave
+  ctx.fillStyle='rgba(255,255,255,0.75)'; ctx.font='bold 15px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Score: '+score+'  •  Wave '+wave, CX, H-12);
+}
+
+// ── Overlays ──────────────────────────────────────────────────────────────────
+function overlay(r,g,b,a){ ctx.fillStyle=`rgba(${r},${g},${b},${a})`; ctx.fillRect(0,0,W,H); }
+function panel(title,tc,lines,cta){
+  overlay(4,12,4,0.72);
+  ctx.textAlign='center';
+  ctx.fillStyle=tc; ctx.font='bold 42px sans-serif'; ctx.fillText(title,CX,CY-95);
+  ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.font='18px sans-serif';
+  lines.forEach((l,i)=>ctx.fillText(l,CX,CY-35+i*30));
+  ctx.fillStyle='#aaffcc'; ctx.font='bold 21px sans-serif';
+  ctx.fillText(cta,CX,CY-35+lines.length*30+34);
+}
+
+// ── Loop ──────────────────────────────────────────────────────────────────────
+function loop(){
+  update();
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#06100a'; ctx.fillRect(0,0,W,H);
+  drawCytoplasm();
+  drawAllOrganelles();
+  drawMembrane();
+
+  if(state==='MENU'){
+    panel('🦠 Cell Defender','#aaffcc',
+      ['Viruses have invaded your cell!',
+       'Move your syringe around the outside.',
+       'Click to inject vaccine darts inward.',
+       'Pop viruses — big ones split into smaller ones.'],
+      '✨  Click to Start  ✨');
+  } else {
+    clipCell(()=>{
+      particles.filter(p=>p.type==='heal').forEach(drawParticle);
+      viruses.forEach(drawVirus);
+      darts.forEach(drawDartEntity);
+      particles.filter(p=>p.type!=='heal').forEach(drawParticle);
+    });
+    drawSyringe();
+    drawHUD();
+    if(state==='DEAD') panel('☠️  Cell Lost','#ff8888',['The viruses overwhelmed the cell!','Score: '+score],'Click to retry');
+    if(state==='WIN')  panel('🌿  Cell Cured!','#aaffcc',['All viruses defeated! 🎉','Your organelles are healthy again 💚','Score: '+score],'Click to play again');
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>

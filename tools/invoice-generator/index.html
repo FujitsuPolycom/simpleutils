@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator - Create Professional PDF Invoices | SimpleUtils</title>
+    <meta name="description" content="Create professional invoices and download as PDF. Free invoice generator with automatic calculations, custom branding, and instant PDF download.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-slate-900 text-gray-100 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700">
+        <div class="container mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-indigo-400 hover:text-indigo-300">⚡ SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="container mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-indigo-400 hover:text-indigo-300">Home</a>
+        <span class="text-gray-500 mx-2">&gt;</span>
+        <span class="text-gray-300">Invoice Generator</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-7xl">
+        <h1 class="text-4xl font-bold mb-4">Invoice Generator</h1>
+        <p class="text-gray-300 mb-8">
+            Create professional invoices with automatic calculations and download as PDF. Perfect for freelancers, small businesses, and contractors. Add your logo, itemize services, set tax rates, and generate ready-to-send invoices in seconds.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Input Panel -->
+            <div class="space-y-6">
+                <!-- Your Info -->
+                <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4">Your Information</h2>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Business Name:</label>
+                        <input type="text" id="yourBusiness" placeholder="Your Business LLC" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Address:</label>
+                        <textarea id="yourAddress" rows="2" placeholder="123 Main St&#10;City, State 12345" 
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Email:</label>
+                        <input type="email" id="yourEmail" placeholder="billing@yourbusiness.com" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Logo (optional):</label>
+                        <input type="file" id="logoUpload" accept="image/*" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <p class="text-xs text-gray-500 mt-1">Will be embedded in PDF</p>
+                    </div>
+                </div>
+
+                <!-- Client Info -->
+                <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4">Client Information</h2>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Client Name:</label>
+                        <input type="text" id="clientName" placeholder="Client Company Inc" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Client Address:</label>
+                        <textarea id="clientAddress" rows="2" placeholder="456 Oak Ave&#10;City, State 67890" 
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Client Email:</label>
+                        <input type="email" id="clientEmail" placeholder="accounts@client.com" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <!-- Invoice Details -->
+                <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4">Invoice Details</h2>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Invoice Number:</label>
+                        <input type="text" id="invoiceNumber" placeholder="INV-001" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Invoice Date:</label>
+                        <input type="date" id="invoiceDate" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Due Date:</label>
+                        <input type="date" id="dueDate" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Payment Terms:</label>
+                        <input type="text" id="paymentTerms" placeholder="Net 30" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line Items & Preview -->
+            <div class="space-y-6">
+                <!-- Line Items -->
+                <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4">Line Items</h2>
+                    
+                    <div id="lineItemsContainer" class="space-y-3 mb-4">
+                        <!-- Line items will be added here -->
+                    </div>
+
+                    <button onclick="addLineItem()" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">+ Add Item</button>
+                </div>
+
+                <!-- Calculations -->
+                <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4">Calculations</h2>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-lg">
+                            <span>Subtotal:</span>
+                            <span id="subtotal" class="font-semibold">$0.00</span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm">Tax Rate (%):</label>
+                            <input type="number" id="taxRate" value="0" min="0" max="100" step="0.1" 
+                                   class="w-24 px-3 py-1 border border-gray-300 rounded text-right"
+                                   onchange="calculateTotals()">
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span>Tax Amount:</span>
+                            <span id="taxAmount">$0.00</span>
+                        </div>
+
+                        <div class="flex justify-between text-xl font-bold border-t-2 border-gray-300 pt-3">
+                            <span>Total:</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4">Notes / Terms</h2>
+                    <textarea id="notes" rows="4" placeholder="Thank you for your business!&#10;Payment is due within 30 days." 
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+
+                <!-- Download Button -->
+                <button onclick="generatePDF()" class="w-full px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg">
+                    📄 Download Invoice PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6 mt-8 mb-8">
+            <h2 class="text-2xl font-bold mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Fill in your business information (name, address, email, and optional logo)</li>
+                <li>Enter your client's details (name, address, email)</li>
+                <li>Set invoice number, dates, and payment terms</li>
+                <li>Add line items by clicking "+ Add Item" - describe each service/product with quantity and price</li>
+                <li>Set your tax rate (if applicable) - calculations update automatically</li>
+                <li>Add any notes or payment terms at the bottom</li>
+                <li>Click "Download Invoice PDF" to generate and save your professional invoice</li>
+            </ol>
+        </div>
+
+        <!-- FAQ -->
+        <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+            <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-1">Can I save my invoice to edit later?</h3>
+                    <p class="text-gray-700">Currently, the tool generates invoices on-demand without saving. For repeated invoices to the same client, consider keeping a template document with your standard information filled in.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">What format is the downloaded invoice?</h3>
+                    <p class="text-gray-700">The invoice is generated as a PDF file, which is the standard format for professional invoices. PDFs can be easily emailed and are universally readable.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Can I customize the invoice design?</h3>
+                    <p class="text-gray-700">The current version uses a professional template. If you need custom designs, you can use the generated PDF as a reference and recreate it in design software like Canva or Adobe Illustrator.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Is this tool suitable for legal invoicing?</h3>
+                    <p class="text-gray-700">Yes, the invoices include all standard elements (invoice number, dates, line items, totals). However, check your local regulations for any specific requirements (like tax IDs or registration numbers) and add them to the notes section.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container mx-auto px-4 py-8 text-center text-gray-400 text-sm">
+        All processing happens in your browser. No data is sent to any server.
+    </footer>
+
+    <script>
+        let lineItemCounter = 0;
+        let logoBase64 = '';
+
+        // Initialize with today's date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('invoiceDate').value = today;
+
+        // Set due date to 30 days from now
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 30);
+        document.getElementById('dueDate').value = dueDate.toISOString().split('T')[0];
+
+        document.getElementById('logoUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    logoBase64 = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function addLineItem(description = '', quantity = 1, unitPrice = 0) {
+            const itemId = `item-${lineItemCounter++}`;
+            const container = document.getElementById('lineItemsContainer');
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.id = itemId;
+            itemDiv.className = 'grid grid-cols-12 gap-2 items-start';
+            itemDiv.innerHTML = `
+                <input type="text" placeholder="Description" value="${description}" 
+                       class="item-desc col-span-5 px-3 py-2 border border-gray-300 rounded text-sm"
+                       onchange="calculateTotals()">
+                <input type="number" placeholder="Qty" value="${quantity}" min="0" step="0.01"
+                       class="item-qty col-span-2 px-3 py-2 border border-gray-300 rounded text-sm text-right"
+                       onchange="calculateTotals()">
+                <input type="number" placeholder="Price" value="${unitPrice}" min="0" step="0.01"
+                       class="item-price col-span-3 px-3 py-2 border border-gray-300 rounded text-sm text-right"
+                       onchange="calculateTotals()">
+                <button onclick="removeLineItem('${itemId}')" class="col-span-2 px-3 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700">×</button>
+            `;
+            
+            container.appendChild(itemDiv);
+            calculateTotals();
+        }
+
+        function removeLineItem(itemId) {
+            document.getElementById(itemId).remove();
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let subtotal = 0;
+            
+            document.querySelectorAll('#lineItemsContainer > div').forEach(item => {
+                const qty = parseFloat(item.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(item.querySelector('.item-price').value) || 0;
+                subtotal += qty * price;
+            });
+
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const taxAmount = subtotal * (taxRate / 100);
+            const total = subtotal + taxAmount;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('taxAmount').textContent = `$${taxAmount.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            let yPos = 20;
+
+            // Add logo if uploaded
+            if (logoBase64) {
+                try {
+                    doc.addImage(logoBase64, 'PNG', 15, yPos, 30, 30);
+                    yPos += 35;
+                } catch (e) {
+                    console.error('Error adding logo:', e);
+                    yPos += 5;
+                }
+            }
+
+            // Your business info
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text(document.getElementById('yourBusiness').value || 'Your Business', 15, yPos);
+            yPos += 7;
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const yourAddress = document.getElementById('yourAddress').value.split('\n');
+            yourAddress.forEach(line => {
+                doc.text(line, 15, yPos);
+                yPos += 5;
+            });
+            doc.text(document.getElementById('yourEmail').value, 15, yPos);
+            yPos += 15;
+
+            // Invoice title
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text('INVOICE', 15, yPos);
+            yPos += 10;
+
+            // Invoice details (right side)
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const invoiceNumber = document.getElementById('invoiceNumber').value || 'N/A';
+            const invoiceDate = document.getElementById('invoiceDate').value || '';
+            const dueDate = document.getElementById('dueDate').value || '';
+            const paymentTerms = document.getElementById('paymentTerms').value || '';
+
+            doc.text(`Invoice #: ${invoiceNumber}`, 120, yPos - 10);
+            doc.text(`Date: ${invoiceDate}`, 120, yPos - 5);
+            doc.text(`Due: ${dueDate}`, 120, yPos);
+            if (paymentTerms) {
+                doc.text(`Terms: ${paymentTerms}`, 120, yPos + 5);
+            }
+
+            yPos += 5;
+
+            // Bill to
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Bill To:', 15, yPos);
+            yPos += 7;
+
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(document.getElementById('clientName').value || 'Client Name', 15, yPos);
+            yPos += 5;
+            
+            const clientAddress = document.getElementById('clientAddress').value.split('\n');
+            clientAddress.forEach(line => {
+                doc.text(line, 15, yPos);
+                yPos += 5;
+            });
+            doc.text(document.getElementById('clientEmail').value, 15, yPos);
+            yPos += 15;
+
+            // Line items table
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text('Description', 15, yPos);
+            doc.text('Qty', 120, yPos, { align: 'right' });
+            doc.text('Price', 150, yPos, { align: 'right' });
+            doc.text('Amount', 190, yPos, { align: 'right' });
+            yPos += 5;
+
+            // Draw line
+            doc.setLineWidth(0.5);
+            doc.line(15, yPos, 195, yPos);
+            yPos += 7;
+
+            // Line items
+            doc.setFont(undefined, 'normal');
+            document.querySelectorAll('#lineItemsContainer > div').forEach(item => {
+                const desc = item.querySelector('.item-desc').value || '';
+                const qty = parseFloat(item.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(item.querySelector('.item-price').value) || 0;
+                const amount = qty * price;
+
+                doc.text(desc, 15, yPos);
+                doc.text(qty.toString(), 120, yPos, { align: 'right' });
+                doc.text(`$${price.toFixed(2)}`, 150, yPos, { align: 'right' });
+                doc.text(`$${amount.toFixed(2)}`, 190, yPos, { align: 'right' });
+                yPos += 6;
+            });
+
+            yPos += 5;
+
+            // Totals
+            const subtotalValue = document.getElementById('subtotal').textContent;
+            const taxValue = document.getElementById('taxAmount').textContent;
+            const totalValue = document.getElementById('total').textContent;
+
+            doc.text('Subtotal:', 150, yPos, { align: 'right' });
+            doc.text(subtotalValue, 190, yPos, { align: 'right' });
+            yPos += 6;
+
+            const taxRate = document.getElementById('taxRate').value;
+            if (parseFloat(taxRate) > 0) {
+                doc.text(`Tax (${taxRate}%):`, 150, yPos, { align: 'right' });
+                doc.text(taxValue, 190, yPos, { align: 'right' });
+                yPos += 6;
+            }
+
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(12);
+            doc.text('Total:', 150, yPos, { align: 'right' });
+            doc.text(totalValue, 190, yPos, { align: 'right' });
+
+            // Notes
+            const notes = document.getElementById('notes').value;
+            if (notes) {
+                yPos += 15;
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'bold');
+                doc.text('Notes:', 15, yPos);
+                yPos += 6;
+                doc.setFont(undefined, 'normal');
+                const noteLines = doc.splitTextToSize(notes, 180);
+                noteLines.forEach(line => {
+                    doc.text(line, 15, yPos);
+                    yPos += 5;
+                });
+            }
+
+            // Save PDF
+            const filename = `Invoice_${invoiceNumber.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            doc.save(filename);
+        }
+
+        // Initialize with one line item
+        addLineItem('', 1, 0);
+    </script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resizer - Resize Images Online Free | SimpleUtils</title>
+    <meta name="description" content="Resize images online for free. Adjust width and height while maintaining aspect ratio. Fast, easy, and secure image resizing tool - all processing happens in your browser.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">Image Resizer</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Image Resizer</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Resize your images instantly with our free online image resizer tool. Maintain aspect ratio or set custom dimensions to perfectly fit your images for websites, social media, or printing. No software installation required - all image processing happens securely in your browser.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <!-- Tool Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                <input type="file" id="imageInput" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+
+            <div id="controls" class="hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Width (px)</label>
+                        <input type="number" id="widthInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Height (px)</label>
+                        <input type="number" id="heightInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="lockAspectRatio" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                    <label for="lockAspectRatio" class="ml-2 text-sm text-gray-700">Lock aspect ratio</label>
+                </div>
+
+                <button id="resizeBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    Resize Image
+                </button>
+            </div>
+
+            <div id="preview" class="hidden mt-6">
+                <h3 class="text-lg font-semibold mb-3">Preview</h3>
+                <canvas id="canvas" class="max-w-full border border-gray-300 rounded"></canvas>
+                <button id="downloadBtn" class="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                    Download Resized Image
+                </button>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use the Image Resizer</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Click "Choose File" and select the image you want to resize from your device</li>
+                <li>Enter your desired width or height in pixels (aspect ratio is locked by default)</li>
+                <li>Uncheck "Lock aspect ratio" if you want to set custom dimensions independently</li>
+                <li>Click "Resize Image" to process your image</li>
+                <li>Preview the result and click "Download Resized Image" to save it to your device</li>
+            </ol>
+        </section>
+
+        <!-- FAQ -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Does resizing reduce image quality?</h3>
+                    <p class="text-gray-700">When you resize an image smaller, quality loss is minimal. When enlarging images, some quality loss may occur. For best results, start with high-resolution source images.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What image formats are supported?</h3>
+                    <p class="text-gray-700">Our image resizer supports all common formats including JPG, PNG, GIF, and WebP. The output format matches your input format.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Why should I lock the aspect ratio?</h3>
+                    <p class="text-gray-700">Locking aspect ratio prevents distortion by maintaining the original proportions of your image. This ensures your photos don't appear stretched or squashed after resizing.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Is my image data safe?</h3>
+                    <p class="text-gray-700">Absolutely! All processing happens locally in your browser. Your images never leave your device or get uploaded to any server.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        let originalImage = null;
+        let aspectRatio = 1;
+
+        const imageInput = document.getElementById('imageInput');
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const lockAspectRatio = document.getElementById('lockAspectRatio');
+        const resizeBtn = document.getElementById('resizeBtn');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const controls = document.getElementById('controls');
+        const preview = document.getElementById('preview');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                originalImage = new Image();
+                originalImage.onload = () => {
+                    aspectRatio = originalImage.width / originalImage.height;
+                    widthInput.value = originalImage.width;
+                    heightInput.value = originalImage.height;
+                    controls.classList.remove('hidden');
+                };
+                originalImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        widthInput.addEventListener('input', () => {
+            if (lockAspectRatio.checked && originalImage) {
+                heightInput.value = Math.round(widthInput.value / aspectRatio);
+            }
+        });
+
+        heightInput.addEventListener('input', () => {
+            if (lockAspectRatio.checked && originalImage) {
+                widthInput.value = Math.round(heightInput.value * aspectRatio);
+            }
+        });
+
+        resizeBtn.addEventListener('click', () => {
+            if (!originalImage) return;
+
+            const newWidth = parseInt(widthInput.value);
+            const newHeight = parseInt(heightInput.value);
+
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            ctx.drawImage(originalImage, 0, 0, newWidth, newHeight);
+            preview.classList.remove('hidden');
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'resized-image.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    </script>
+</body>
+</html>

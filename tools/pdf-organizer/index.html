@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Page Organizer - Reorder PDF Pages | SimpleUtils</title>
+    <meta name="description" content="Drag and drop to reorder pages in any PDF. Preview every page, rearrange, delete, then export. Free, runs in your browser.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .page-card {
+            transition: box-shadow 0.15s, transform 0.15s, opacity 0.15s;
+            cursor: grab;
+        }
+        .page-card:active { cursor: grabbing; }
+        .page-card.dragging { opacity: 0.35; transform: scale(0.97); }
+        .page-card.drag-over {
+            box-shadow: -4px 0 0 0 #3b82f6;
+        }
+        .page-card.drag-over-right {
+            box-shadow: 4px 0 0 0 #3b82f6;
+        }
+        #dropZone:hover { border-color: #3b82f6; background: #eff6ff; }
+        .badge { pointer-events: none; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<header class="bg-white shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-4">
+        <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+    </div>
+</header>
+<nav class="max-w-6xl mx-auto px-4 py-3 text-sm">
+    <a href="/" class="text-blue-600 hover:underline">Home</a>
+    <span class="mx-2 text-gray-400">&gt;</span>
+    <span class="text-gray-600">PDF Page Organizer</span>
+</nav>
+
+<main class="max-w-6xl mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">PDF Page Organizer</h1>
+    <p class="text-gray-500 mb-6">Open a PDF, drag pages into any order, delete unwanted pages, then export.</p>
+
+    <!-- Drop zone (shown before file loaded) -->
+    <div id="dropZone" class="bg-white border-2 border-dashed border-gray-300 rounded-xl p-14 text-center transition cursor-pointer mb-6">
+        <div class="text-6xl mb-4">📑</div>
+        <p class="text-xl font-semibold text-gray-700 mb-1">Drop a PDF here</p>
+        <p class="text-sm text-gray-400 mb-5">or</p>
+        <label class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition cursor-pointer text-sm">
+            Open PDF
+            <input type="file" id="fileInput" accept=".pdf,application/pdf" class="hidden">
+        </label>
+    </div>
+
+    <!-- Toolbar (hidden until file loaded) -->
+    <div id="toolbar" class="hidden flex flex-wrap items-center gap-3 mb-4 bg-white rounded-xl shadow-sm px-4 py-3 border border-gray-100">
+        <div class="flex-1 min-w-0">
+            <span id="docName" class="font-semibold text-gray-800 text-sm truncate block"></span>
+            <span id="docMeta" class="text-xs text-gray-400"></span>
+        </div>
+        <button id="openNewBtn" class="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition">
+            Open different PDF
+        </button>
+        <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-1.5">
+            <label class="text-xs text-gray-500">Size</label>
+            <input type="range" id="thumbSize" min="100" max="260" value="160" class="w-20 accent-blue-600">
+        </div>
+        <button id="exportBtn" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex items-center gap-2">
+            <span>💾</span> Export PDF
+        </button>
+    </div>
+
+    <!-- Loading bar -->
+    <div id="loadingWrap" class="hidden bg-white rounded-xl shadow-sm px-5 py-4 mb-4 border border-gray-100">
+        <div class="flex justify-between text-sm text-gray-500 mb-2">
+            <span id="loadStatus">Loading…</span>
+            <span id="loadPct"></span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div id="loadBar" class="bg-blue-500 h-2 rounded-full transition-all" style="width:0%"></div>
+        </div>
+    </div>
+
+    <!-- Page grid -->
+    <div id="pageGrid" class="hidden flex flex-wrap gap-4 pb-10"></div>
+
+    <!-- Export rename modal -->
+    <div id="exportModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-96 mx-4">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">Save reordered PDF</h2>
+            <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 mb-5">
+                <input type="text" id="exportName" class="flex-1 px-3 py-2.5 text-sm outline-none" placeholder="filename">
+                <span class="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-l border-gray-300">.pdf</span>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelExport" class="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition">Cancel</button>
+                <button id="confirmExport" class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Download</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="max-w-6xl mx-auto px-4 py-6 text-center text-gray-400 text-sm">
+    All processing happens in your browser. No files leave your device.
+</footer>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let pdfDoc      = null;   // pdf-lib doc
+let pdfJsDoc    = null;   // pdf.js doc for rendering
+let pageOrder   = [];     // current page indices (0-based) in display order
+let thumbCache  = {};     // pageIdx → dataURL
+let srcFileName = '';
+let thumbW      = 160;
+let dragSrcIdx  = null;
+
+// ── DOM ───────────────────────────────────────────────────────────────────────
+const dropZone    = document.getElementById('dropZone');
+const fileInput   = document.getElementById('fileInput');
+const toolbar     = document.getElementById('toolbar');
+const pageGrid    = document.getElementById('pageGrid');
+const loadingWrap = document.getElementById('loadingWrap');
+const loadBar     = document.getElementById('loadBar');
+const loadStatus  = document.getElementById('loadStatus');
+const loadPct     = document.getElementById('loadPct');
+const docName     = document.getElementById('docName');
+const docMeta     = document.getElementById('docMeta');
+const thumbSize   = document.getElementById('thumbSize');
+const exportBtn   = document.getElementById('exportBtn');
+const exportModal = document.getElementById('exportModal');
+const exportName  = document.getElementById('exportName');
+const openNewBtn  = document.getElementById('openNewBtn');
+
+// ── File loading ──────────────────────────────────────────────────────────────
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('border-blue-400','bg-blue-50'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-400','bg-blue-50'));
+dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('border-blue-400','bg-blue-50');
+    const f = [...e.dataTransfer.files].find(f => f.type.includes('pdf') || f.name.endsWith('.pdf'));
+    if (f) loadFile(f);
+});
+dropZone.addEventListener('click', e => { if (e.target.closest('label')) return; fileInput.click(); });
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+openNewBtn.addEventListener('click', () => { fileInput.value = ''; fileInput.click(); });
+
+thumbSize.addEventListener('input', () => {
+    thumbW = parseInt(thumbSize.value);
+    renderGrid();
+});
+
+async function loadFile(file) {
+    srcFileName = file.name.replace(/\.pdf$/i, '');
+    thumbCache  = {};
+
+    dropZone.classList.add('hidden');
+    toolbar.classList.add('hidden');
+    pageGrid.classList.add('hidden');
+    loadingWrap.classList.remove('hidden');
+    loadBar.style.width = '5%';
+    loadStatus.textContent = 'Reading file…';
+    loadPct.textContent    = '';
+
+    const buf = await file.arrayBuffer();
+
+    loadStatus.textContent = 'Parsing PDF…';
+    loadBar.style.width    = '15%';
+    await tick();
+
+    // pdf-lib for export
+    pdfDoc    = await PDFLib.PDFDocument.load(buf, { ignoreEncryption: true });
+    // pdf.js for rendering
+    pdfJsDoc  = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
+
+    const total = pdfDoc.getPageCount();
+    pageOrder   = Array.from({ length: total }, (_, i) => i);
+
+    docName.textContent = file.name;
+    docMeta.textContent = `${total} pages · ${(file.size / 1024).toFixed(0)} KB`;
+    exportName.value    = srcFileName + '-reordered';
+
+    // Render thumbnails progressively
+    for (let i = 0; i < total; i++) {
+        loadStatus.textContent = `Rendering page ${i + 1} of ${total}…`;
+        loadBar.style.width    = (15 + Math.round(((i + 1) / total) * 80)) + '%';
+        loadPct.textContent    = Math.round(((i + 1) / total) * 100) + '%';
+        thumbCache[i]          = await renderThumb(i, 180);
+        await tick();
+    }
+
+    loadBar.style.width = '100%';
+    await tick();
+    loadingWrap.classList.add('hidden');
+    toolbar.classList.remove('hidden');
+    pageGrid.classList.remove('hidden');
+    renderGrid();
+}
+
+async function renderThumb(pageIdx, width) {
+    const page     = await pdfJsDoc.getPage(pageIdx + 1);
+    const vp       = page.getViewport({ scale: 1 });
+    const scale    = width / vp.width;
+    const viewport = page.getViewport({ scale });
+    const canvas   = document.createElement('canvas');
+    canvas.width   = viewport.width;
+    canvas.height  = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    return canvas.toDataURL('image/jpeg', 0.85);
+}
+
+function tick() { return new Promise(r => setTimeout(r, 0)); }
+
+// ── Grid rendering ────────────────────────────────────────────────────────────
+function renderGrid() {
+    pageGrid.innerHTML = '';
+    pageOrder.forEach((origIdx, displayIdx) => {
+        const card = document.createElement('div');
+        card.className = 'page-card bg-white rounded-xl shadow hover:shadow-md border-2 border-transparent flex flex-col items-center p-2 relative';
+        card.style.width = thumbW + 'px';
+        card.draggable   = true;
+        card.dataset.display = displayIdx;
+
+        const isFirst = displayIdx === 0;
+        const thumb   = thumbCache[origIdx];
+
+        card.innerHTML = `
+            ${isFirst ? `<div class="badge absolute -top-2 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap z-10">PAGE 1</div>` : ''}
+            <div class="w-full rounded overflow-hidden bg-gray-100" style="aspect-ratio: ${getPageAspect(origIdx)}">
+                ${thumb ? `<img src="${thumb}" class="w-full h-full object-cover" draggable="false">` : `<div class="w-full h-full flex items-center justify-center text-gray-300 text-3xl">📄</div>`}
+            </div>
+            <div class="flex items-center justify-between w-full mt-2 px-1">
+                <span class="text-xs font-semibold text-gray-600">${displayIdx + 1}</span>
+                <span class="text-[10px] text-gray-300">#${origIdx + 1}</span>
+                <button class="del-btn text-gray-200 hover:text-red-400 text-sm transition" title="Remove page">✕</button>
+            </div>
+        `;
+
+        // Drag
+        card.addEventListener('dragstart', e => {
+            dragSrcIdx = displayIdx;
+            setTimeout(() => card.classList.add('dragging'), 0);
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        card.addEventListener('dragend', () => {
+            card.classList.remove('dragging');
+            clearDragOver();
+        });
+        card.addEventListener('dragover', e => {
+            e.preventDefault();
+            clearDragOver();
+            const rect   = card.getBoundingClientRect();
+            const isLeft = e.clientX < rect.left + rect.width / 2;
+            card.classList.add(isLeft ? 'drag-over' : 'drag-over-right');
+        });
+        card.addEventListener('drop', e => {
+            e.preventDefault();
+            if (dragSrcIdx === null || dragSrcIdx === displayIdx) return;
+            const rect    = card.getBoundingClientRect();
+            const isLeft  = e.clientX < rect.left + rect.width / 2;
+            const insertAt = isLeft ? displayIdx : displayIdx + 1;
+            const moved   = pageOrder.splice(dragSrcIdx, 1)[0];
+            const target  = dragSrcIdx < insertAt ? insertAt - 1 : insertAt;
+            pageOrder.splice(target, 0, moved);
+            renderGrid();
+        });
+
+        // Delete
+        card.querySelector('.del-btn').addEventListener('click', e => {
+            e.stopPropagation();
+            if (pageOrder.length <= 1) { alert("Can't remove the only page."); return; }
+            pageOrder.splice(displayIdx, 1);
+            renderGrid();
+        });
+
+        pageGrid.appendChild(card);
+    });
+}
+
+function clearDragOver() {
+    document.querySelectorAll('.page-card').forEach(c => {
+        c.classList.remove('drag-over', 'drag-over-right');
+    });
+}
+
+function getPageAspect(origIdx) {
+    // Approximate aspect from pdf-lib
+    try {
+        const page = pdfDoc.getPage(origIdx);
+        const { width, height } = page.getSize();
+        return (width / height).toFixed(3);
+    } catch { return '0.707'; }
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+exportBtn.addEventListener('click', () => {
+    exportName.value = srcFileName + '-reordered';
+    exportModal.classList.remove('hidden');
+    exportName.select();
+});
+document.getElementById('cancelExport').addEventListener('click', () => exportModal.classList.add('hidden'));
+document.getElementById('confirmExport').addEventListener('click', doExport);
+
+async function doExport() {
+    exportModal.classList.add('hidden');
+    exportBtn.disabled = true;
+    exportBtn.textContent = '⏳ Saving…';
+
+    try {
+        // Re-load original to avoid mutation issues
+        const newDoc = await PDFLib.PDFDocument.create();
+        const pages  = await newDoc.copyPages(pdfDoc, pageOrder);
+        pages.forEach(p => newDoc.addPage(p));
+
+        const bytes = await newDoc.save();
+        const blob  = new Blob([bytes], { type: 'application/pdf' });
+        const url   = URL.createObjectURL(blob);
+        const name  = (exportName.value.trim() || 'reordered') + '.pdf';
+
+        const a = document.createElement('a');
+        a.href = url; a.download = name; a.click();
+        URL.revokeObjectURL(url);
+    } catch(err) {
+        alert('Export failed: ' + err.message);
+    }
+
+    exportBtn.disabled    = false;
+    exportBtn.innerHTML   = '<span>💾</span> Export PDF';
+}
+</script>
+</body>
+</html>

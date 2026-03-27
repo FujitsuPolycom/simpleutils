@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EXIF Viewer - View & Remove Photo Metadata Online | SimpleUtils</title>
+    <meta name="description" content="View and remove EXIF metadata from your photos online. See camera settings, GPS location, date taken, and more. Strip EXIF data for privacy before sharing images online. Free EXIF viewer and remover tool.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">EXIF Viewer</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">EXIF Viewer & Metadata Remover</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            View hidden EXIF metadata in your photos including camera model, settings, GPS coordinates, and timestamps. Our EXIF viewer displays all metadata in an easy-to-read format and shows GPS locations on a map. Need privacy? Strip all EXIF data before sharing photos online to protect your location and personal information.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <!-- Tool Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                <input type="file" id="imageInput" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+
+            <div id="result" class="hidden">
+                <div class="mb-6">
+                    <img id="previewImage" class="max-w-full max-h-96 mx-auto border border-gray-300 rounded">
+                </div>
+
+                <div id="exifData" class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">EXIF Metadata</h3>
+                    <div id="exifTable" class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Property</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exifTableBody" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="gpsSection" class="hidden mb-6">
+                    <h3 class="text-lg font-semibold mb-3">GPS Location</h3>
+                    <div class="bg-gray-100 p-4 rounded mb-3">
+                        <div class="text-sm text-gray-700">
+                            <strong>Coordinates:</strong> <span id="gpsCoords"></span>
+                        </div>
+                    </div>
+                    <iframe id="mapFrame" class="w-full h-64 border border-gray-300 rounded" frameborder="0"></iframe>
+                </div>
+
+                <div id="noExif" class="hidden bg-yellow-50 border border-yellow-200 rounded p-4 mb-6">
+                    <p class="text-yellow-800">No EXIF data found in this image.</p>
+                </div>
+
+                <button id="stripBtn" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                    Download Image with EXIF Removed
+                </button>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use the EXIF Viewer</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Click "Choose File" and select a photo to analyze</li>
+                <li>View all EXIF metadata in the table, including camera model, settings, and date taken</li>
+                <li>If GPS data is present, see the exact location on an interactive map</li>
+                <li>Click "Download Image with EXIF Removed" to strip all metadata for privacy</li>
+                <li>Share the cleaned image online without exposing personal information</li>
+            </ol>
+        </section>
+
+        <!-- FAQ -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What is EXIF data?</h3>
+                    <p class="text-gray-700">EXIF (Exchangeable Image File Format) is metadata embedded in photos by cameras and smartphones. It includes camera settings, date/time, GPS coordinates, device model, and more. This data is invisible when viewing the image but stored in the file.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Why should I remove EXIF data?</h3>
+                    <p class="text-gray-700">EXIF data can reveal your exact location (from GPS coordinates), when photos were taken, and what device you used. Removing EXIF before sharing images online protects your privacy and prevents exposing sensitive information like home addresses.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Do all images have EXIF data?</h3>
+                    <p class="text-gray-700">No. Images from digital cameras and smartphones typically have EXIF data, but screenshots, graphics created in software, and images downloaded from social media often have no EXIF or stripped EXIF data.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Does removing EXIF affect image quality?</h3>
+                    <p class="text-gray-700">No! Removing EXIF only strips the metadata from the file. The actual image pixels and visual quality remain completely unchanged.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const result = document.getElementById('result');
+        const previewImage = document.getElementById('previewImage');
+        const exifTableBody = document.getElementById('exifTableBody');
+        const gpsSection = document.getElementById('gpsSection');
+        const gpsCoords = document.getElementById('gpsCoords');
+        const mapFrame = document.getElementById('mapFrame');
+        const noExif = document.getElementById('noExif');
+        const stripBtn = document.getElementById('stripBtn');
+
+        let currentImage = null;
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                currentImage = new Image();
+                currentImage.onload = () => {
+                    previewImage.src = event.target.result;
+                    result.classList.remove('hidden');
+                    extractExif(currentImage);
+                };
+                currentImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function extractExif(img) {
+            EXIF.getData(img, function() {
+                const allTags = EXIF.getAllTags(this);
+                exifTableBody.innerHTML = '';
+                gpsSection.classList.add('hidden');
+                noExif.classList.add('hidden');
+
+                if (Object.keys(allTags).length === 0) {
+                    noExif.classList.remove('hidden');
+                    return;
+                }
+
+                // Display all EXIF data
+                for (const [key, value] of Object.entries(allTags)) {
+                    if (value) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-4 py-2 text-sm font-medium text-gray-900">${key}</td>
+                            <td class="px-4 py-2 text-sm text-gray-700">${value}</td>
+                        `;
+                        exifTableBody.appendChild(row);
+                    }
+                }
+
+                // Check for GPS data
+                const lat = EXIF.getTag(this, 'GPSLatitude');
+                const latRef = EXIF.getTag(this, 'GPSLatitudeRef');
+                const lon = EXIF.getTag(this, 'GPSLongitude');
+                const lonRef = EXIF.getTag(this, 'GPSLongitudeRef');
+
+                if (lat && lon) {
+                    const latitude = convertDMSToDD(lat, latRef);
+                    const longitude = convertDMSToDD(lon, lonRef);
+                    
+                    gpsCoords.textContent = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                    mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&marker=${latitude},${longitude}`;
+                    gpsSection.classList.remove('hidden');
+                }
+            });
+        }
+
+        function convertDMSToDD(dms, ref) {
+            const degrees = dms[0];
+            const minutes = dms[1];
+            const seconds = dms[2];
+            
+            let dd = degrees + minutes/60 + seconds/3600;
+            if (ref === 'S' || ref === 'W') {
+                dd = dd * -1;
+            }
+            return dd;
+        }
+
+        stripBtn.addEventListener('click', () => {
+            if (!currentImage) return;
+
+            // Draw image to canvas (this strips EXIF)
+            const canvas = document.createElement('canvas');
+            canvas.width = currentImage.width;
+            canvas.height = currentImage.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(currentImage, 0, 0);
+
+            canvas.toBlob((blob) => {
+                const link = document.createElement('a');
+                link.download = 'no-exif-image.jpg';
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            }, 'image/jpeg', 0.95);
+        });
+    </script>
+</body>
+</html>

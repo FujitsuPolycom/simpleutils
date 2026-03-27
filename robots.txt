@@ -1,0 +1,8 @@
+# SimpleUtils - robots.txt
+# Allow all crawlers to index all content
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://simpleutils.org/sitemap.xml

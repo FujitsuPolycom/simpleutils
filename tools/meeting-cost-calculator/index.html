@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Cost Calculator - SimpleUtils</title>
+    <meta name="description" content="Calculate the true cost of your meetings. See real-time costs based on attendees and salaries. Track daily, weekly, and monthly expenses to make meetings more efficient and valuable.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>Meeting Cost Calculator</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Meeting Cost Calculator 💸</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Discover the true cost of your meetings and make them count. Calculate real-time meeting expenses based on attendees and average salaries. See cost per minute and projected annual costs for recurring meetings. Perfect for making data-driven decisions about meeting efficiency and organizational productivity.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Number of Attendees:</label>
+                    <input type="number" id="attendees" value="8" min="1" max="100" oninput="calculateCost()" class="w-full p-3 border border-gray-300 rounded-lg text-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Average Hourly Salary ($):</label>
+                    <input type="number" id="salary" value="50" min="0" step="0.01" oninput="calculateCost()" class="w-full p-3 border border-gray-300 rounded-lg text-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Meeting Duration:</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="hours" value="1" min="0" max="8" oninput="calculateCost()" class="w-1/2 p-3 border border-gray-300 rounded-lg text-lg" placeholder="Hours">
+                        <input type="number" id="minutes" value="0" min="0" max="59" oninput="calculateCost()" class="w-1/2 p-3 border border-gray-300 rounded-lg text-lg" placeholder="Mins">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-xl p-8 mb-8 text-center">
+                <div class="text-gray-600 text-lg mb-2">Total Meeting Cost</div>
+                <div class="text-6xl font-bold text-red-600 mb-2" id="totalCost">$400</div>
+                <div class="text-gray-600 text-sm">Cost per minute: <span class="font-semibold" id="costPerMinute">$6.67</span></div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Recurring Meeting?</label>
+                <div class="flex gap-3">
+                    <button onclick="setRecurrence('none')" id="btnNone" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg">One-Time</button>
+                    <button onclick="setRecurrence('daily')" id="btnDaily" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Daily</button>
+                    <button onclick="setRecurrence('weekly')" id="btnWeekly" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Weekly</button>
+                    <button onclick="setRecurrence('monthly')" id="btnMonthly" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Monthly</button>
+                </div>
+            </div>
+
+            <div id="annualCost" class="hidden bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <div class="text-gray-600 text-sm mb-1">Projected Annual Cost</div>
+                        <div class="text-3xl font-bold text-yellow-700" id="annualCostValue">$104,000</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-gray-600 text-sm">Per Year</div>
+                        <div class="text-xl font-semibold text-gray-700" id="occurrences">260 meetings</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="copyResult()" class="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 font-semibold">
+                    📋 Copy Shareable Text
+                </button>
+                <button onclick="resetForm()" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Reset</button>
+            </div>
+
+            <div id="message" class="hidden mt-4 p-3 rounded bg-green-100 text-green-700"></div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Enter the number of people attending the meeting</li>
+                <li>Input the average hourly salary for attendees (you can estimate or use company averages)</li>
+                <li>Set the meeting duration in hours and minutes</li>
+                <li>See the total cost update in real-time along with cost per minute</li>
+                <li>If it's a recurring meeting, select the frequency to see projected annual costs</li>
+                <li>Click "Copy Shareable Text" to share the results on social media or with your team</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">How is the meeting cost calculated?</h3>
+                    <p class="text-gray-700">The cost is calculated by multiplying the number of attendees by their average hourly salary, then multiplying by the meeting duration in hours. For example: 8 people × $50/hour × 1 hour = $400.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What salary should I use?</h3>
+                    <p class="text-gray-700">Use the average hourly rate of meeting attendees. If unsure, estimate based on role (e.g., $40-60 for mid-level, $75-150 for senior/executive). Include fully-loaded costs (benefits, overhead) for more accurate calculations.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">How are annual costs calculated?</h3>
+                    <p class="text-gray-700">Annual costs are projected based on frequency: daily = 260 meetings/year (52 weeks × 5 days), weekly = 52 meetings/year, monthly = 12 meetings/year. This helps you see the long-term impact of recurring meetings.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Why should I track meeting costs?</h3>
+                    <p class="text-gray-700">Understanding meeting costs helps organizations make better decisions about meeting frequency, duration, and necessity. It encourages more focused, efficient meetings and can save thousands of dollars annually by eliminating unnecessary meetings.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        let currentRecurrence = 'none';
+
+        function calculateCost() {
+            const attendees = parseInt(document.getElementById('attendees').value) || 0;
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            const hours = parseInt(document.getElementById('hours').value) || 0;
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+
+            const totalHours = hours + (minutes / 60);
+            const totalCost = attendees * salary * totalHours;
+            const costPerMin = totalHours > 0 ? totalCost / (totalHours * 60) : 0;
+
+            document.getElementById('totalCost').textContent = '$' + totalCost.toFixed(2);
+            document.getElementById('costPerMinute').textContent = '$' + costPerMin.toFixed(2);
+
+            updateAnnualCost(totalCost);
+        }
+
+        function setRecurrence(type) {
+            currentRecurrence = type;
+
+            document.getElementById('btnNone').className = 'flex-1 px-4 py-2 rounded-lg ' + (type === 'none' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700');
+            document.getElementById('btnDaily').className = 'flex-1 px-4 py-2 rounded-lg ' + (type === 'daily' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700');
+            document.getElementById('btnWeekly').className = 'flex-1 px-4 py-2 rounded-lg ' + (type === 'weekly' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700');
+            document.getElementById('btnMonthly').className = 'flex-1 px-4 py-2 rounded-lg ' + (type === 'monthly' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700');
+
+            const totalCost = parseFloat(document.getElementById('totalCost').textContent.replace('$', ''));
+            updateAnnualCost(totalCost);
+        }
+
+        function updateAnnualCost(totalCost) {
+            if (currentRecurrence === 'none') {
+                document.getElementById('annualCost').classList.add('hidden');
+                return;
+            }
+
+            let multiplier, label;
+            if (currentRecurrence === 'daily') {
+                multiplier = 260; // 5 days/week * 52 weeks
+                label = '260 meetings';
+            } else if (currentRecurrence === 'weekly') {
+                multiplier = 52;
+                label = '52 meetings';
+            } else if (currentRecurrence === 'monthly') {
+                multiplier = 12;
+                label = '12 meetings';
+            }
+
+            const annualCost = totalCost * multiplier;
+            document.getElementById('annualCostValue').textContent = '$' + annualCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('occurrences').textContent = label;
+            document.getElementById('annualCost').classList.remove('hidden');
+        }
+
+        function copyResult() {
+            const attendees = document.getElementById('attendees').value;
+            const hours = document.getElementById('hours').value;
+            const minutes = document.getElementById('minutes').value;
+            const totalCost = document.getElementById('totalCost').textContent;
+            
+            let duration = '';
+            if (parseInt(hours) > 0 && parseInt(minutes) > 0) {
+                duration = `${hours}-hour ${minutes}-minute`;
+            } else if (parseInt(hours) > 0) {
+                duration = `${hours}-hour`;
+            } else {
+                duration = `${minutes}-minute`;
+            }
+
+            let text = `Our ${duration} meeting with ${attendees} people cost ${totalCost} 💸`;
+            
+            if (currentRecurrence !== 'none') {
+                const annualCost = document.getElementById('annualCostValue').textContent;
+                text += `\nAnnual ${currentRecurrence} cost: ${annualCost}`;
+            }
+            
+            text += '\n\nCalculated with SimpleUtils Meeting Cost Calculator';
+
+            navigator.clipboard.writeText(text).then(() => {
+                showMessage('Shareable text copied to clipboard! Ready to paste on LinkedIn, Slack, or email.');
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('attendees').value = 8;
+            document.getElementById('salary').value = 50;
+            document.getElementById('hours').value = 1;
+            document.getElementById('minutes').value = 0;
+            setRecurrence('none');
+            calculateCost();
+        }
+
+        function showMessage(text) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 4000);
+        }
+
+        // Initialize
+        calculateCost();
+    </script>
+</body>
+</html>

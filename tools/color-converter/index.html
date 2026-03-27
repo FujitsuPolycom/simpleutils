@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Converter - HEX, RGB, HSL | SimpleUtils</title>
+    <meta name="description" content="Convert colors between HEX, RGB, and HSL formats instantly. Free online color converter with live preview and CSS variable output.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-gray-100 min-h-screen">
+    <!-- ADSENSE_HEADER -->
+    
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700">
+        <div class="container mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-indigo-400 hover:text-indigo-300">⚡ SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="container mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-indigo-400 hover:text-indigo-300">Home</a>
+        <span class="text-gray-500 mx-2">&gt;</span>
+        <span class="text-gray-300">Color Converter</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 class="text-4xl font-bold mb-4">Color Converter</h1>
+        <p class="text-gray-300 mb-8">
+            Convert colors between HEX, RGB, and HSL formats instantly with live preview. Perfect for designers and developers who need quick color format conversions. Our tool auto-detects your input format and provides all three outputs simultaneously with CSS variable syntax.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <!-- Tool Card -->
+        <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6 mb-8">
+            <!-- Color Picker -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2">Pick a Color:</label>
+                <input type="color" id="colorPicker" value="#3b82f6" class="w-full h-16 rounded cursor-pointer">
+            </div>
+
+            <!-- Text Input -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2">Or Enter Color (HEX, RGB, or HSL):</label>
+                <input type="text" id="colorInput" placeholder="e.g., #3b82f6, rgb(59, 130, 246), hsl(217, 91%, 60%)" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            </div>
+
+            <!-- Color Preview -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2">Preview:</label>
+                <div id="colorPreview" class="w-full h-32 rounded-lg border-4 border-gray-200" style="background-color: #3b82f6;"></div>
+            </div>
+
+            <!-- Output Formats -->
+            <div class="space-y-4">
+                <!-- HEX -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">HEX:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="hexOutput" readonly class="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg font-mono">
+                        <button onclick="copyToClipboard('hexOutput', this)" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Copy</button>
+                    </div>
+                </div>
+
+                <!-- RGB -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">RGB:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="rgbOutput" readonly class="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg font-mono">
+                        <button onclick="copyToClipboard('rgbOutput', this)" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Copy</button>
+                    </div>
+                </div>
+
+                <!-- HSL -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">HSL:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="hslOutput" readonly class="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg font-mono">
+                        <button onclick="copyToClipboard('hslOutput', this)" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Copy</button>
+                    </div>
+                </div>
+
+                <!-- CSS Variable -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">CSS Variable:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="cssOutput" readonly class="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg font-mono">
+                        <button onclick="copyToClipboard('cssOutput', this)" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Use the color picker to select any color visually, or type a color value directly</li>
+                <li>Enter colors in any format: HEX (#3b82f6), RGB (rgb(59, 130, 246)), or HSL (hsl(217, 91%, 60%))</li>
+                <li>View the live color preview and all format conversions automatically</li>
+                <li>Click "Copy" next to any format to copy it to your clipboard</li>
+                <li>Use the CSS Variable output for modern CSS development with custom properties</li>
+            </ol>
+        </div>
+
+        <!-- FAQ -->
+        <div class="bg-white text-gray-900 rounded-lg shadow-xl p-6">
+            <h2 class="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-1">What color formats are supported?</h3>
+                    <p class="text-gray-700">The tool supports HEX (#RRGGBB), RGB (rgb(r, g, b)), and HSL (hsl(h, s%, l%)) formats. You can input any of these and get conversions to all three formats plus CSS variable syntax.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">How do I use CSS variables?</h3>
+                    <p class="text-gray-700">Copy the CSS variable output and paste it in your CSS :root selector. Then reference it anywhere in your CSS using var(--color-primary). This makes theme management easier.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Does the tool support alpha/transparency?</h3>
+                    <p class="text-gray-700">Currently, the tool handles solid colors. For transparency, you can manually add alpha values to RGB (rgba) or HSL (hsla) outputs after conversion.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-1">Is my color data stored anywhere?</h3>
+                    <p class="text-gray-700">No. All color conversions happen entirely in your browser using JavaScript. No data is sent to any server.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container mx-auto px-4 py-8 text-center text-gray-400 text-sm">
+        All processing happens in your browser. No data is sent to any server.
+    </footer>
+
+    <script>
+        const colorPicker = document.getElementById('colorPicker');
+        const colorInput = document.getElementById('colorInput');
+        const colorPreview = document.getElementById('colorPreview');
+        const hexOutput = document.getElementById('hexOutput');
+        const rgbOutput = document.getElementById('rgbOutput');
+        const hslOutput = document.getElementById('hslOutput');
+        const cssOutput = document.getElementById('cssOutput');
+
+        function parseColor(input) {
+            // Create a temporary element to let the browser parse the color
+            const temp = document.createElement('div');
+            temp.style.color = input;
+            document.body.appendChild(temp);
+            const computed = window.getComputedStyle(temp).color;
+            document.body.removeChild(temp);
+            
+            if (computed === '' || computed === 'rgba(0, 0, 0, 0)') {
+                return null;
+            }
+            
+            return computed;
+        }
+
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                
+                switch (max) {
+                    case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                    case g: h = ((b - r) / d + 2) / 6; break;
+                    case b: h = ((r - g) / d + 4) / 6; break;
+                }
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function updateColors(colorStr) {
+            const parsed = parseColor(colorStr);
+            if (!parsed) return;
+
+            // Extract RGB values
+            const match = parsed.match(/\d+/g);
+            if (!match || match.length < 3) return;
+            
+            const r = parseInt(match[0]);
+            const g = parseInt(match[1]);
+            const b = parseInt(match[2]);
+
+            // Update outputs
+            const hex = rgbToHex(r, g, b);
+            const hsl = rgbToHsl(r, g, b);
+
+            hexOutput.value = hex;
+            rgbOutput.value = `rgb(${r}, ${g}, ${b})`;
+            hslOutput.value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+            cssOutput.value = `--color-primary: ${hex};`;
+
+            // Update preview and picker
+            colorPreview.style.backgroundColor = hex;
+            colorPicker.value = hex;
+        }
+
+        colorPicker.addEventListener('input', (e) => {
+            updateColors(e.target.value);
+            colorInput.value = e.target.value;
+        });
+
+        colorInput.addEventListener('input', (e) => {
+            updateColors(e.target.value);
+        });
+
+        function copyToClipboard(elementId, button) {
+            const element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            button.classList.add('bg-green-600');
+            button.classList.remove('bg-indigo-600');
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('bg-green-600');
+                button.classList.add('bg-indigo-600');
+            }, 2000);
+        }
+
+        // Initialize with default color
+        updateColors('#3b82f6');
+        colorInput.value = '#3b82f6';
+    </script>
+</body>
+</html>

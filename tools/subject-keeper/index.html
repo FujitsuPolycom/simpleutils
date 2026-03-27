@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Keeper - Keep Any Object, Remove Everything Else | SimpleUtils</title>
+    <meta name="description" content="Keep any object in an image and remove everything else using AI. Just describe what you want to keep — person, dog, soccer ball, car — and the rest disappears. Free, no signup.">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-blue-600 hover:underline">Home</a>
+        <span class="mx-2 text-gray-400">&gt;</span>
+        <span class="text-gray-600">Subject Keeper</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Subject Keeper</h1>
+
+        <p class="text-lg text-gray-700 mb-8">
+            Keep any object in your image and erase everything else. Upload a photo, describe what you want to keep (like "soccer ball", "dog", or "coffee cup"), and the AI will isolate just that subject with a transparent background. Powered by CLIPSeg — runs entirely in your browser, no data sent anywhere.
+        </p>
+
+        <!-- Tool Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+
+            <!-- Upload -->
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                <input type="file" id="imageInput" accept="image/*"
+                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+
+            <!-- Prompt -->
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-gray-700 mb-2">What do you want to <span class="text-green-600 font-semibold">keep</span>?</label>
+                <input type="text" id="promptInput" placeholder='e.g. "soccer ball", "person", "dog", "red car"'
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="text-xs text-gray-400 mt-1">Be specific — the AI will keep this and remove everything else.</p>
+            </div>
+
+            <!-- Threshold slider -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Sensitivity: <span id="thresholdLabel" class="text-blue-600 font-semibold">50%</span>
+                </label>
+                <input type="range" id="threshold" min="1" max="99" value="50"
+                    class="w-full accent-blue-600">
+                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>Keep more (looser)</span>
+                    <span>Keep less (tighter)</span>
+                </div>
+            </div>
+
+            <!-- Process Button -->
+            <button id="processBtn" disabled
+                class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-40 disabled:cursor-not-allowed mb-4">
+                Isolate Subject
+            </button>
+
+            <!-- Processing Indicator -->
+            <div id="processing" class="hidden text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                <div class="text-lg font-semibold text-gray-700" id="statusText">Loading AI model...</div>
+                <div class="text-sm text-gray-500 mt-2" id="progressText">First use downloads ~300MB model — this will take a minute</div>
+            </div>
+
+            <!-- Result -->
+            <div id="result" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Original</h3>
+                        <img id="originalImage" class="w-full border border-gray-300 rounded bg-white">
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Subject Isolated</h3>
+                        <div class="relative">
+                            <div class="absolute inset-0 rounded" style="background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px;"></div>
+                            <img id="resultImage" class="relative w-full border border-gray-300 rounded">
+                        </div>
+                    </div>
+                </div>
+                <button id="downloadBtn"
+                    class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                    Download PNG (Transparent Background)
+                </button>
+            </div>
+
+            <!-- Error -->
+            <div id="errorBox" class="hidden bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mt-4"></div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use Subject Keeper</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Upload any image (JPG, PNG, WebP)</li>
+                <li>Type what you want to <strong>keep</strong> in the text field — be specific</li>
+                <li>Adjust the sensitivity slider if the result keeps too much or too little</li>
+                <li>Click "Isolate Subject" and wait for the AI to process</li>
+                <li>Download your result as a transparent PNG</li>
+            </ol>
+        </section>
+
+        <!-- FAQ -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">How is this different from the Background Remover?</h3>
+                    <p class="text-gray-700">The Background Remover always tries to detect the main subject automatically. Subject Keeper lets you specify <em>exactly</em> what to keep with a text prompt — great when there are multiple objects and you only want one.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Why does it take so long the first time?</h3>
+                    <p class="text-gray-700">The AI model (CLIPSeg) is about 300MB and downloads to your browser on first use. After that it's cached, so subsequent uses are much faster.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What prompts work best?</h3>
+                    <p class="text-gray-700">Short, specific nouns work best: "soccer ball", "person", "dog", "red cup", "tree". Avoid vague descriptions or full sentences.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Is my image uploaded anywhere?</h3>
+                    <p class="text-gray-700">No. Everything runs entirely in your browser. Your image never leaves your device.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script type="module">
+        import { AutoTokenizer, AutoProcessor, CLIPSegForImageSegmentation, RawImage, env } from 'https://esm.sh/@xenova/transformers@2.17.2';
+
+        env.allowLocalModels = false;
+
+        const imageInput = document.getElementById('imageInput');
+        const promptInput = document.getElementById('promptInput');
+        const processBtn = document.getElementById('processBtn');
+        const threshold = document.getElementById('threshold');
+        const thresholdLabel = document.getElementById('thresholdLabel');
+        const processing = document.getElementById('processing');
+        const statusText = document.getElementById('statusText');
+        const progressText = document.getElementById('progressText');
+        const result = document.getElementById('result');
+        const originalImage = document.getElementById('originalImage');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const errorBox = document.getElementById('errorBox');
+
+        let selectedFile = null;
+        let tokenizer = null;
+        let processor = null;
+        let model = null;
+        let resultBlob = null;
+
+        threshold.addEventListener('input', () => {
+            thresholdLabel.textContent = threshold.value + '%';
+        });
+
+        function checkReady() {
+            processBtn.disabled = !(selectedFile && promptInput.value.trim().length > 0);
+        }
+
+        imageInput.addEventListener('change', (e) => {
+            selectedFile = e.target.files[0];
+            if (selectedFile) originalImage.src = URL.createObjectURL(selectedFile);
+            checkReady();
+        });
+
+        promptInput.addEventListener('input', checkReady);
+        promptInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !processBtn.disabled) processBtn.click();
+        });
+
+        const progressCb = (p) => {
+            if (p.status === 'downloading' && p.total) {
+                const pct = Math.round((p.loaded / p.total) * 100);
+                progressText.textContent = `Downloading model: ${pct}%`;
+            }
+        };
+
+        processBtn.addEventListener('click', async () => {
+            if (!selectedFile || !promptInput.value.trim()) return;
+
+            errorBox.classList.add('hidden');
+            result.classList.add('hidden');
+            processing.classList.remove('hidden');
+            processBtn.disabled = true;
+
+            try {
+                // Load model + processor if not already loaded
+                if (!model) {
+                    statusText.textContent = 'Loading AI model...';
+                    progressText.textContent = 'Downloading CLIPSeg (~300MB) — only happens once';
+                    [tokenizer, processor, model] = await Promise.all([
+                        AutoTokenizer.from_pretrained('Xenova/clipseg-rd64-refined', { progress_callback: progressCb }),
+                        AutoProcessor.from_pretrained('Xenova/clipseg-rd64-refined', { progress_callback: progressCb }),
+                        CLIPSegForImageSegmentation.from_pretrained('Xenova/clipseg-rd64-refined', { progress_callback: progressCb }),
+                    ]);
+                }
+
+                statusText.textContent = 'Segmenting image...';
+                progressText.textContent = 'Identifying "' + promptInput.value.trim() + '"';
+
+                const imageUrl = URL.createObjectURL(selectedFile);
+                const image = await RawImage.fromURL(imageUrl);
+                const texts = [promptInput.value.trim()];
+
+                // Tokenize text + process image separately, then merge
+                const textInputs = await tokenizer(texts, { padding: true });
+                const imageInputs = await processor(image);
+                const inputs = { ...textInputs, ...imageInputs };
+
+                const { logits } = await model(inputs);
+
+                // logits shape: [1, num_labels, H, W]
+                const maskArr = logits.data; // flat Float32Array
+                const maskH = logits.dims[2];
+                const maskW = logits.dims[3];
+
+                // Normalize logits to 0-1 range so there's always contrast
+                let min = Infinity, max = -Infinity;
+                for (const v of maskArr) { if (v < min) min = v; if (v > max) max = v; }
+                const range = max - min || 1;
+                const probMask = Float32Array.from(maskArr, v => (v - min) / range);
+
+                // Apply mask to original image
+                const img = new Image();
+                img.src = imageUrl;
+                await new Promise(r => img.onload = r);
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const pixels = imageData.data;
+                const thresh = threshold.value / 100;
+
+                for (let y = 0; y < canvas.height; y++) {
+                    for (let x = 0; x < canvas.width; x++) {
+                        const mx = Math.round((x / canvas.width) * (maskW - 1));
+                        const my = Math.round((y / canvas.height) * (maskH - 1));
+                        const prob = probMask[my * maskW + mx];
+
+                        const pixelIdx = (y * canvas.width + x) * 4;
+                        if (prob < thresh) {
+                            pixels[pixelIdx + 3] = 0;
+                        }
+                    }
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+
+                // Debug: log mask stats
+                let maskMin = Infinity, maskMax = -Infinity, maskSum = 0;
+                for (const v of probMask) { if (v < maskMin) maskMin = v; if (v > maskMax) maskMax = v; maskSum += v; }
+                console.log(`Mask stats: min=${maskMin.toFixed(3)} max=${maskMax.toFixed(3)} avg=${(maskSum/probMask.length).toFixed(3)} thresh=${thresh.toFixed(3)} maskSize=${maskW}x${maskH}`);
+
+                canvas.toBlob((blob) => {
+                    resultBlob = blob;
+                    resultImage.src = URL.createObjectURL(blob);
+                    processing.classList.add('hidden');
+                    result.classList.remove('hidden');
+                    processBtn.disabled = false;
+                    checkReady();
+                }, 'image/png');
+
+            } catch (err) {
+                processing.classList.add('hidden');
+                processBtn.disabled = false;
+                checkReady();
+                errorBox.textContent = 'Error: ' + err.message;
+                errorBox.classList.remove('hidden');
+                console.error(err);
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!resultBlob) return;
+            const link = document.createElement('a');
+            link.download = 'subject-kept.png';
+            link.href = URL.createObjectURL(resultBlob);
+            link.click();
+        });
+    </script>
+</body>
+</html>

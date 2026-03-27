@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Form Maker - Convert PDF to Fillable Form | SimpleUtils</title>
+    <meta name="description" content="Convert any PDF into a fillable PDF form. Visual drag-and-drop field editor. AI + OCR support. Free, runs in browser.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #pageCanvas { display: block; }
+        #fieldsOverlay { position: absolute; top: 0; left: 0; pointer-events: none; }
+        #fieldsOverlay.add-mode { pointer-events: all; cursor: crosshair; }
+        .field-box { position: absolute; box-sizing: border-box; pointer-events: all; cursor: move; }
+        .field-box.selected { z-index: 10; }
+        .field-label { font-size: 9px; line-height: 1; white-space: nowrap; overflow: hidden; padding: 1px 2px; pointer-events: none; user-select: none; }
+        .resize-handle { position: absolute; width: 8px; height: 8px; background: white; border: 1.5px solid #3b82f6; border-radius: 2px; z-index: 2; }
+        .resize-handle.nw { top:-4px; left:-4px; cursor:nw-resize; }
+        .resize-handle.ne { top:-4px; right:-4px; cursor:ne-resize; }
+        .resize-handle.sw { bottom:-4px; left:-4px; cursor:sw-resize; }
+        .resize-handle.se { bottom:-4px; right:-4px; cursor:se-resize; }
+        .del-box { position: absolute; top:-8px; right:-8px; width:16px; height:16px; background:#ef4444; color:white; border-radius:50%; font-size:11px; line-height:16px; text-align:center; cursor:pointer; z-index:3; display:none; }
+        .field-box.selected .del-box, .field-box:hover .del-box { display:block; }
+        .field-box.selected .resize-handle { display:block; }
+        .field-box:not(.selected) .resize-handle { display:none; }
+        #addCursor { position:absolute; pointer-events:none; border:2px dashed #22c55e; z-index:20; display:none; }
+        #pageWrap { position:relative; display:inline-block; line-height:0; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-700">SimpleUtils</a>
+    </div>
+</header>
+<nav class="max-w-7xl mx-auto px-4 py-3 text-sm">
+    <a href="/" class="text-blue-600 hover:underline">Home</a>
+    <span class="mx-2 text-gray-400">&gt;</span>
+    <span class="text-gray-600">PDF Form Maker</span>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">PDF Form Maker</h1>
+    <p class="text-gray-600 mb-6">Upload a PDF, auto-detect or draw form fields visually, then export a fillable PDF.</p>
+
+    <!-- ── Step 1: Upload + Options ── -->
+    <div id="step1" class="space-y-4 max-w-2xl">
+        <div id="uploadArea" class="bg-white rounded-lg shadow-md p-10 text-center border-2 border-dashed border-gray-300 hover:border-blue-400 transition cursor-pointer">
+            <div class="text-5xl mb-3">📄</div>
+            <p class="text-lg font-semibold text-gray-700 mb-1">Drop a PDF here or click to upload</p>
+            <p class="text-sm text-gray-400">Works with text-based and scanned PDFs</p>
+            <input type="file" id="fileInput" accept=".pdf" class="hidden">
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-5 space-y-4">
+            <h2 class="text-sm font-semibold text-gray-700">Detection Options</h2>
+
+            <!-- OCR toggle -->
+            <label class="flex items-start gap-3 cursor-pointer">
+                <div class="relative mt-0.5 flex-shrink-0">
+                    <input type="checkbox" id="useOCR" class="sr-only">
+                    <div id="ocrBg"  class="w-10 h-6 bg-gray-200 rounded-full transition-colors"></div>
+                    <div id="ocrDot" class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-700">OCR mode <span class="text-xs text-gray-400">(auto for scanned PDFs)</span></div>
+                    <div class="text-xs text-gray-400">Tesseract.js (~10MB) — reads scanned/image-based PDFs</div>
+                </div>
+            </label>
+
+            <!-- AI toggle -->
+            <label class="flex items-start gap-3 cursor-pointer">
+                <div class="relative mt-0.5 flex-shrink-0">
+                    <input type="checkbox" id="useAI" class="sr-only">
+                    <div id="aiBg"  class="w-10 h-6 bg-gray-200 rounded-full transition-colors"></div>
+                    <div id="aiDot" class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-700">AI-enhanced field classification</div>
+                    <div class="text-xs text-gray-400">DeBERTa-v3-small (~90MB) — smarter field type detection</div>
+                    <div id="aiModelStatus" class="hidden text-xs mt-0.5 text-blue-600 font-medium"></div>
+                </div>
+            </label>
+
+            <!-- Sensitivity -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Detection sensitivity: <span id="sensLabel" class="text-blue-600 font-semibold">Medium</span></label>
+                <input type="range" id="sensitivity" min="1" max="3" value="2" class="w-full max-w-xs accent-blue-600">
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Step 2: Visual Editor ── -->
+    <div id="step2" class="hidden">
+
+        <!-- Toolbar -->
+        <div class="bg-white rounded-lg shadow-sm mb-3 px-3 py-2 flex flex-wrap gap-2 items-center">
+            <!-- Mode -->
+            <div class="flex rounded-md border border-gray-200 overflow-hidden text-sm">
+                <button id="selectMode" class="mode-btn px-3 py-1.5 bg-blue-600 text-white font-medium" title="Select / move fields">↖ Select</button>
+                <button id="addMode"    class="mode-btn px-3 py-1.5 bg-white text-gray-600 hover:bg-gray-50 font-medium" title="Draw new fields on the page">✚ Add</button>
+            </div>
+            <!-- Field type for add mode -->
+            <select id="addType" class="text-sm border border-gray-200 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400">
+                <option value="text">Text</option>
+                <option value="checkbox">Checkbox</option>
+                <option value="date">Date</option>
+                <option value="signature">Signature</option>
+                <option value="number">Number</option>
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+                <option value="dropdown">Dropdown</option>
+            </select>
+            <div class="w-px h-5 bg-gray-200"></div>
+            <!-- Page nav -->
+            <button id="prevPage" class="px-2.5 py-1.5 border border-gray-200 rounded text-sm hover:bg-gray-50 disabled:opacity-40">‹</button>
+            <span class="text-sm font-mono"><span id="curPage">1</span> / <span id="totPages">1</span></span>
+            <button id="nextPage" class="px-2.5 py-1.5 border border-gray-200 rounded text-sm hover:bg-gray-50 disabled:opacity-40">›</button>
+            <div class="w-px h-5 bg-gray-200"></div>
+            <span class="text-sm text-gray-500">Fields: <span id="totalFieldCount" class="font-semibold text-gray-700">0</span></span>
+            <div class="w-px h-5 bg-gray-200 ml-auto hidden lg:block"></div>
+            <button id="backBtn" class="px-2.5 py-1.5 border border-gray-200 rounded text-xs text-gray-500 hover:bg-gray-50">← Back</button>
+        </div>
+
+        <!-- AI processing banner -->
+        <div id="aiProcessing" class="hidden mb-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 text-sm text-blue-700 flex items-center gap-2">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 flex-shrink-0"></div>
+            <span id="aiStatusText">Loading AI model...</span>
+        </div>
+
+        <div class="flex gap-4 items-start">
+
+            <!-- ── Page canvas + overlay ── -->
+            <div class="flex-1 min-w-0 bg-gray-300 rounded-lg overflow-auto" style="max-height:80vh;">
+                <div id="pageWrap">
+                    <canvas id="pageCanvas"></canvas>
+                    <div id="fieldsOverlay"></div>
+                    <div id="addCursor"></div>
+                </div>
+            </div>
+
+            <!-- ── Properties panel ── -->
+            <div class="w-64 flex-shrink-0 space-y-3">
+
+                <!-- Field properties -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div id="noSelection" class="text-sm text-gray-400 text-center py-4">Click a field to edit its properties</div>
+                    <div id="propPanel" class="hidden space-y-3">
+                        <div class="text-sm font-semibold text-gray-700 mb-1">Field Properties</div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Name / Label</label>
+                            <input id="propName" type="text" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">Type</label>
+                            <select id="propType" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400">
+                                <option value="text">Text</option>
+                                <option value="checkbox">Checkbox</option>
+                                <option value="date">Date</option>
+                                <option value="signature">Signature</option>
+                                <option value="number">Number</option>
+                                <option value="email">Email</option>
+                                <option value="phone">Phone</option>
+                                <option value="dropdown">Dropdown</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">W (pts)</label>
+                                <input id="propW" type="number" class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">H (pts)</label>
+                                <input id="propH" type="number" class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400">
+                            </div>
+                        </div>
+                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                            <input id="propRequired" type="checkbox" class="accent-blue-600"> Required
+                        </label>
+                        <button id="propDelete" class="w-full border border-red-200 text-red-600 py-1.5 rounded text-sm hover:bg-red-50">Delete Field</button>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="text-xs font-semibold text-gray-600 mb-2">Field Types</div>
+                    <div class="grid grid-cols-2 gap-1 text-xs text-gray-600">
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-blue-400 inline-block"></span>Text</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-green-400 inline-block"></span>Checkbox</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-purple-400 inline-block"></span>Date</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-orange-400 inline-block"></span>Signature</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-yellow-400 inline-block"></span>Number</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-cyan-400 inline-block"></span>Email</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-indigo-400 inline-block"></span>Phone</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-pink-400 inline-block"></span>Dropdown</span>
+                    </div>
+                </div>
+
+                <!-- Generate -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <button id="generateBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-40" disabled>
+                        📥 Export Fillable PDF
+                    </button>
+                    <div id="genProgress" class="hidden mt-2 text-xs text-blue-600 flex items-center gap-1">
+                        <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                        <span id="genStatus">Building...</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-white border-t mt-12">
+    <div class="max-w-7xl mx-auto px-4 py-6 text-center text-gray-600 text-sm">
+        All processing happens in your browser. No data is sent to any server.
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script type="module">
+// ── Constants & state ─────────────────────────────────────────────────────────
+const TYPE_COLORS = { text:'#3b82f6', checkbox:'#22c55e', date:'#a855f7', signature:'#f97316', number:'#eab308', email:'#06b6d4', phone:'#6366f1', dropdown:'#ec4899' };
+const DISPLAY_WIDTH = 750; // max canvas display width
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+let pdfBytes       = null;
+let pdfDoc_viewer  = null; // pdf.js doc for rendering
+let detectedFields = [];
+let currentPage    = 1;
+let totalPages     = 0;
+let displayScale   = 1;   // canvas px / pdf pts
+let selectedId     = null;
+let isAddMode      = false;
+let filename       = '';
+
+// Interaction
+let drag = null; // { type:'move'|'resize', fieldId, handle, startX, startY, origField }
+let draw = null; // { startX, startY } in pdf coords
+
+// ── Toggle UI helpers ─────────────────────────────────────────────────────────
+function makeToggle(checkId, bgId, dotId, color) {
+    const chk = document.getElementById(checkId);
+    const bg  = document.getElementById(bgId);
+    const dot = document.getElementById(dotId);
+    function update() {
+        bg.style.background  = chk.checked ? color : '#e5e7eb';
+        dot.style.transform  = chk.checked ? 'translateX(16px)' : '';
+    }
+    chk.addEventListener('change', update);
+    return { set: v => { chk.checked = v; update(); }, get: () => chk.checked };
+}
+const ocrToggle = makeToggle('useOCR','ocrBg','ocrDot','#f59e0b');
+const aiToggle  = makeToggle('useAI','aiBg','aiDot','#3b82f6');
+const sensSlider= document.getElementById('sensitivity');
+const sensLabel = document.getElementById('sensLabel');
+sensSlider.addEventListener('input', () => sensLabel.textContent = ['','Low','Medium','High'][sensSlider.value]);
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+const uploadArea = document.getElementById('uploadArea');
+const fileInput  = document.getElementById('fileInput');
+uploadArea.addEventListener('click',    () => fileInput.click());
+uploadArea.addEventListener('dragover', e => e.preventDefault());
+uploadArea.addEventListener('drop',     e => { e.preventDefault(); processFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change',    e => processFile(e.target.files[0]));
+
+document.getElementById('backBtn').addEventListener('click', () => {
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step1').classList.remove('hidden');
+});
+
+// ── Field detection helpers ───────────────────────────────────────────────────
+function guessType(label) {
+    const l = label.toLowerCase();
+    if (/date|dob|birth|expir|month|year/.test(l)) return 'date';
+    if (/sign|signature|initials/.test(l)) return 'signature';
+    if (/email|e-mail/.test(l)) return 'email';
+    if (/phone|tel|fax|mobile|cell/.test(l)) return 'phone';
+    if (/amount|number|qty|quantity|age|zip|postal|ssn|ein|id#|no\.|num/.test(l)) return 'number';
+    if (/yes|no|check|agree|confirm|\[ \]|☐|□/.test(l)) return 'checkbox';
+    return 'text';
+}
+
+function detectFields(lines, pageNum, pageW, pageH, sens) {
+    for (let li = 0; li < lines.length; li++) {
+        const line     = lines[li];
+        const lineText = line.map(i => i.text).join(' ').trim();
+        const first    = line[0];
+        if (!lineText) continue;
+
+        if (sens >= 1 && /^\[\s*\]|^□|^☐|\(\s*\)/.test(lineText)) {
+            const lbl = lineText.replace(/^\[\s*\]|^□|^☐|\(\s*\)\s*/,'').trim();
+            detectedFields.push({ id: Date.now() + Math.random(), name: lbl || `Checkbox ${detectedFields.length+1}`, type:'checkbox', page: pageNum, x: first.x, y: first.y, w:12, h:12, required:false });
+            continue;
+        }
+
+        const colonMatch = lineText.match(/^(.{2,50}):\s*(_*\s*)$/);
+        if (colonMatch) {
+            const lbl = colonMatch[1].trim();
+            if (lbl.length > 1 && lbl.length < 60) {
+                const last = line[line.length-1];
+                const fx   = last.x + last.w + 5;
+                detectedFields.push({ id: Date.now()+Math.random(), name: lbl, type: guessType(lbl), page: pageNum, x: fx, y: first.y, w: Math.min(pageW - fx - 10, 200), h:16, required:false });
+            }
+            continue;
+        }
+
+        if (sens >= 2 && /^_{4,}/.test(lineText)) {
+            const prev    = li > 0 ? lines[li-1].map(i=>i.text).join(' ').trim() : '';
+            const lbl     = prev.replace(/:$/,'').trim();
+            detectedFields.push({ id: Date.now()+Math.random(), name: lbl || `Field ${detectedFields.length+1}`, type: guessType(lbl), page: pageNum, x: first.x, y: first.y, w: Math.min(line.reduce((s,i)=>s+i.w,0)+10,250), h:16, required:false });
+            continue;
+        }
+
+        if (sens >= 2) {
+            const sm = lineText.match(/^(.{2,40}?)\s{2,}_{3,}/);
+            if (sm) {
+                const lbl  = sm[1].replace(/:$/,'').trim();
+                const last = line[line.length-1];
+                detectedFields.push({ id: Date.now()+Math.random(), name: lbl, type: guessType(lbl), page: pageNum, x: last.x + last.w + 5, y: first.y, w:150, h:16, required:false });
+            }
+        }
+
+        if (sens >= 3) {
+            for (let ii = 0; ii < line.length-1; ii++) {
+                const gap = line[ii+1].x - (line[ii].x + line[ii].w);
+                if (gap > 60 && line[ii].text.trim().endsWith(':')) {
+                    const lbl = line[ii].text.replace(/:$/,'').trim();
+                    detectedFields.push({ id: Date.now()+Math.random(), name: lbl, type: guessType(lbl), page: pageNum, x: line[ii].x + line[ii].w + 3, y: line[ii].y, w: gap-6, h:16, required:false });
+                }
+            }
+        }
+    }
+}
+
+// ── Process file ──────────────────────────────────────────────────────────────
+async function processFile(file) {
+    if (!file?.name.endsWith('.pdf')) { alert('Please upload a PDF file.'); return; }
+    filename = file.name;
+    uploadArea.innerHTML = `<div class="text-3xl mb-2">⏳</div><p id="procStatus" class="text-gray-600">Parsing PDF...</p><div class="w-full max-w-xs mx-auto mt-3 bg-gray-200 rounded-full h-2"><div id="procBar" class="bg-blue-500 h-2 rounded-full" style="width:10%"></div></div>`;
+
+    pdfBytes = await file.arrayBuffer();
+    pdfDoc_viewer = await pdfjsLib.getDocument({ data: pdfBytes.slice(0) }).promise;
+    totalPages    = pdfDoc_viewer.numPages;
+    detectedFields= [];
+
+    const sens = parseInt(sensSlider.value);
+
+    // Check text density
+    let totalChars = 0;
+    for (let pn = 1; pn <= totalPages; pn++) {
+        const pg = await pdfDoc_viewer.getPage(pn);
+        const ct = await pg.getTextContent();
+        totalChars += ct.items.reduce((s,i)=>s+i.str.length,0);
+    }
+    const avgChars = totalChars / totalPages;
+
+    if (avgChars < 50 && !ocrToggle.get()) {
+        ocrToggle.set(true);
+        document.getElementById('procStatus').textContent = 'Scanned PDF detected — switching to OCR mode...';
+    }
+
+    if (ocrToggle.get()) {
+        await runOCR(sens);
+    } else {
+        await runTextDetection(sens);
+    }
+
+    showEditor();
+    if (aiToggle.get()) runAIClassification();
+}
+
+// ── Text-based detection ──────────────────────────────────────────────────────
+async function runTextDetection(sens) {
+    for (let pn = 1; pn <= totalPages; pn++) {
+        document.getElementById('procStatus').textContent = `Detecting fields on page ${pn}/${totalPages}...`;
+        document.getElementById('procBar').style.width = (pn/totalPages*100)+'%';
+        const page     = await pdfDoc_viewer.getPage(pn);
+        const content  = await page.getTextContent();
+        const viewport = page.getViewport({ scale:1 });
+        const pageH    = viewport.height;
+        const pageW    = viewport.width;
+
+        const items = content.items.map(item => ({
+            text: item.str,
+            x: item.transform[4],
+            y: pageH - item.transform[5],
+            w: item.width,
+            h: item.height || 12,
+        })).filter(i => i.text.trim());
+
+        items.sort((a,b) => a.y !== b.y ? a.y-b.y : a.x-b.x);
+
+        const lines = [];
+        let cur = [], lastY = -999;
+        for (const item of items) {
+            if (Math.abs(item.y - lastY) > 6 && cur.length) { lines.push(cur); cur = []; }
+            cur.push(item); lastY = item.y;
+        }
+        if (cur.length) lines.push(cur);
+
+        detectFields(lines, pn, pageW, pageH, sens);
+    }
+}
+
+// ── OCR detection ─────────────────────────────────────────────────────────────
+async function runOCR(sens) {
+    const OCR_SCALE = 2;
+    const worker = await Tesseract.createWorker('eng', 1, {
+        logger: m => {
+            if (m.status === 'recognizing text' && document.getElementById('procBar')) {
+                document.getElementById('procBar').style.width = Math.round(m.progress*100)+'%';
+            }
+        }
+    });
+
+    for (let pn = 1; pn <= totalPages; pn++) {
+        document.getElementById('procStatus').textContent = `OCR: Page ${pn}/${totalPages}...`;
+        document.getElementById('procBar').style.width = '0%';
+
+        const page     = await pdfDoc_viewer.getPage(pn);
+        const viewport = page.getViewport({ scale: OCR_SCALE });
+        const offCanvas= document.createElement('canvas');
+        offCanvas.width = viewport.width; offCanvas.height = viewport.height;
+        await page.render({ canvasContext: offCanvas.getContext('2d'), viewport }).promise;
+
+        const { data } = await worker.recognize(offCanvas);
+        const pageW = viewport.width  / OCR_SCALE;
+        const pageH = viewport.height / OCR_SCALE;
+
+        const lineMap = {};
+        for (const word of data.words) {
+            if (word.confidence < 30 || !word.text.trim()) continue;
+            const bucket = Math.round(word.bbox.y0 / OCR_SCALE / 8) * 8;
+            if (!lineMap[bucket]) lineMap[bucket] = [];
+            lineMap[bucket].push({ text: word.text, x: word.bbox.x0/OCR_SCALE, y: word.bbox.y0/OCR_SCALE, w: (word.bbox.x1-word.bbox.x0)/OCR_SCALE, h: (word.bbox.y1-word.bbox.y0)/OCR_SCALE });
+        }
+
+        const lines = Object.keys(lineMap).map(Number).sort((a,b)=>a-b).map(k => lineMap[k].sort((a,b)=>a.x-b.x));
+        detectFields(lines, pn, pageW, pageH, sens);
+    }
+
+    await worker.terminate();
+}
+
+// ── Show editor ───────────────────────────────────────────────────────────────
+function showEditor() {
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.remove('hidden');
+    document.getElementById('totPages').textContent = totalPages;
+    currentPage = 1;
+    renderPage(1);
+    updateToolbar();
+}
+
+// ── Render page ───────────────────────────────────────────────────────────────
+async function renderPage(pn) {
+    currentPage = pn;
+    document.getElementById('curPage').textContent = pn;
+    document.getElementById('prevPage').disabled = pn <= 1;
+    document.getElementById('nextPage').disabled = pn >= totalPages;
+
+    const page     = await pdfDoc_viewer.getPage(pn);
+    const rawVP    = page.getViewport({ scale: 1 });
+    displayScale   = Math.min(DISPLAY_WIDTH / rawVP.width, 2);
+    const viewport = page.getViewport({ scale: displayScale });
+
+    const canvas = document.getElementById('pageCanvas');
+    canvas.width  = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+    const overlay = document.getElementById('fieldsOverlay');
+    overlay.style.width  = canvas.width + 'px';
+    overlay.style.height = canvas.height + 'px';
+
+    renderFieldBoxes();
+}
+
+document.getElementById('prevPage').addEventListener('click', () => renderPage(currentPage - 1));
+document.getElementById('nextPage').addEventListener('click', () => renderPage(currentPage + 1));
+
+// ── Render field boxes ────────────────────────────────────────────────────────
+function renderFieldBoxes() {
+    const overlay = document.getElementById('fieldsOverlay');
+    overlay.innerHTML = '';
+    const pageFields = detectedFields.filter(f => f.page === currentPage);
+
+    for (const f of pageFields) {
+        const div = document.createElement('div');
+        div.className = 'field-box' + (f.id === selectedId ? ' selected' : '');
+        div.dataset.id = f.id;
+
+        const color = TYPE_COLORS[f.type] || '#3b82f6';
+        div.style.cssText = `left:${f.x*displayScale}px; top:${f.y*displayScale}px; width:${Math.max(f.w*displayScale,20)}px; height:${Math.max(f.h*displayScale,12)}px; border:2px solid ${color}; background:${color}22;`;
+
+        div.innerHTML = `
+            <div class="field-label" style="color:${color}">${escHtml(f.name)}</div>
+            <div class="del-box" data-id="${f.id}">×</div>
+            <div class="resize-handle nw" data-handle="nw" data-id="${f.id}"></div>
+            <div class="resize-handle ne" data-handle="ne" data-id="${f.id}"></div>
+            <div class="resize-handle sw" data-handle="sw" data-id="${f.id}"></div>
+            <div class="resize-handle se" data-handle="se" data-id="${f.id}"></div>`;
+
+        overlay.appendChild(div);
+    }
+
+    updateToolbar();
+}
+
+function updateToolbar() {
+    document.getElementById('totalFieldCount').textContent = detectedFields.length;
+    document.getElementById('generateBtn').disabled = detectedFields.length === 0;
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Interaction ───────────────────────────────────────────────────────────────
+const overlay    = document.getElementById('fieldsOverlay');
+const pageCanvas = document.getElementById('pageCanvas');
+const addCursor  = document.getElementById('addCursor');
+
+// Mode buttons
+document.getElementById('selectMode').addEventListener('click', () => setMode(false));
+document.getElementById('addMode').addEventListener('click',    () => setMode(true));
+
+function setMode(add) {
+    isAddMode = add;
+    document.getElementById('selectMode').classList.toggle('bg-blue-600', !add);
+    document.getElementById('selectMode').classList.toggle('text-white',  !add);
+    document.getElementById('selectMode').classList.toggle('bg-white',    add);
+    document.getElementById('selectMode').classList.toggle('text-gray-600', add);
+    document.getElementById('addMode').classList.toggle('bg-blue-600', add);
+    document.getElementById('addMode').classList.toggle('text-white',  add);
+    document.getElementById('addMode').classList.toggle('bg-white',    !add);
+    document.getElementById('addMode').classList.toggle('text-gray-600', !add);
+    // Toggle pointer-events so empty canvas area is clickable in add mode
+    overlay.classList.toggle('add-mode', add);
+    addCursor.style.display = 'none';
+}
+
+function getPageXY(e) {
+    const rect = pageCanvas.getBoundingClientRect();
+    return {
+        x: (e.clientX - rect.left) * (pageCanvas.width / rect.width)  / displayScale,
+        y: (e.clientY - rect.top)  * (pageCanvas.height / rect.height) / displayScale,
+    };
+}
+function getScreenXY(e) {
+    const rect = pageCanvas.getBoundingClientRect();
+    const scaleX = rect.width  > 0 ? pageCanvas.width  / rect.width  : 1;
+    const scaleY = rect.height > 0 ? pageCanvas.height / rect.height : 1;
+    return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top)  * scaleY,
+    };
+}
+
+// Delete button
+overlay.addEventListener('click', e => {
+    const del = e.target.closest('.del-box');
+    if (del) {
+        detectedFields = detectedFields.filter(f => String(f.id) !== del.dataset.id);
+        if (String(selectedId) === del.dataset.id) { selectedId = null; showProps(null); }
+        renderFieldBoxes();
+        return;
+    }
+    const box = e.target.closest('.field-box');
+    if (box && !isAddMode) {
+        selectedId = parseFloat(box.dataset.id);
+        showProps(detectedFields.find(f => String(f.id) === box.dataset.id));
+        renderFieldBoxes();
+    }
+});
+
+// Mousedown: start drag/resize/draw
+overlay.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    e.stopPropagation();
+
+    const handle = e.target.closest('.resize-handle');
+    const box    = e.target.closest('.field-box');
+    const del    = e.target.closest('.del-box');
+    if (del) return;
+
+    if (isAddMode) {
+        const sc = getScreenXY(e);
+        draw = { startX: sc.x, startY: sc.y };
+        addCursor.style.cssText = `display:block; left:${sc.x}px; top:${sc.y}px; width:0; height:0;`;
+        return;
+    }
+
+    if (handle && box) {
+        const f = detectedFields.find(f => String(f.id) === box.dataset.id);
+        if (f) {
+            drag = { type:'resize', fieldId: f.id, handle: handle.dataset.handle, startX: e.clientX, startY: e.clientY, origField: {...f} };
+        }
+        return;
+    }
+
+    if (box) {
+        const f = detectedFields.find(f => String(f.id) === box.dataset.id);
+        if (f) {
+            selectedId = f.id;
+            showProps(f);
+            drag = { type:'move', fieldId: f.id, startX: e.clientX, startY: e.clientY, origField: {...f} };
+            renderFieldBoxes();
+        }
+    }
+});
+
+window.addEventListener('mousemove', e => {
+    // Draw new field
+    if (draw) {
+        const sc = getScreenXY(e);
+        const x  = Math.min(sc.x, draw.startX);
+        const y  = Math.min(sc.y, draw.startY);
+        const w  = Math.abs(sc.x - draw.startX);
+        const h  = Math.abs(sc.y - draw.startY);
+        addCursor.style.cssText = `display:block; left:${x}px; top:${y}px; width:${w}px; height:${h}px;`;
+        return;
+    }
+
+    if (!drag) return;
+    const dx = (e.clientX - drag.startX) / displayScale;
+    const dy = (e.clientY - drag.startY) / displayScale;
+    const f  = detectedFields.find(f => f.id === drag.fieldId);
+    if (!f) return;
+    const o  = drag.origField;
+
+    if (drag.type === 'move') {
+        f.x = Math.max(0, o.x + dx);
+        f.y = Math.max(0, o.y + dy);
+    } else if (drag.type === 'resize') {
+        const h = drag.handle;
+        if (h === 'se') { f.w = Math.max(10, o.w + dx); f.h = Math.max(8, o.h + dy); }
+        if (h === 'sw') { f.x = o.x + dx; f.w = Math.max(10, o.w - dx); f.h = Math.max(8, o.h + dy); }
+        if (h === 'ne') { f.w = Math.max(10, o.w + dx); f.y = o.y + dy; f.h = Math.max(8, o.h - dy); }
+        if (h === 'nw') { f.x = o.x + dx; f.y = o.y + dy; f.w = Math.max(10, o.w - dx); f.h = Math.max(8, o.h - dy); }
+    }
+
+    renderFieldBoxes();
+    if (f.id === selectedId) showProps(f);
+});
+
+window.addEventListener('mouseup', e => {
+    if (draw) {
+        const sc   = getScreenXY(e);
+        const w    = Math.abs(sc.x - draw.startX) / displayScale;
+        const h    = Math.abs(sc.y - draw.startY) / displayScale;
+        const px   = Math.min(sc.x, draw.startX) / displayScale;
+        const py   = Math.min(sc.y, draw.startY) / displayScale;
+        if (w > 5 && h > 5) {
+            const type = document.getElementById('addType').value;
+            const newF = { id: Date.now(), name: `${type.charAt(0).toUpperCase()+type.slice(1)} Field`, type, page: currentPage, x: px, y: py, w, h, required: false };
+            detectedFields.push(newF);
+            selectedId = newF.id;
+            renderFieldBoxes();
+            showProps(newF);
+            setMode(false);
+        } else {
+            renderFieldBoxes();
+        }
+        addCursor.style.display = 'none';
+        draw = null;
+    }
+    drag = null;
+});
+
+// Keyboard delete
+window.addEventListener('keydown', e => {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId && !e.target.matches('input,textarea,select')) {
+        detectedFields = detectedFields.filter(f => f.id !== selectedId);
+        selectedId = null;
+        showProps(null);
+        renderFieldBoxes();
+    }
+});
+
+// ── Properties panel ──────────────────────────────────────────────────────────
+function showProps(f) {
+    const panel = document.getElementById('propPanel');
+    const none  = document.getElementById('noSelection');
+    if (!f) { panel.classList.add('hidden'); none.classList.remove('hidden'); return; }
+    panel.classList.remove('hidden');
+    none.classList.add('hidden');
+    document.getElementById('propName').value     = f.name;
+    document.getElementById('propType').value     = f.type;
+    document.getElementById('propW').value        = Math.round(f.w);
+    document.getElementById('propH').value        = Math.round(f.h);
+    document.getElementById('propRequired').checked = f.required;
+}
+
+['propName','propType','propW','propH','propRequired'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+        const f = detectedFields.find(f => f.id === selectedId);
+        if (!f) return;
+        f.name     = document.getElementById('propName').value;
+        f.type     = document.getElementById('propType').value;
+        f.w        = parseFloat(document.getElementById('propW').value) || f.w;
+        f.h        = parseFloat(document.getElementById('propH').value) || f.h;
+        f.required = document.getElementById('propRequired').checked;
+        renderFieldBoxes();
+    });
+});
+
+document.getElementById('propDelete').addEventListener('click', () => {
+    if (!selectedId) return;
+    detectedFields = detectedFields.filter(f => f.id !== selectedId);
+    selectedId = null;
+    showProps(null);
+    renderFieldBoxes();
+});
+
+// ── AI classification ─────────────────────────────────────────────────────────
+async function runAIClassification() {
+    const { pipeline, env } = await import('https://esm.sh/@xenova/transformers@2.17.2');
+    env.allowLocalModels = false;
+    const procEl   = document.getElementById('aiProcessing');
+    const statText = document.getElementById('aiStatusText');
+    procEl.classList.remove('hidden');
+    statText.textContent = 'Downloading AI model (~90MB)...';
+    try {
+        const classifier = await pipeline('zero-shot-classification', 'Xenova/nli-deberta-v3-small', {
+            progress_callback: p => { if (p.status==='downloading'&&p.total) statText.textContent = `Downloading AI model: ${Math.round(p.loaded/p.total*100)}%`; }
+        });
+        const labels  = ['text input','date','email address','phone number','signature','checkbox','number','dropdown'];
+        const typeMap = { 'text input':'text','date':'date','email address':'email','phone number':'phone','signature':'signature','checkbox':'checkbox','number':'number','dropdown':'dropdown' };
+        for (let i = 0; i < detectedFields.length; i++) {
+            const f = detectedFields[i];
+            statText.textContent = `AI classifying field ${i+1}/${detectedFields.length}: "${f.name}"`;
+            const r = await classifier(f.name, labels);
+            f.type = typeMap[r.labels[0]] || 'text';
+        }
+        renderFieldBoxes();
+        statText.textContent = '✅ AI classification complete';
+        setTimeout(() => procEl.classList.add('hidden'), 2000);
+    } catch(err) {
+        statText.textContent = '⚠️ AI failed — using heuristic detection';
+        setTimeout(() => procEl.classList.add('hidden'), 3000);
+    }
+}
+
+// ── Generate fillable PDF ─────────────────────────────────────────────────────
+document.getElementById('generateBtn').addEventListener('click', async () => {
+    const btn    = document.getElementById('generateBtn');
+    const prog   = document.getElementById('genProgress');
+    const stat   = document.getElementById('genStatus');
+    btn.disabled = true;
+    prog.classList.remove('hidden');
+    stat.textContent = 'Loading PDF...';
+
+    try {
+        const { PDFDocument, rgb } = PDFLib;
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        const form   = pdfDoc.getForm();
+        const pages  = pdfDoc.getPages();
+        const nameCounts = {};
+
+        stat.textContent = 'Adding form fields...';
+
+        for (const field of detectedFields) {
+            const page = pages[field.page - 1];
+            if (!page) continue;
+            const { height: pageH } = page.getSize();
+            const bx = field.x;
+            const by = pageH - field.y - field.h;
+            const bw = Math.max(field.w, 10);
+            const bh = Math.max(field.h, 8);
+            let name  = field.name.replace(/[^a-zA-Z0-9_\- ]/g,'').trim() || 'Field';
+            nameCounts[name] = (nameCounts[name] || 0) + 1;
+            const uName = nameCounts[name] > 1 ? `${name}_${nameCounts[name]}` : name;
+            try {
+                if (field.type === 'checkbox') {
+                    const cb = form.createCheckBox(uName);
+                    cb.addToPage(page, { x:bx, y:by, width:Math.min(bw,14), height:Math.min(bh,14) });
+                } else if (field.type === 'dropdown') {
+                    const dd = form.createDropdown(uName);
+                    dd.addToPage(page, { x:bx, y:by, width:bw, height:bh });
+                } else {
+                    const tf = form.createTextField(uName);
+                    if (field.type === 'signature') tf.enableMultiline();
+                    if (field.required) tf.enableRequired();
+                    tf.addToPage(page, { x:bx, y:by, width:bw, height:bh, borderWidth:0.5, borderColor:rgb(0.6,0.6,0.8), backgroundColor:rgb(0.96,0.97,1) });
+                }
+            } catch(fe) { console.warn('Skipped:', uName, fe.message); }
+        }
+
+        stat.textContent = 'Saving...';
+        const out  = await pdfDoc.save();
+        const blob = new Blob([out], { type:'application/pdf' });
+        const a    = document.createElement('a');
+        a.download = 'fillable-' + filename;
+        a.href     = URL.createObjectURL(blob);
+        a.click();
+        stat.textContent = '✅ Downloaded!';
+        btn.disabled = false;
+    } catch(err) {
+        stat.textContent = '❌ ' + err.message;
+        btn.disabled = false;
+        console.error(err);
+    }
+});
+</script>
+</body>
+</html>

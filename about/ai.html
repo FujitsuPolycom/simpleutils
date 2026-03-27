@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI That Runs in Your Browser | SimpleUtils</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+
+<header class="border-b border-slate-700">
+    <div class="max-w-3xl mx-auto px-4 py-6">
+        <a href="/" class="text-2xl font-bold text-white hover:text-slate-300">⚡ SimpleUtils</a>
+    </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-4 py-12">
+
+    <div class="text-5xl mb-4">🤖</div>
+    <h1 class="text-4xl font-bold mb-4">AI that runs in your browser</h1>
+    <p class="text-slate-400 text-lg mb-10">SimpleUtils AI tools don't send your images or data to any AI API. The models download and run directly inside your browser.</p>
+
+    <div class="space-y-8">
+
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+            <h2 class="text-xl font-semibold mb-2">How AI tools usually work</h2>
+            <p class="text-slate-300">Most AI tools are a frontend that sends your data to a backend API — OpenAI, Replicate, or a private server. Your image or text is uploaded, processed in the cloud, and the result is returned. The AI never runs on your machine.</p>
+        </div>
+
+        <div class="bg-slate-800 rounded-xl p-6 border border-green-800">
+            <h2 class="text-xl font-semibold mb-2 text-green-400">How SimpleUtils AI tools work</h2>
+            <p class="text-slate-300 mb-4">SimpleUtils uses <strong>WebAssembly</strong> and the browser's built-in compute capabilities to run real AI models directly on your CPU (and GPU where available). The model files download once from a public CDN and are cached in your browser — after that, they run offline with no internet required.</p>
+            <p class="text-slate-300">Your image or data is processed entirely in JavaScript/WASM inside the browser tab. Nothing is sent to a server.</p>
+        </div>
+
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+            <h2 class="text-xl font-semibold mb-2">Which tools use AI?</h2>
+            <div class="space-y-3">
+                <div class="flex gap-3 items-start">
+                    <span class="text-2xl">🎭</span>
+                    <div>
+                        <div class="font-semibold">Background Remover</div>
+                        <div class="text-slate-400 text-sm">Uses <code class="bg-slate-700 px-1 rounded">@imgly/background-removal</code> — a WASM-powered segmentation model that runs in your browser. Model size: ~40MB, cached after first use.</div>
+                    </div>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <span class="text-2xl">🎯</span>
+                    <div>
+                        <div class="font-semibold">Subject Keeper</div>
+                        <div class="text-slate-400 text-sm">Uses <strong>CLIPSeg</strong> via <code class="bg-slate-700 px-1 rounded">@xenova/transformers</code> — a text-prompted image segmentation model from Hugging Face. Model size: ~300MB, cached after first use. Runs on your CPU via WebAssembly.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+            <h2 class="text-xl font-semibold mb-2">Why does it take a minute the first time?</h2>
+            <p class="text-slate-300">The model files (neural network weights) need to download the first time you use a tool. Once downloaded, your browser caches them — subsequent uses are instant and work even without an internet connection.</p>
+            <div class="mt-4 bg-slate-700/50 rounded-lg p-4 text-sm text-slate-300">
+                <div class="font-semibold mb-2">Typical model sizes:</div>
+                <div class="space-y-1">
+                    <div class="flex justify-between"><span>Background Remover</span><span class="text-slate-400">~40 MB</span></div>
+                    <div class="flex justify-between"><span>Subject Keeper (CLIPSeg)</span><span class="text-slate-400">~300 MB</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+            <h2 class="text-xl font-semibold mb-2">What technology makes this possible?</h2>
+            <ul class="text-slate-300 space-y-2">
+                <li><strong>WebAssembly (WASM)</strong> — lets compiled code (like neural network inference engines) run at near-native speed in the browser</li>
+                <li><strong>Transformers.js</strong> — Hugging Face's JavaScript port of their popular ML library, enabling hundreds of models to run client-side</li>
+                <li><strong>ONNX Runtime Web</strong> — a cross-platform ML runtime that works in the browser</li>
+                <li><strong>WebGPU / WebGL</strong> — where your browser supports it, GPU acceleration is used automatically</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="mt-10 text-center">
+        <a href="/" class="text-blue-400 hover:underline">← Back to all tools</a>
+    </div>
+</main>
+
+</body>
+</html>

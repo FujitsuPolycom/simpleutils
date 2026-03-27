@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Formatter & Validator - SimpleUtils</title>
+    <meta name="description" content="Free online JSON formatter and validator. Beautify, minify, and validate JSON data instantly with syntax highlighting. Find errors quickly with our easy-to-use JSON formatting tool.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- ADSENSE_HEADER -->
+    
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <a href="/" class="text-2xl font-bold text-blue-600">SimpleUtils</a>
+        </div>
+    </header>
+
+    <nav class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="/" class="hover:text-blue-600">Home</a></li>
+            <li class="mx-2">/</li>
+            <li>JSON Formatter</li>
+        </ol>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">JSON Formatter & Validator</h1>
+        
+        <p class="text-lg text-gray-700 mb-8">
+            Format, validate, and beautify your JSON data instantly with syntax highlighting. Our JSON formatter detects errors and shows you exactly where they occur, making debugging quick and easy. Perfect for developers working with APIs, configuration files, and data processing.
+        </p>
+
+        <!-- ADSENSE_BELOW_TOOL -->
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Paste JSON here:</label>
+                <textarea id="jsonInput" class="w-full h-64 p-4 border border-gray-300 rounded-lg font-mono text-sm" placeholder='{"example": "paste your JSON here"}'></textarea>
+            </div>
+
+            <div class="flex flex-wrap gap-3 mb-4">
+                <button onclick="formatJSON()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Format</button>
+                <button onclick="minifyJSON()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">Minify</button>
+                <button onclick="copyToClipboard()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Copy</button>
+                <button onclick="clearAll()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700">Clear</button>
+            </div>
+
+            <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
+            <div id="successMessage" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"></div>
+
+            <div id="outputContainer" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Formatted JSON:</label>
+                <div class="bg-gray-900 rounded-lg overflow-auto max-h-96">
+                    <pre class="p-4"><code id="jsonOutput" class="language-json"></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Use</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Paste your JSON data into the text area above</li>
+                <li>Click "Format" to beautify and validate your JSON with syntax highlighting</li>
+                <li>If there are errors, they will be displayed with the exact location</li>
+                <li>Use "Minify" to compress JSON into a single line</li>
+                <li>Click "Copy" to copy the formatted or minified JSON to your clipboard</li>
+            </ol>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">What is JSON formatting?</h3>
+                    <p class="text-gray-700">JSON formatting (or beautifying) adds proper indentation, line breaks, and spacing to JSON data, making it human-readable. This is especially useful when working with minified JSON from APIs or production systems.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Why does my JSON show an error?</h3>
+                    <p class="text-gray-700">Common JSON errors include missing commas, trailing commas, unquoted keys, single quotes instead of double quotes, or unescaped special characters. Our validator will show you the exact line and character where the error occurs.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">When should I minify JSON?</h3>
+                    <p class="text-gray-700">Minifying JSON removes all unnecessary whitespace, reducing file size. This is useful for production environments, APIs, or when you need to save space. However, minified JSON is harder to read, so use formatting during development.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Is my JSON data secure?</h3>
+                    <p class="text-gray-700">Yes! All JSON formatting and validation happens entirely in your browser. Your data never leaves your computer or gets sent to any server, ensuring complete privacy and security.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-12 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
+            All processing happens in your browser. No data is sent to any server.
+        </div>
+    </footer>
+
+    <script>
+        function formatJSON() {
+            const input = document.getElementById('jsonInput').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            const outputContainer = document.getElementById('outputContainer');
+            const outputCode = document.getElementById('jsonOutput');
+
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+
+            if (!input) {
+                errorDiv.textContent = 'Please enter some JSON data';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                const formatted = JSON.stringify(parsed, null, 2);
+                outputCode.textContent = formatted;
+                Prism.highlightElement(outputCode);
+                outputContainer.classList.remove('hidden');
+                document.getElementById('jsonInput').value = formatted;
+                successDiv.textContent = '✓ Valid JSON formatted successfully';
+                successDiv.classList.remove('hidden');
+            } catch (e) {
+                errorDiv.textContent = `Invalid JSON: ${e.message}`;
+                errorDiv.classList.remove('hidden');
+                outputContainer.classList.add('hidden');
+            }
+        }
+
+        function minifyJSON() {
+            const input = document.getElementById('jsonInput').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            const outputContainer = document.getElementById('outputContainer');
+            const outputCode = document.getElementById('jsonOutput');
+
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+
+            if (!input) {
+                errorDiv.textContent = 'Please enter some JSON data';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                const minified = JSON.stringify(parsed);
+                outputCode.textContent = minified;
+                Prism.highlightElement(outputCode);
+                outputContainer.classList.remove('hidden');
+                document.getElementById('jsonInput').value = minified;
+                successDiv.textContent = '✓ JSON minified successfully';
+                successDiv.classList.remove('hidden');
+            } catch (e) {
+                errorDiv.textContent = `Invalid JSON: ${e.message}`;
+                errorDiv.classList.remove('hidden');
+                outputContainer.classList.add('hidden');
+            }
+        }
+
+        function copyToClipboard() {
+            const input = document.getElementById('jsonInput').value;
+            const successDiv = document.getElementById('successMessage');
+            const errorDiv = document.getElementById('errorMessage');
+
+            if (!input) {
+                errorDiv.textContent = 'Nothing to copy';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            navigator.clipboard.writeText(input).then(() => {
+                successDiv.textContent = '✓ Copied to clipboard!';
+                successDiv.classList.remove('hidden');
+                setTimeout(() => successDiv.classList.add('hidden'), 2000);
+            });
+        }
+
+        function clearAll() {
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('outputContainer').classList.add('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+            document.getElementById('successMessage').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
