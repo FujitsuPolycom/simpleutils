@@ -313,9 +313,9 @@
         </div>
     </main>
 
-    <script type="module">
-        import { FFmpeg } from 'https://esm.sh/@ffmpeg/ffmpeg@0.12.10';
-        import { fetchFile, toBlobURL } from 'https://esm.sh/@ffmpeg/util@0.12.1';
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <script>
+        const { createFFmpeg, fetchFile } = FFmpeg;
 
         // Elements
         const dropzone = document.getElementById('dropzone');
@@ -597,70 +597,70 @@
             // Initialize FFmpeg if needed
             if (!ffmpeg) {
                 updateProgress('Loading FFmpeg...', 0);
-                ffmpeg = new FFmpeg();
-                
-                ffmpeg.on('log', ({ message }) => {
-                    console.log(message);
+                ffmpeg = createFFmpeg({
+                    corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
+                    log: false,
+                    progress: ({ ratio }) => {
+                        if (ratio > 0) {
+                            const pct = Math.round(ratio * 40) + 55; // 55–95%
+                            updateProgress('Converting...', Math.min(pct, 95));
+                        }
+                    }
                 });
-                
-                ffmpeg.on('progress', ({ progress }) => {
-                    const percent = Math.round(progress * 100);
-                    updateProgress('Converting...', percent);
-                });
-                
-                const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
-                await ffmpeg.load({
-                    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-                    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-                });
+                await ffmpeg.load();
             }
 
-            updateProgress('Reading video...', 5);
-            
+            updateProgress('Reading video...', 10);
+
             // Write input file
-            await ffmpeg.writeFile('input.mp4', await fetchFile(videoFile));
-            
+            ffmpeg.FS('writeFile', 'input.mp4', await fetchFile(videoFile));
+
             const fps = fpsSelect.value;
             const width = widthSlider.value;
             const dither = qualitySelect.value;
-            
-            updateProgress('Generating palette...', 20);
-            
+
+            updateProgress('Generating palette...', 30);
+
             // Pass 1: Generate palette
-            await ffmpeg.exec([
+            await ffmpeg.run(
                 '-ss', startTime.toString(),
                 '-to', endTime.toString(),
                 '-i', 'input.mp4',
                 '-vf', `fps=${fps},scale=${width}:-1:flags=lanczos,palettegen=stats_mode=diff`,
                 'palette.png'
-            ]);
-            
-            updateProgress('Creating GIF...', 60);
-            
+            );
+
+            updateProgress('Creating GIF...', 55);
+
             // Pass 2: Apply palette
-            await ffmpeg.exec([
+            await ffmpeg.run(
                 '-ss', startTime.toString(),
                 '-to', endTime.toString(),
                 '-i', 'input.mp4',
                 '-i', 'palette.png',
                 '-lavfi', `fps=${fps},scale=${width}:-1:flags=lanczos [x]; [x][1:v] paletteuse=dither=${dither}`,
                 'output.gif'
-            ]);
-            
-            updateProgress('Finalizing...', 90);
-            
+            );
+
+            updateProgress('Finalizing...', 95);
+
             // Read output
-            const data = await ffmpeg.readFile('output.gif');
+            const data = ffmpeg.FS('readFile', 'output.gif');
             gifBlob = new Blob([data.buffer], { type: 'image/gif' });
-            
+
+            // Cleanup FS
+            try { ffmpeg.FS('unlink', 'input.mp4'); } catch(e) {}
+            try { ffmpeg.FS('unlink', 'palette.png'); } catch(e) {}
+            try { ffmpeg.FS('unlink', 'output.gif'); } catch(e) {}
+
             // Show result
             gifPreview.src = URL.createObjectURL(gifBlob);
             const sizeMB = (gifBlob.size / 1024 / 1024).toFixed(2);
             const sizeKB = (gifBlob.size / 1024).toFixed(0);
-            gifSize.textContent = sizeMB > 1 ? `${sizeMB} MB` : `${sizeKB} KB`;
-            
+            gifSize.textContent = parseFloat(sizeMB) >= 1 ? `${sizeMB} MB` : `${sizeKB} KB`;
+
             updateProgress('Done!', 100);
-            
+
             setTimeout(() => {
                 progressSection.classList.add('hidden');
                 outputSection.classList.remove('hidden');
@@ -697,3 +697,4 @@
     </script>
 </body>
 </html>
+
