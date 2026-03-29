@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video to GIF Converter - Free Online Video to GIF | SimpleUtils</title>
+    <meta name="description" content="Convert videos to animated GIFs for free with a visual trim editor. Drag to set start/end points, adjust FPS, size, and quality. Works entirely in your browser — no uploads, totally private.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background: #0f0f17; 
+            color: white; 
+            min-height: 100vh;
+        }
+        .card {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+        }
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        #dropzone {
+            border: 2px dashed rgba(99,102,241,0.5);
+            background: rgba(99,102,241,0.05);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #dropzone:hover, #dropzone.dragover {
+            border-color: #6366f1;
+            background: rgba(99,102,241,0.1);
+        }
+        #timeline {
+            position: relative;
+            height: 48px;
+            background: #1e1e2e;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 16px 0;
+            user-select: none;
+        }
+        #selection {
+            position: absolute;
+            height: 100%;
+            background: rgba(99,102,241,0.3);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        .timeline-handle {
+            position: absolute;
+            width: 14px;
+            height: 100%;
+            border-radius: 4px;
+            cursor: ew-resize;
+            top: 0;
+            z-index: 10;
+        }
+        #handle-start {
+            background: #22c55e;
+        }
+        #handle-end {
+            background: #ef4444;
+        }
+        #playhead {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: white;
+            top: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+        video {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            background: #000;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            border: none;
+        }
+        select {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="border-b border-slate-700">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-indigo-400 hover:text-indigo-300">⚡ SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-indigo-400 hover:underline">Home</a>
+        <span class="mx-2 text-slate-500">&gt;</span>
+        <span class="text-slate-400">Video to GIF</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold mb-4">Video to GIF Converter</h1>
+        <p class="text-lg text-slate-300 mb-8">
+            Convert any video to an animated GIF with a visual trim editor. Drag handles to set start/end points, adjust FPS, size, and quality. Everything happens in your browser — no uploads, totally private.
+        </p>
+
+        <!-- Upload Section -->
+        <div id="upload-section">
+            <div id="dropzone" class="card">
+                <div class="text-6xl mb-4">🎬</div>
+                <h2 class="text-xl font-semibold mb-2">Drop a video file here</h2>
+                <p class="text-slate-400 mb-4">or click to browse</p>
+                <p class="text-sm text-slate-500">Supports MP4, MOV, WebM, AVI</p>
+                <input type="file" id="fileInput" accept="video/*" class="hidden">
+            </div>
+        </div>
+
+        <!-- Editor Section (hidden initially) -->
+        <div id="editor-section" class="hidden">
+            <!-- Video Preview -->
+            <div class="card p-6 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Video Preview</h3>
+                <video id="videoPreview" controls></video>
+            </div>
+
+            <!-- Timeline Trimmer -->
+            <div class="card p-6 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Trim Selection</h3>
+                <div id="timeline">
+                    <div id="selection"></div>
+                    <div id="handle-start" class="timeline-handle"></div>
+                    <div id="handle-end" class="timeline-handle"></div>
+                    <div id="playhead"></div>
+                </div>
+                <div class="flex justify-between items-center text-sm text-slate-400 mt-2">
+                    <div>
+                        <span class="text-green-400">▶</span> Start: <span id="start-time">0.0s</span>
+                    </div>
+                    <div>
+                        Duration: <span id="duration-time">0.0s</span>
+                    </div>
+                    <div>
+                        <span class="text-red-400">▮</span> End: <span id="end-time">0.0s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="card p-6 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Settings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- FPS -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">FPS (Frames per second)</label>
+                        <select id="fps-select" class="w-full">
+                            <option value="5">5 FPS (Smaller file)</option>
+                            <option value="10" selected>10 FPS (Balanced)</option>
+                            <option value="15">15 FPS (Smooth)</option>
+                            <option value="20">20 FPS (Very smooth)</option>
+                        </select>
+                    </div>
+                    <!-- Width -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Width: <span id="width-value">480px</span>
+                        </label>
+                        <input type="range" id="width-slider" min="160" max="640" value="480" step="20">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>160px</span>
+                            <span>640px</span>
+                        </div>
+                    </div>
+                    <!-- Quality -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Quality (Dithering)</label>
+                        <select id="quality-select" class="w-full">
+                            <option value="bayer">Low (Smaller file)</option>
+                            <option value="floyd_steinberg" selected>Medium (Balanced)</option>
+                            <option value="sierra2_4a">High (Best quality)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Convert Button -->
+            <div class="text-center mb-6">
+                <button id="convert-btn" class="btn-primary text-lg px-8 py-3">
+                    🎬 Convert to GIF
+                </button>
+            </div>
+
+            <!-- Progress Bar (hidden initially) -->
+            <div id="progress-section" class="hidden card p-6 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium">Converting...</span>
+                    <span id="progress-text" class="text-sm text-indigo-400">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Output Section (hidden initially) -->
+            <div id="output-section" class="hidden">
+                <div class="card p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">✅ GIF Ready!</h3>
+                    <img id="gif-preview" class="w-full rounded-lg mb-4" style="max-height: 400px; object-fit: contain; background: #000;">
+                    <div class="text-sm text-slate-400 mb-4">
+                        File size: <span id="gif-size" class="text-white font-semibold">-</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="download-btn" class="btn-primary flex-1">
+                            ⬇️ Download GIF
+                        </button>
+                        <button id="reset-btn" class="btn-secondary">
+                            🔄 Convert Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { FFmpeg } from 'https://esm.sh/@ffmpeg/ffmpeg@0.12.10';
+        import { fetchFile, toBlobURL } from 'https://esm.sh/@ffmpeg/util@0.12.1';
+
+        // Elements
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadSection = document.getElementById('upload-section');
+        const editorSection = document.getElementById('editor-section');
+        const videoPreview = document.getElementById('videoPreview');
+        const timeline = document.getElementById('timeline');
+        const selection = document.getElementById('selection');
+        const handleStart = document.getElementById('handle-start');
+        const handleEnd = document.getElementById('handle-end');
+        const playhead = document.getElementById('playhead');
+        const startTimeEl = document.getElementById('start-time');
+        const endTimeEl = document.getElementById('end-time');
+        const durationTimeEl = document.getElementById('duration-time');
+        const fpsSelect = document.getElementById('fps-select');
+        const widthSlider = document.getElementById('width-slider');
+        const widthValue = document.getElementById('width-value');
+        const qualitySelect = document.getElementById('quality-select');
+        const convertBtn = document.getElementById('convert-btn');
+        const progressSection = document.getElementById('progress-section');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const outputSection = document.getElementById('output-section');
+        const gifPreview = document.getElementById('gif-preview');
+        const gifSize = document.getElementById('gif-size');
+        const downloadBtn = document.getElementById('download-btn');
+        const resetBtn = document.getElementById('reset-btn');
+
+        let videoFile = null;
+        let videoDuration = 0;
+        let startTime = 0;
+        let endTime = 0;
+        let isDragging = null;
+        let ffmpeg = null;
+        let gifBlob = null;
+
+        // Upload handling
+        dropzone.addEventListener('click', () => fileInput.click());
+        
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+        
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+        
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) handleFile(files[0]);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('video/')) {
+                alert('Please select a video file');
+                return;
+            }
+            videoFile = file;
+            const url = URL.createObjectURL(file);
+            videoPreview.src = url;
+            videoPreview.load();
+            
+            videoPreview.addEventListener('loadedmetadata', () => {
+                videoDuration = videoPreview.duration;
+                endTime = videoDuration;
+                updateTimeline();
+                uploadSection.classList.add('hidden');
+                editorSection.classList.remove('hidden');
+            }, { once: true });
+        }
+
+        // Timeline handling
+        function updateTimeline() {
+            const startPercent = (startTime / videoDuration) * 100;
+            const endPercent = (endTime / videoDuration) * 100;
+            
+            selection.style.left = startPercent + '%';
+            selection.style.width = (endPercent - startPercent) + '%';
+            
+            handleStart.style.left = startPercent + '%';
+            handleEnd.style.left = endPercent + '%';
+            
+            startTimeEl.textContent = startTime.toFixed(1) + 's';
+            endTimeEl.textContent = endTime.toFixed(1) + 's';
+            durationTimeEl.textContent = (endTime - startTime).toFixed(1) + 's';
+        }
+
+        function getTimeFromPosition(clientX) {
+            const rect = timeline.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const percent = Math.max(0, Math.min(1, x / rect.width));
+            return percent * videoDuration;
+        }
+
+        handleStart.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = 'start';
+        });
+
+        handleEnd.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = 'end';
+        });
+
+        timeline.addEventListener('click', (e) => {
+            if (isDragging) return;
+            const time = getTimeFromPosition(e.clientX);
+            videoPreview.currentTime = time;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            const time = getTimeFromPosition(e.clientX);
+            
+            if (isDragging === 'start') {
+                startTime = Math.max(0, Math.min(time, endTime - 0.1));
+                videoPreview.currentTime = startTime;
+            } else if (isDragging === 'end') {
+                endTime = Math.max(startTime + 0.1, Math.min(time, videoDuration));
+                videoPreview.currentTime = endTime;
+            }
+            
+            updateTimeline();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = null;
+        });
+
+        // Touch support
+        handleStart.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDragging = 'start';
+        });
+
+        handleEnd.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDragging = 'end';
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const time = getTimeFromPosition(touch.clientX);
+            
+            if (isDragging === 'start') {
+                startTime = Math.max(0, Math.min(time, endTime - 0.1));
+                videoPreview.currentTime = startTime;
+            } else if (isDragging === 'end') {
+                endTime = Math.max(startTime + 0.1, Math.min(time, videoDuration));
+                videoPreview.currentTime = endTime;
+            }
+            
+            updateTimeline();
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = null;
+        });
+
+        // Playhead update
+        videoPreview.addEventListener('timeupdate', () => {
+            if (videoPreview.currentTime >= endTime) {
+                videoPreview.currentTime = startTime;
+            }
+            const percent = (videoPreview.currentTime / videoDuration) * 100;
+            playhead.style.left = percent + '%';
+        });
+
+        // Width slider
+        widthSlider.addEventListener('input', () => {
+            widthValue.textContent = widthSlider.value + 'px';
+        });
+
+        // Convert button
+        convertBtn.addEventListener('click', async () => {
+            convertBtn.disabled = true;
+            progressSection.classList.remove('hidden');
+            outputSection.classList.add('hidden');
+            
+            try {
+                await convertToGif();
+            } catch (error) {
+                alert('Conversion failed: ' + error.message);
+                console.error(error);
+            } finally {
+                convertBtn.disabled = false;
+            }
+        });
+
+        async function convertToGif() {
+            // Initialize FFmpeg if needed
+            if (!ffmpeg) {
+                updateProgress('Loading FFmpeg...', 0);
+                ffmpeg = new FFmpeg();
+                
+                ffmpeg.on('log', ({ message }) => {
+                    console.log(message);
+                });
+                
+                ffmpeg.on('progress', ({ progress }) => {
+                    const percent = Math.round(progress * 100);
+                    updateProgress('Converting...', percent);
+                });
+                
+                const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+                await ffmpeg.load({
+                    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                });
+            }
+
+            updateProgress('Reading video...', 5);
+            
+            // Write input file
+            await ffmpeg.writeFile('input.mp4', await fetchFile(videoFile));
+            
+            const fps = fpsSelect.value;
+            const width = widthSlider.value;
+            const dither = qualitySelect.value;
+            
+            updateProgress('Generating palette...', 20);
+            
+            // Pass 1: Generate palette
+            await ffmpeg.exec([
+                '-ss', startTime.toString(),
+                '-to', endTime.toString(),
+                '-i', 'input.mp4',
+                '-vf', `fps=${fps},scale=${width}:-1:flags=lanczos,palettegen=stats_mode=diff`,
+                'palette.png'
+            ]);
+            
+            updateProgress('Creating GIF...', 60);
+            
+            // Pass 2: Apply palette
+            await ffmpeg.exec([
+                '-ss', startTime.toString(),
+                '-to', endTime.toString(),
+                '-i', 'input.mp4',
+                '-i', 'palette.png',
+                '-lavfi', `fps=${fps},scale=${width}:-1:flags=lanczos [x]; [x][1:v] paletteuse=dither=${dither}`,
+                'output.gif'
+            ]);
+            
+            updateProgress('Finalizing...', 90);
+            
+            // Read output
+            const data = await ffmpeg.readFile('output.gif');
+            gifBlob = new Blob([data.buffer], { type: 'image/gif' });
+            
+            // Show result
+            gifPreview.src = URL.createObjectURL(gifBlob);
+            const sizeMB = (gifBlob.size / 1024 / 1024).toFixed(2);
+            const sizeKB = (gifBlob.size / 1024).toFixed(0);
+            gifSize.textContent = sizeMB > 1 ? `${sizeMB} MB` : `${sizeKB} KB`;
+            
+            updateProgress('Done!', 100);
+            
+            setTimeout(() => {
+                progressSection.classList.add('hidden');
+                outputSection.classList.remove('hidden');
+            }, 500);
+        }
+
+        function updateProgress(message, percent) {
+            progressText.textContent = message + ' ' + percent + '%';
+            progressFill.style.width = percent + '%';
+        }
+
+        // Download button
+        downloadBtn.addEventListener('click', () => {
+            const url = URL.createObjectURL(gifBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `video-${Date.now()}.gif`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Reset button
+        resetBtn.addEventListener('click', () => {
+            videoFile = null;
+            videoPreview.src = '';
+            gifPreview.src = '';
+            gifBlob = null;
+            startTime = 0;
+            endTime = 0;
+            editorSection.classList.add('hidden');
+            uploadSection.classList.remove('hidden');
+            fileInput.value = '';
+        });
+    </script>
+</body>
+</html>
