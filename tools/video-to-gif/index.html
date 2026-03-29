@@ -49,7 +49,17 @@
 
     <main class="max-w-4xl mx-auto px-4 py-8">
         <h1 class="text-4xl font-bold mb-4">Video to GIF Converter</h1>
-        <p class="text-lg text-slate-300 mb-8">Convert any video to an animated GIF with a visual trim editor. Drag handles to set start/end points, adjust FPS and size. Everything runs in your browser — no uploads, totally private.</p>
+        <p class="text-lg text-slate-300 mb-6">Convert any video to an animated GIF with a visual trim editor. Drag handles to set start/end points, adjust FPS and size. Everything runs in your browser — no uploads, totally private.</p>
+
+        <!-- Compatibility notice -->
+        <div id="compat-notice" class="rounded-lg p-4 mb-8 flex gap-3 items-start" style="background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3);">
+            <span class="text-xl mt-0.5">⚠️</span>
+            <div class="text-sm">
+                <span class="text-yellow-300 font-semibold">Mobile compatibility:</span>
+                <span class="text-slate-300"> Works best on desktop. On Android/iOS, only <strong>H.264 MP4</strong> videos are supported — HEVC/H.265 videos (common on newer phones) will not work due to browser limitations.</span>
+                <button onclick="this.closest('#compat-notice').remove()" class="ml-2 text-slate-500 hover:text-white text-xs underline">dismiss</button>
+            </div>
+        </div>
 
         <!-- Upload Section -->
         <div id="upload-section">
