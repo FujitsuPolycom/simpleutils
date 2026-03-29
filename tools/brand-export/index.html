@@ -120,7 +120,7 @@
                             <p class="text-slate-400">Click or drag to upload your logo</p>
                             <p class="text-xs text-slate-500 mt-1">PNG, JPG, SVG supported</p>
                         </div>
-                        <div id="logoPreviewContainer" class="hidden">
+                        <div id="logoPreviewContainer" style="display:none">
                             <img id="logoPreview" class="logo-preview mx-auto mb-2">
                             <button id="changeLogoBtn" class="text-sm text-indigo-400 hover:text-indigo-300">Change logo</button>
                         </div>
@@ -378,8 +378,11 @@
             reader.onload = (e) => {
                 brandData.logoDataUrl = e.target.result;
                 logoPreview.src = e.target.result;
-                logoPlaceholder.classList.add('hidden');
-                logoPreviewContainer.classList.remove('hidden');
+                logoPlaceholder.style.display = 'none';
+                logoPreviewContainer.style.display = 'block';
+            };
+            reader.onerror = () => {
+                alert('Failed to read image file. Please try a different file.');
             };
             reader.readAsDataURL(file);
         }
