@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="canonical" href="https://simpleutils.org/tools/brand-export/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand & Export Toolkit - Create Branded Tool Bundles | SimpleUtils</title>
+    <meta name="description" content="Bundle PDF and image tools into a single branded HTML file. Upload your logo, pick tools, preview, and download — ready to deploy on any website.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .step-card {
+            transition: all 0.3s ease;
+        }
+        .step-card.active {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 1px #6366f1;
+        }
+        .step-number {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .step-card:not(.active) .step-number {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+        .step-card.active .step-number {
+            background: #6366f1;
+            color: white;
+        }
+        .tool-checkbox {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .tool-checkbox:checked {
+            background: #6366f1;
+            border-color: #6366f1;
+        }
+        .tool-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 0.875rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .logo-preview {
+            max-width: 200px;
+            max-height: 100px;
+            object-fit: contain;
+        }
+        #previewFrame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.5rem;
+            background: white;
+        }
+        .progress-bar {
+            height: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #6366f1;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-slate-800 shadow-lg border-b border-slate-700">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <a href="/" class="text-2xl font-bold text-indigo-400 hover:text-indigo-300">SimpleUtils</a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="max-w-4xl mx-auto px-4 py-3 text-sm">
+        <a href="/" class="text-indigo-400 hover:underline">Home</a>
+        <span class="mx-2 text-slate-500">&gt;</span>
+        <span class="text-slate-400">Brand & Export Toolkit</span>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-white mb-4">🏷️ Brand & Export Toolkit</h1>
+        
+        <p class="text-lg text-slate-300 mb-8">
+            Create a custom-branded toolkit with your logo and colors. Select the tools you need, preview the result, and download a single self-contained HTML file ready to deploy anywhere.
+        </p>
+
+        <!-- Step 1: Branding -->
+        <div id="step1" class="step-card active bg-slate-800 rounded-lg p-6 mb-6 border-2 border-slate-700">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="step-number">1</div>
+                <h2 class="text-2xl font-bold">Brand Setup</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Upload Logo</label>
+                    <div class="border-2 border-dashed border-slate-600 rounded-lg p-8 text-center hover:border-indigo-500 transition cursor-pointer" id="logoDropZone">
+                        <input type="file" id="logoInput" accept="image/*" class="hidden">
+                        <div id="logoPlaceholder">
+                            <div class="text-4xl mb-2">📤</div>
+                            <p class="text-slate-400">Click or drag to upload your logo</p>
+                            <p class="text-xs text-slate-500 mt-1">PNG, JPG, SVG supported</p>
+                        </div>
+                        <div id="logoPreviewContainer" class="hidden">
+                            <img id="logoPreview" class="logo-preview mx-auto mb-2">
+                            <button id="changeLogoBtn" class="text-sm text-indigo-400 hover:text-indigo-300">Change logo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Brand/Company Name</label>
+                    <input type="text" id="brandName" placeholder="My Company" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Accent Color</label>
+                    <div class="flex gap-2">
+                        <input type="color" id="accentColor" value="#6366f1" class="w-16 h-12 rounded cursor-pointer bg-slate-700 border border-slate-600">
+                        <input type="text" id="accentColorHex" value="#6366f1" class="flex-1 px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent">
+                    </div>
+                </div>
+
+                <button id="step1Next" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                    Continue →
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Select Tools -->
+        <div id="step2" class="step-card bg-slate-800 rounded-lg p-6 mb-6 border-2 border-slate-700 opacity-50">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="step-number">2</div>
+                <h2 class="text-2xl font-bold">Select Tools</h2>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-indigo-400 mb-3">📄 PDF Tools</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="pdf-page-extractor" data-name="PDF Page Extractor">
+                            <span>PDF Page Extractor</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="pdf-combiner" data-name="PDF Combiner">
+                            <span>PDF Combiner</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="pdf-organizer" data-name="PDF Organizer">
+                            <span>PDF Organizer</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="pdf-form-maker" data-name="PDF Form Maker">
+                            <span>PDF Form Maker</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-indigo-400 mb-3">🖼️ Image Tools</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="image-resizer" data-name="Image Resizer">
+                            <span>Image Resizer</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="image-cropper" data-name="Image Cropper">
+                            <span>Image Cropper</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="image-compressor" data-name="Image Compressor">
+                            <span>Image Compressor</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="image-enhancer" data-name="Image Enhancer">
+                            <span>Image Enhancer</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="background-remover" data-name="Background Remover">
+                            <span>Background Remover</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="exif-viewer" data-name="EXIF Viewer">
+                            <span>EXIF Viewer</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-600 cursor-pointer transition">
+                            <input type="checkbox" class="tool-checkbox" data-tool="favicon-generator" data-name="Favicon Generator">
+                            <span>Favicon Generator</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="step2Back" class="flex-1 bg-slate-700 text-white py-3 rounded-lg font-semibold hover:bg-slate-600 transition">
+                        ← Back
+                    </button>
+                    <button id="step2Next" class="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                        Preview & Build →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Building / Preview -->
+        <div id="step3" class="step-card bg-slate-800 rounded-lg p-6 mb-6 border-2 border-slate-700 opacity-50">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="step-number">3</div>
+                <h2 class="text-2xl font-bold">Build & Preview</h2>
+            </div>
+            
+            <div id="buildingState" class="space-y-4">
+                <div class="text-center py-8">
+                    <div class="text-5xl mb-4">⚙️</div>
+                    <p class="text-xl text-slate-300 mb-4">Building your toolkit...</p>
+                    <div class="progress-bar max-w-md mx-auto mb-4">
+                        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div id="buildLog" class="text-sm text-slate-400 space-y-1 max-h-40 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <div id="previewState" class="hidden space-y-4">
+                <div class="bg-slate-700 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-slate-300">Preview</span>
+                        <button id="refreshPreview" class="text-sm text-indigo-400 hover:text-indigo-300">🔄 Refresh</button>
+                    </div>
+                    <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="step3Back" class="flex-1 bg-slate-700 text-white py-3 rounded-lg font-semibold hover:bg-slate-600 transition">
+                        ← Adjust
+                    </button>
+                    <button id="downloadBundle" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                        ⬇️ Download index.html
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="mb-8 bg-slate-800 rounded-lg p-6 border border-slate-700">
+            <h2 class="text-2xl font-bold text-white mb-4">How It Works</h2>
+            <ol class="list-decimal list-inside space-y-2 text-slate-300">
+                <li><strong>Upload your branding:</strong> Add your logo, company name, and choose an accent color</li>
+                <li><strong>Select tools:</strong> Pick which PDF and image tools to include in your bundle</li>
+                <li><strong>Preview:</strong> See exactly how your branded toolkit will look</li>
+                <li><strong>Download:</strong> Get a single self-contained HTML file ready to deploy</li>
+            </ol>
+            <div class="mt-4 p-4 bg-slate-700 rounded-lg">
+                <p class="text-sm text-slate-300">
+                    <strong>💡 Tip:</strong> The output file works completely offline (except for external dependencies like PDF.js). 
+                    You can host it on any web server, share it via USB, or email it — no backend required.
+                </p>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="mb-8 bg-slate-800 rounded-lg p-6 border border-slate-700">
+            <h2 class="text-2xl font-bold text-white mb-4">Features</h2>
+            <ul class="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-300">
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>Single self-contained HTML file</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>Your branding throughout</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>Tab-based tool navigation</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>Works offline (mostly)</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>No backend required</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-green-400 mt-1">✓</span>
+                    <span>Easy to deploy anywhere</span>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <script>
+        // State
+        let brandData = {
+            logo: null,
+            logoDataUrl: null,
+            name: '',
+            accentColor: '#6366f1'
+        };
+        let selectedTools = [];
+        let bundledHTML = '';
+
+        // Step navigation
+        function showStep(stepNum) {
+            document.querySelectorAll('.step-card').forEach((card, idx) => {
+                if (idx + 1 === stepNum) {
+                    card.classList.add('active');
+                    card.classList.remove('opacity-50');
+                } else {
+                    card.classList.remove('active');
+                    card.classList.add('opacity-50');
+                }
+            });
+        }
+
+        // Logo handling
+        const logoDropZone = document.getElementById('logoDropZone');
+        const logoInput = document.getElementById('logoInput');
+        const logoPlaceholder = document.getElementById('logoPlaceholder');
+        const logoPreviewContainer = document.getElementById('logoPreviewContainer');
+        const logoPreview = document.getElementById('logoPreview');
+        const changeLogoBtn = document.getElementById('changeLogoBtn');
+
+        logoDropZone.addEventListener('click', () => logoInput.click());
+        
+        logoDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            logoDropZone.classList.add('border-indigo-500');
+        });
+        
+        logoDropZone.addEventListener('dragleave', () => {
+            logoDropZone.classList.remove('border-indigo-500');
+        });
+        
+        logoDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            logoDropZone.classList.remove('border-indigo-500');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleLogoFile(file);
+            }
+        });
+
+        logoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleLogoFile(file);
+            }
+        });
+
+        changeLogoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            logoInput.click();
+        });
+
+        function handleLogoFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                brandData.logoDataUrl = e.target.result;
+                logoPreview.src = e.target.result;
+                logoPlaceholder.classList.add('hidden');
+                logoPreviewContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Color picker sync
+        const accentColor = document.getElementById('accentColor');
+        const accentColorHex = document.getElementById('accentColorHex');
+
+        accentColor.addEventListener('input', (e) => {
+            accentColorHex.value = e.target.value;
+            brandData.accentColor = e.target.value;
+        });
+
+        accentColorHex.addEventListener('input', (e) => {
+            const color = e.target.value;
+            if (/^#[0-9A-F]{6}$/i.test(color)) {
+                accentColor.value = color;
+                brandData.accentColor = color;
+            }
+        });
+
+        // Step 1 navigation
+        document.getElementById('step1Next').addEventListener('click', () => {
+            const brandName = document.getElementById('brandName').value.trim();
+            if (!brandName) {
+                alert('Please enter a brand/company name');
+                return;
+            }
+            if (!brandData.logoDataUrl) {
+                alert('Please upload a logo');
+                return;
+            }
+            brandData.name = brandName;
+            showStep(2);
+        });
+
+        // Step 2 navigation
+        document.getElementById('step2Back').addEventListener('click', () => showStep(1));
+        
+        document.getElementById('step2Next').addEventListener('click', () => {
+            selectedTools = Array.from(document.querySelectorAll('.tool-checkbox:checked')).map(cb => ({
+                id: cb.dataset.tool,
+                name: cb.dataset.name
+            }));
+            
+            if (selectedTools.length === 0) {
+                alert('Please select at least one tool');
+                return;
+            }
+            
+            showStep(3);
+            buildBundle();
+        });
+
+        // Step 3 navigation
+        document.getElementById('step3Back').addEventListener('click', () => {
+            showStep(2);
+            document.getElementById('buildingState').classList.remove('hidden');
+            document.getElementById('previewState').classList.add('hidden');
+        });
+
+        document.getElementById('refreshPreview').addEventListener('click', () => {
+            const previewFrame = document.getElementById('previewFrame');
+            previewFrame.srcdoc = bundledHTML;
+        });
+
+        document.getElementById('downloadBundle').addEventListener('click', () => {
+            const blob = new Blob([bundledHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${brandData.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-toolkit.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Build bundle
+        async function buildBundle() {
+            const buildLog = document.getElementById('buildLog');
+            const progressFill = document.getElementById('progressFill');
+            
+            buildLog.innerHTML = '';
+            progressFill.style.width = '0%';
+
+            const log = (msg) => {
+                const line = document.createElement('div');
+                line.textContent = msg;
+                buildLog.appendChild(line);
+                buildLog.scrollTop = buildLog.scrollHeight;
+            };
+
+            const toolContents = [];
+            let completed = 0;
+
+            for (const tool of selectedTools) {
+                try {
+                    log(`✓ Fetching ${tool.name}...`);
+                    const response = await fetch(`https://simpleutils.org/tools/${tool.id}/`);
+                    const html = await response.text();
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Extract styles
+                    const styles = Array.from(doc.querySelectorAll('style')).map(s => s.textContent).join('\n');
+                    
+                    // Extract main content (try different selectors)
+                    let mainContent = doc.querySelector('main') || doc.querySelector('.max-w-4xl') || doc.querySelector('body');
+                    
+                    // Remove header, nav, footer
+                    mainContent.querySelectorAll('header, nav, footer, .breadcrumb').forEach(el => el.remove());
+                    
+                    // Extract scripts
+                    const scripts = Array.from(doc.querySelectorAll('script'))
+                        .filter(s => s.src === '' && !s.textContent.includes('google'))
+                        .map(s => s.textContent)
+                        .join('\n');
+                    
+                    toolContents.push({
+                        id: tool.id,
+                        name: tool.name,
+                        styles: styles,
+                        content: mainContent.innerHTML,
+                        scripts: scripts
+                    });
+                    
+                    log(`✓ ${tool.name} loaded`);
+                } catch (error) {
+                    log(`✗ Failed to load ${tool.name}: ${error.message}`);
+                }
+                
+                completed++;
+                progressFill.style.width = `${(completed / selectedTools.length) * 100}%`;
+            }
+
+            log('✓ Building bundle...');
+            bundledHTML = generateBundledHTML(toolContents);
+            
+            log('✓ Done!');
+            
+            setTimeout(() => {
+                document.getElementById('buildingState').classList.add('hidden');
+                document.getElementById('previewState').classList.remove('hidden');
+                document.getElementById('previewFrame').srcdoc = bundledHTML;
+            }, 500);
+        }
+
+        function generateBundledHTML(tools) {
+            const allStyles = tools.map(t => `/* ${t.name} */\n${t.styles}`).join('\n\n');
+            const allScripts = tools.map(t => `/* ${t.name} */\n(function(){\n${t.scripts}\n})();`).join('\n\n');
+            
+            const tabButtons = tools.map((t, idx) => 
+                `<button onclick="showTool('${t.id}')" class="tab-btn ${idx === 0 ? 'active' : ''}" data-tool="${t.id}">${t.name}</button>`
+            ).join('\n                ');
+            
+            const toolSections = tools.map((t, idx) => 
+                `<div id="tool-${t.id}" class="tool-section" style="display: ${idx === 0 ? 'block' : 'none'}">
+                    ${t.content}
+                </div>`
+            ).join('\n            ');
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${brandData.name} Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        .brand-header {
+            background: linear-gradient(135deg, ${brandData.accentColor} 0%, ${adjustColor(brandData.accentColor, -20)} 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .brand-logo { height: 50px; object-fit: contain; }
+        .brand-name { font-size: 1.5rem; font-weight: bold; }
+        .tab-nav {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            padding: 0.5rem 2rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6c757d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: ${brandData.accentColor}; }
+        .tab-btn.active {
+            color: ${brandData.accentColor};
+            border-bottom-color: ${brandData.accentColor};
+        }
+        .tool-section { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+        ${allStyles}
+    </style>
+</head>
+<body>
+    <header class="brand-header">
+        <img src="${brandData.logoDataUrl}" alt="${brandData.name}" class="brand-logo">
+        <span class="brand-name">${brandData.name}</span>
+    </header>
+    
+    <nav class="tab-nav">
+        ${tabButtons}
+    </nav>
+    
+    <main>
+        ${toolSections}
+    </main>
+    
+    <script>
+        function showTool(toolId) {
+            document.querySelectorAll('.tool-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById('tool-' + toolId).style.display = 'block';
+            document.querySelector('[data-tool="' + toolId + '"]').classList.add('active');
+        }
+        
+        ${allScripts}
+    </script>
+</body>
+</html>`;
+        }
+
+        function adjustColor(color, amount) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+            const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
+            const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+            return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+        }
+    </script>
+</body>
+</html>
