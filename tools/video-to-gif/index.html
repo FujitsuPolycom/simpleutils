@@ -187,6 +187,19 @@
                 <p class="text-sm text-slate-500">Supports MP4, MOV, WebM, AVI</p>
                 <input type="file" id="fileInput" accept="video/*" class="hidden">
             </div>
+
+            <!-- File loading status bar -->
+            <div id="loading-section" class="hidden card p-6 mt-4">
+                <div class="flex items-center gap-3 mb-3">
+                    <div id="loading-spinner" class="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+                    <span id="loading-label" class="text-sm font-medium text-slate-300">Loading video...</span>
+                    <span id="loading-pct" class="ml-auto text-sm font-semibold text-indigo-400">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="loading-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div id="loading-detail" class="text-xs text-slate-500 mt-2">Reading file...</div>
+            </div>
         </div>
 
         <!-- Editor Section (hidden initially) -->
@@ -364,17 +377,77 @@
                 return;
             }
             videoFile = file;
-            const url = URL.createObjectURL(file);
-            videoPreview.src = url;
-            videoPreview.load();
-            
-            videoPreview.addEventListener('loadedmetadata', () => {
-                videoDuration = videoPreview.duration;
-                endTime = videoDuration;
-                updateTimeline();
-                uploadSection.classList.add('hidden');
-                editorSection.classList.remove('hidden');
-            }, { once: true });
+
+            // Show loading bar
+            const loadingSection = document.getElementById('loading-section');
+            const loadingFill = document.getElementById('loading-fill');
+            const loadingPct = document.getElementById('loading-pct');
+            const loadingLabel = document.getElementById('loading-label');
+            const loadingDetail = document.getElementById('loading-detail');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            dropzone.style.opacity = '0.4';
+            dropzone.style.pointerEvents = 'none';
+            loadingSection.classList.remove('hidden');
+
+            const fileSizeMB = (file.size / 1024 / 1024).toFixed(1);
+            loadingDetail.textContent = `${file.name} — ${fileSizeMB} MB`;
+
+            const reader = new FileReader();
+
+            reader.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const pct = Math.round((e.loaded / e.total) * 80); // cap at 80% for file read
+                    loadingFill.style.width = pct + '%';
+                    loadingPct.textContent = pct + '%';
+                    const loadedMB = (e.loaded / 1024 / 1024).toFixed(1);
+                    loadingDetail.textContent = `${file.name} — ${loadedMB} MB / ${fileSizeMB} MB`;
+                }
+            };
+
+            reader.onload = () => {
+                loadingLabel.textContent = 'Preparing preview...';
+                loadingFill.style.width = '85%';
+                loadingPct.textContent = '85%';
+
+                const blob = new Blob([reader.result], { type: file.type });
+                const url = URL.createObjectURL(blob);
+                videoPreview.src = url;
+                videoPreview.load();
+
+                videoPreview.addEventListener('loadedmetadata', () => {
+                    loadingFill.style.width = '100%';
+                    loadingPct.textContent = '100%';
+                    loadingLabel.textContent = '✅ Video loaded!';
+                    loadingSpinner.classList.remove('animate-spin');
+                    loadingSpinner.classList.add('text-green-400');
+                    loadingSpinner.innerHTML = '✓';
+                    loadingSpinner.style.border = 'none';
+                    loadingSpinner.style.fontSize = '1.1rem';
+                    loadingDetail.textContent = `Duration: ${videoPreview.duration.toFixed(1)}s`;
+
+                    videoDuration = videoPreview.duration;
+                    endTime = videoDuration;
+                    updateTimeline();
+
+                    setTimeout(() => {
+                        loadingSection.classList.add('hidden');
+                        dropzone.style.opacity = '';
+                        dropzone.style.pointerEvents = '';
+                        uploadSection.classList.add('hidden');
+                        editorSection.classList.remove('hidden');
+                    }, 600);
+                }, { once: true });
+            };
+
+            reader.onerror = () => {
+                loadingLabel.textContent = '❌ Error reading file';
+                loadingDetail.textContent = 'Please try again with a different file.';
+                dropzone.style.opacity = '';
+                dropzone.style.pointerEvents = '';
+            };
+
+            reader.readAsArrayBuffer(file);
         }
 
         // Timeline handling
