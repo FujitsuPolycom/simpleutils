@@ -241,30 +241,27 @@
                 }, 500);
             }, { once: true });
 
-            videoPreview.addEventListener('error', async () => {
-                // Try to detect codec from file magic bytes
-                let formatHint = '';
-                try {
-                    const buf = await file.slice(0, 12).arrayBuffer();
-                    const bytes = new Uint8Array(buf);
-                    const ftyp = String.fromCharCode(bytes[4], bytes[5], bytes[6], bytes[7]);
-                    const brand = String.fromCharCode(bytes[8], bytes[9], bytes[10], bytes[11]);
-                    if (['heic','heis','hevc','hevx','hevs','hev1','hvc1'].includes(brand.toLowerCase())) {
-                        formatHint = 'Detected: HEVC/H.265 — ';
-                    } else if (['avc1','mp41','mp42','isom'].includes(brand.toLowerCase())) {
-                        formatHint = 'Detected: MP4/H.264 — ';
-                    }
-                } catch(e) {}
+            videoPreview.addEventListener('error', () => {
+                // Check what this browser actually supports
+                const supportsHevc = videoPreview.canPlayType('video/mp4; codecs="hvc1"') !== '';
+                const supportsH264 = videoPreview.canPlayType('video/mp4; codecs="avc1.42E01E"') !== '';
 
                 loadingLabel.textContent = '❌ Video format not supported';
-                loadingDetail.innerHTML = `${formatHint}Chrome on Android doesn't support this format in the browser.<br><br>
+                loadingDetail.innerHTML = `Most likely cause: <strong>HEVC/H.265</strong> — Chrome on Android can't play this codec, even inside an MP4 container.<br><br>
                     <strong>Fix options:</strong><br>
-                    📱 <strong>Samsung/Pixel:</strong> Camera app → Settings → Video size → switch from HEVC to H.264<br>
-                    💻 <strong>Or</strong> open this page on a desktop browser — it supports more formats`;
+                    📱 <strong>On your phone:</strong> Camera app → Settings → Video format → switch to H.264<br>
+                    💻 <strong>On desktop:</strong> Chrome/Edge/Firefox can handle more formats<br>
+                    🔄 <strong>Or</strong> try a different video file`;
                 loadingFill.style.background = '#ef4444'; loadingFill.style.width = '100%';
                 loadingSpinner.innerHTML = '✗'; loadingSpinner.style.border = 'none';
                 loadingSpinner.style.color = '#ef4444';
                 dropzone.style.opacity = ''; dropzone.style.pointerEvents = '';
+
+                // Re-enable dropzone so they can try another file
+                setTimeout(() => {
+                    dropzone.style.opacity = '';
+                    dropzone.style.pointerEvents = '';
+                }, 100);
             }, { once: true });
         }
 
