@@ -372,8 +372,8 @@
         });
 
         function handleFile(file) {
-            if (!file.type.startsWith('video/')) {
-                alert('Please select a video file');
+            if (!file.type.startsWith('video/') && !file.name.match(/\.(mp4|mov|webm|avi|mkv)$/i)) {
+                alert('Please select a video file (MP4, MOV, WebM, AVI)');
                 return;
             }
             videoFile = file;
@@ -392,62 +392,61 @@
 
             const fileSizeMB = (file.size / 1024 / 1024).toFixed(1);
             loadingDetail.textContent = `${file.name} — ${fileSizeMB} MB`;
+            loadingLabel.textContent = 'Loading video...';
+            loadingFill.style.width = '20%';
+            loadingPct.textContent = '20%';
 
-            const reader = new FileReader();
+            // Use createObjectURL — fast and mobile-friendly, no FileReader needed
+            const url = URL.createObjectURL(file);
+            videoPreview.src = url;
+            videoPreview.load();
 
-            reader.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    const pct = Math.round((e.loaded / e.total) * 80); // cap at 80% for file read
-                    loadingFill.style.width = pct + '%';
-                    loadingPct.textContent = pct + '%';
-                    const loadedMB = (e.loaded / 1024 / 1024).toFixed(1);
-                    loadingDetail.textContent = `${file.name} — ${loadedMB} MB / ${fileSizeMB} MB`;
-                }
-            };
+            videoPreview.addEventListener('loadstart', () => {
+                loadingFill.style.width = '40%';
+                loadingPct.textContent = '40%';
+                loadingLabel.textContent = 'Reading video...';
+            }, { once: true });
 
-            reader.onload = () => {
-                loadingLabel.textContent = 'Preparing preview...';
-                loadingFill.style.width = '85%';
-                loadingPct.textContent = '85%';
+            videoPreview.addEventListener('progress', () => {
+                loadingFill.style.width = '70%';
+                loadingPct.textContent = '70%';
+                loadingLabel.textContent = 'Buffering...';
+            }, { once: true });
 
-                const blob = new Blob([reader.result], { type: file.type });
-                const url = URL.createObjectURL(blob);
-                videoPreview.src = url;
-                videoPreview.load();
+            videoPreview.addEventListener('loadedmetadata', () => {
+                loadingFill.style.width = '100%';
+                loadingPct.textContent = '100%';
+                loadingLabel.textContent = '✅ Video loaded!';
+                loadingSpinner.classList.remove('animate-spin');
+                loadingSpinner.innerHTML = '✓';
+                loadingSpinner.style.border = 'none';
+                loadingSpinner.style.fontSize = '1.1rem';
+                loadingSpinner.style.color = '#22c55e';
 
-                videoPreview.addEventListener('loadedmetadata', () => {
-                    loadingFill.style.width = '100%';
-                    loadingPct.textContent = '100%';
-                    loadingLabel.textContent = '✅ Video loaded!';
-                    loadingSpinner.classList.remove('animate-spin');
-                    loadingSpinner.classList.add('text-green-400');
-                    loadingSpinner.innerHTML = '✓';
-                    loadingSpinner.style.border = 'none';
-                    loadingSpinner.style.fontSize = '1.1rem';
-                    loadingDetail.textContent = `Duration: ${videoPreview.duration.toFixed(1)}s`;
+                const dur = isFinite(videoPreview.duration) ? videoPreview.duration.toFixed(1) + 's' : 'unknown';
+                loadingDetail.textContent = `${file.name} — ${fileSizeMB} MB  |  Duration: ${dur}`;
 
-                    videoDuration = videoPreview.duration;
-                    endTime = videoDuration;
-                    updateTimeline();
+                videoDuration = isFinite(videoPreview.duration) ? videoPreview.duration : 60;
+                endTime = videoDuration;
+                updateTimeline();
 
-                    setTimeout(() => {
-                        loadingSection.classList.add('hidden');
-                        dropzone.style.opacity = '';
-                        dropzone.style.pointerEvents = '';
-                        uploadSection.classList.add('hidden');
-                        editorSection.classList.remove('hidden');
-                    }, 600);
-                }, { once: true });
-            };
+                setTimeout(() => {
+                    loadingSection.classList.add('hidden');
+                    dropzone.style.opacity = '';
+                    dropzone.style.pointerEvents = '';
+                    uploadSection.classList.add('hidden');
+                    editorSection.classList.remove('hidden');
+                }, 600);
+            }, { once: true });
 
-            reader.onerror = () => {
-                loadingLabel.textContent = '❌ Error reading file';
-                loadingDetail.textContent = 'Please try again with a different file.';
+            videoPreview.addEventListener('error', () => {
+                loadingLabel.textContent = '❌ Could not load video';
+                loadingDetail.textContent = 'Format may not be supported by your browser. Try MP4.';
+                loadingFill.style.background = '#ef4444';
+                loadingFill.style.width = '100%';
                 dropzone.style.opacity = '';
                 dropzone.style.pointerEvents = '';
-            };
-
-            reader.readAsArrayBuffer(file);
+            }, { once: true });
         }
 
         // Timeline handling
