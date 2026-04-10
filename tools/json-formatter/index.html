@@ -72,6 +72,28 @@
             </ol>
         </section>
 
+        <section class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Common Use Cases</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h3 class="font-semibold text-gray-900 mb-2">🔍 API Debugging</h3>
+                    <p class="text-gray-700 text-sm">Paste raw API responses to instantly see the structure. When debugging REST APIs or webhooks, formatted JSON makes it easy to spot missing fields, incorrect nesting, or unexpected data types that would be invisible in minified output.</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h3 class="font-semibold text-gray-900 mb-2">⚙️ Configuration Files</h3>
+                    <p class="text-gray-700 text-sm">Validate and format JSON config files for tools like package.json, tsconfig.json, or Docker compose overrides. Catch syntax errors like missing commas or mismatched brackets before they cause cryptic runtime failures.</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h3 class="font-semibold text-gray-900 mb-2">📊 Data Analysis</h3>
+                    <p class="text-gray-700 text-sm">Data analysts working with JSON exports from databases, analytics platforms, or CMS systems use this to quickly inspect data structure, verify field names, and understand nested relationships before writing transformation scripts.</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h3 class="font-semibold text-gray-900 mb-2">📝 Documentation</h3>
+                    <p class="text-gray-700 text-sm">Format JSON examples for API documentation, README files, or technical guides. Clean, properly indented JSON is essential for developer docs — paste your minified sample and get a perfectly formatted version ready to embed.</p>
+                </div>
+            </div>
+        </section>
+
         <section class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
             
@@ -99,11 +121,33 @@
         </section>
     </main>
 
-    <footer class="bg-white mt-12 border-t border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center text-gray-600">
-            All processing happens in your browser. No data is sent to any server.
+    <footer class="border-t border-slate-700 mt-20">
+    <div class="max-w-6xl mx-auto px-4 py-10">
+        <div class="flex flex-wrap gap-6 justify-between items-start">
+            <div>
+                <div class="font-bold text-white text-lg mb-1">⚡ SimpleUtils</div>
+                <p class="text-slate-400 text-sm">Fast, free browser tools. No signup, no uploads.</p>
+            </div>
+            <div class="flex gap-8 text-sm text-slate-400">
+                <div class="flex flex-col gap-2">
+                    <span class="text-slate-300 font-medium">Company</span>
+                    <a href="/about/" class="hover:text-white transition-colors">About</a>
+                    <a href="/contact/" class="hover:text-white transition-colors">Contact</a>
+                    <a href="/blog/" class="hover:text-white transition-colors">Blog</a>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <span class="text-slate-300 font-medium">Legal</span>
+                    <a href="/privacy-policy/" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="/about/privacy" class="hover:text-white transition-colors">Data Transparency</a>
+                    <a href="/about/no-signup" class="hover:text-white transition-colors">No Signup</a>
+                </div>
+            </div>
         </div>
-    </footer>
+        <div class="mt-8 pt-6 border-t border-slate-800 text-slate-500 text-sm">
+            © 2026 SimpleUtils. Built with privacy in mind. All tools run entirely in your browser.
+        </div>
+    </div>
+</footer>
 
     <script>
         function formatJSON() {
